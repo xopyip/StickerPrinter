@@ -12,8 +12,8 @@ public class PageStyle {
     private int marginVertical = 0;
     private int marginHorizontal = 0;
 
-    private static final int pageWidth = 210;
-    private static final int pageHeight = 297;
+    private static final int PAGE_WIDTH = 210;
+    private static final int PAGE_HEIGHT = 297;
 
     public PageStyle(String name) {
         this.name = name;
@@ -80,27 +80,38 @@ public class PageStyle {
 
     public void drawPreview(Pane previewPane) {
         previewPane.getChildren().clear();
-        previewPane.getChildren().add(new Line(0, 0, pageWidth, 0));
-        previewPane.getChildren().add(new Line(0, pageHeight, pageWidth, pageHeight));
-        previewPane.getChildren().add(new Line(0, 0, 0, pageHeight));
-        previewPane.getChildren().add(new Line(pageWidth, 0, pageWidth, pageHeight));
+        double scaledPageWidth;
+        double scaledPageHeight;
+
+        if(previewPane.getWidth() / PAGE_WIDTH < previewPane.getHeight() / PAGE_HEIGHT){
+            scaledPageWidth = previewPane.getWidth();
+            scaledPageHeight = previewPane.getWidth() * PAGE_HEIGHT / PAGE_WIDTH;
+        }else{
+            scaledPageHeight = previewPane.getHeight();
+            scaledPageWidth = previewPane.getHeight() * PAGE_WIDTH / PAGE_HEIGHT;
+        }
+
+        previewPane.getChildren().add(new Line(0, 0, PAGE_WIDTH, 0));
+        previewPane.getChildren().add(new Line(0, PAGE_HEIGHT, PAGE_WIDTH, PAGE_HEIGHT));
+        previewPane.getChildren().add(new Line(0, 0, 0, PAGE_HEIGHT));
+        previewPane.getChildren().add(new Line(PAGE_WIDTH, 0, PAGE_WIDTH, PAGE_HEIGHT));
         for (int i = 0; i < columns + 1; i++) {
-            int x = marginHorizontal + i * (pageWidth - marginHorizontal * 2) / columns;
-            previewPane.getChildren().add(new Line(x, marginVertical, x, pageHeight - marginVertical));
+            double x = marginHorizontal + i * (PAGE_WIDTH - marginHorizontal * 2.) / columns;
+            previewPane.getChildren().add(new Line(x, marginVertical, x, PAGE_HEIGHT - marginVertical));
         }
         for (int i = 0; i < rows + 1; i++) {
-            int y = marginVertical + i * (pageHeight - marginVertical * 2) / rows;
-            previewPane.getChildren().add(new Line(marginHorizontal, y, pageWidth - marginHorizontal, y));
+            double y = marginVertical + i * (PAGE_HEIGHT - marginVertical * 2.) / rows;
+            previewPane.getChildren().add(new Line(marginHorizontal, y, PAGE_WIDTH - marginHorizontal, y));
         }
 
         //map values to pane size
         for (Node child : previewPane.getChildren()) {
             if(child instanceof Line){
                 Line line = (Line) child;
-                line.setStartX(line.getStartX() * previewPane.getWidth() / pageWidth);
-                line.setEndX(line.getEndX() * previewPane.getWidth() / pageWidth);
-                line.setStartY(line.getStartY() * previewPane.getHeight() / pageHeight);
-                line.setEndY(line.getEndY() * previewPane.getHeight() / pageHeight);
+                line.setStartX(line.getStartX() * scaledPageWidth / PAGE_WIDTH);
+                line.setEndX(line.getEndX() * scaledPageWidth / PAGE_WIDTH);
+                line.setStartY(line.getStartY() * scaledPageHeight / PAGE_HEIGHT);
+                line.setEndY(line.getEndY() * scaledPageHeight / PAGE_HEIGHT);
             }
         }
         previewPane.applyCss();

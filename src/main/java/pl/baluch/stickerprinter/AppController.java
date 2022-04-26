@@ -1,16 +1,9 @@
 package pl.baluch.stickerprinter;
 
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.layout.Pane;
 import pl.baluch.stickerprinter.data.PageStyle;
 import pl.baluch.stickerprinter.windows.PageStyleWindow;
 
@@ -23,6 +16,8 @@ public class AppController implements Initializable {
     public Menu languageSelector;
     @FXML
     public ChoiceBox<PageStyle> pageStyle;
+    @FXML
+    public Pane previewPane;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -33,9 +28,15 @@ public class AppController implements Initializable {
             if (selectionModel.getSelectedItem() instanceof PageStyle.New) {
                 PageStyleWindow pageStyleWindow = new PageStyleWindow();
                 PageStyle pageStyle = pageStyleWindow.createPageStyle();
+                if(pageStyle == null){
+                    return;
+                }
                 this.pageStyle.getItems().add(this.pageStyle.getItems().size() - 1, pageStyle);
                 selectionModel.select(pageStyle);
+                Storage.getConfig().getPageStyles().add(pageStyle);
+                Storage.saveConfig();
             }
+            selectionModel.getSelectedItem().drawPreview(previewPane);
         });
 
         for (Language value : Language.values()) {
