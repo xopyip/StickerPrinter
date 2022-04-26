@@ -32,10 +32,9 @@ public class AppController implements Initializable {
             SingleSelectionModel<PageStyle> selectionModel = pageStyle.getSelectionModel();
             if (selectionModel.getSelectedItem() instanceof PageStyle.New) {
                 PageStyleWindow pageStyleWindow = new PageStyleWindow();
-                pageStyleWindow.showAndWait();
-                PageStyle newStyle = pageStyleWindow.getNewStyle();
-                pageStyle.getItems().add(pageStyle.getItems().size() - 1, newStyle);
-                selectionModel.select(newStyle);
+                PageStyle pageStyle = pageStyleWindow.createPageStyle();
+                this.pageStyle.getItems().add(this.pageStyle.getItems().size() - 1, pageStyle);
+                selectionModel.select(pageStyle);
             }
         });
 
