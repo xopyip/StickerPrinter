@@ -97,7 +97,7 @@
                         <Color red="0.624" green="0.624" blue="0.624" fx:id="x21" />
                      </textFill>
                   </Label>
-                  <Button layoutX="172.0" layoutY="62.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="35.0" text="★" />
+                  <Button layoutX="172.0" layoutY="62.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="35.0" text="X" fx:id="deletePageStyleButton" />
                   <Pane fx:id="previewPane" layoutX="14.0" layoutY="94.0" prefHeight="289.0" prefWidth="200.0" />
           </children>
         </AnchorPane>

@@ -1,10 +1,8 @@
 package pl.baluch.stickerprinter;
 
-import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
-import javafx.application.Platform;
 
 import java.io.*;
 import java.util.Locale;

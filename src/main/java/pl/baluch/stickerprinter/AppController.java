@@ -18,10 +18,13 @@ public class AppController implements Initializable {
     public ChoiceBox<PageStyle> pageStyle;
     @FXML
     public Pane previewPane;
+    @FXML
+    public Button deletePageStyleButton;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         pageStyle.getItems().addAll(Storage.getConfig().getPageStyles());
+        pageStyle.getSelectionModel().selectFirst();
         pageStyle.getItems().add(new PageStyle.New());
         pageStyle.setOnAction(event -> {
             SingleSelectionModel<PageStyle> selectionModel = pageStyle.getSelectionModel();
@@ -37,6 +40,13 @@ public class AppController implements Initializable {
                 Storage.saveConfig();
             }
             selectionModel.getSelectedItem().drawPreview(previewPane);
+        });
+        deletePageStyleButton.setOnMouseClicked(event -> {
+            PageStyle selectedItem = this.pageStyle.getSelectionModel().getSelectedItem();
+            pageStyle.getItems().remove(selectedItem);
+            Storage.getConfig().getPageStyles().remove(selectedItem);
+            pageStyle.getSelectionModel().selectFirst();
+            Storage.saveConfig();
         });
 
         for (Language value : Language.values()) {
