@@ -63,7 +63,7 @@
         <Menu mnemonicParsing="false" text="%menu.plugins" fx:id="pluginsMenu">
           <items>
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="%menu.plugins.load" />
+            <MenuItem mnemonicParsing="false" text="%menu.plugins.load" fx:id="pluginLoadMenu" />
           </items>
         </Menu>
       </menus>

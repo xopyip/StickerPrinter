@@ -4,11 +4,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
+import javafx.stage.FileChooser;
 import pl.baluch.stickerprinter.data.PageStyle;
 import pl.baluch.stickerprinter.plugins.Plugin;
 import pl.baluch.stickerprinter.plugins.PluginManager;
 import pl.baluch.stickerprinter.windows.PageStyleWindow;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
@@ -26,6 +28,8 @@ public class AppController implements Initializable {
     public Button deletePageStyleButton;
     @FXML
     public Menu pluginsMenu;
+    @FXML
+    public MenuItem pluginLoadMenu;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -37,28 +41,43 @@ public class AppController implements Initializable {
         ResourceBundle resourceBundle = Storage.getResourceBundle();
         try {
             PluginManager.getInstance().load();
-            int i = 0;
             for (Plugin plugin : PluginManager.getInstance().getPlugins()) {
-                MenuItem unloadPlugin = new MenuItem(resourceBundle.getString("menu.plugins.unload"));
-                unloadPlugin.setOnAction(event -> {
-                    try {
-                        PluginManager.getInstance().unload(plugin);
-                        pluginsMenu.getItems().removeIf(item -> Objects.equals(item.getText(), plugin.getName()));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-                Menu menuItem = new Menu(plugin.getName(), null, unloadPlugin);
-                pluginsMenu.getItems().add(i++, menuItem);
+                addPluginMenu(plugin);
             }
         } catch (IOException | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
+        pluginLoadMenu.setOnAction(event -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle(resourceBundle.getString("plugins.chooser.title"));
+            fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter(resourceBundle.getString("plugins.extension.name"), ".jar"));
+            File file = fileChooser.showOpenDialog(AppMain.getStage().getOwner());
+            try {
+                PluginManager.getInstance().loadExternal(file).ifPresent(this::addPluginMenu);
+            } catch (IOException | InstantiationException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        });
         for (Language value : Language.values()) {
             MenuItem item = new MenuItem(value.getTitle());
             item.setOnAction(event -> changeLanguage(value));
             languageSelector.getItems().add(item);
         }
+    }
+
+    private void addPluginMenu(Plugin plugin) {
+        ResourceBundle resourceBundle = Storage.getResourceBundle();
+        MenuItem unloadPlugin = new MenuItem(resourceBundle.getString("menu.plugins.unload"));
+        unloadPlugin.setOnAction(event -> {
+            try {
+                PluginManager.getInstance().unload(plugin);
+                pluginsMenu.getItems().removeIf(item -> Objects.equals(item.getText(), plugin.getName()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        Menu menuItem = new Menu(plugin.getName(), null, unloadPlugin);
+        pluginsMenu.getItems().add(0, menuItem);
     }
 
     private void setupPageStyles() {
