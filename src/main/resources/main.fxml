@@ -60,6 +60,12 @@
             <MenuItem mnemonicParsing="false" text="%menu.quit" />
           </items>
         </Menu>
+        <Menu mnemonicParsing="false" text="%menu.plugins" fx:id="pluginsMenu">
+          <items>
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="%menu.load_plugin" />
+          </items>
+        </Menu>
       </menus>
     </MenuBar>
     <SplitPane dividerPositions="0.2505567928730512, 0.7505567928730512" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">

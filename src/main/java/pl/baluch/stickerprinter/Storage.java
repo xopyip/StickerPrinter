@@ -47,4 +47,10 @@ public class Storage {
     public static ResourceBundle getResourceBundle() {
         return ResourceBundle.getBundle("translations", new Locale(Storage.getConfig().getLocale().getCode()));
     }
+
+    public static File[] listPluginFiles(){
+        File pluginsDir = new File(dir, "plugins");
+        pluginsDir.mkdirs();
+        return pluginsDir.listFiles();
+    }
 }

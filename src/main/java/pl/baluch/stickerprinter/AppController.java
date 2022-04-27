@@ -5,8 +5,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import pl.baluch.stickerprinter.data.PageStyle;
+import pl.baluch.stickerprinter.plugins.Plugin;
+import pl.baluch.stickerprinter.plugins.PluginManager;
 import pl.baluch.stickerprinter.windows.PageStyleWindow;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -20,9 +23,34 @@ public class AppController implements Initializable {
     public Pane previewPane;
     @FXML
     public Button deletePageStyleButton;
+    @FXML
+    public Menu pluginsMenu;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        setupPageStyles();
+        setupMenu();
+    }
+
+    private void setupMenu() {
+        try {
+            PluginManager.getInstance().load();
+            int i = 0;
+            for (Plugin plugin : PluginManager.getInstance().getPlugins()) {
+                MenuItem menuItem = new MenuItem(plugin.getName());
+                pluginsMenu.getItems().add(i++, menuItem);
+            }
+        } catch (IOException | InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        for (Language value : Language.values()) {
+            MenuItem item = new MenuItem(value.getTitle());
+            item.setOnAction(event -> changeLanguage(value));
+            languageSelector.getItems().add(item);
+        }
+    }
+
+    private void setupPageStyles() {
         pageStyle.getItems().addAll(Storage.getConfig().getPageStyles());
         pageStyle.getSelectionModel().selectFirst();
         pageStyle.getItems().add(new PageStyle.New());
@@ -48,12 +76,6 @@ public class AppController implements Initializable {
             pageStyle.getSelectionModel().selectFirst();
             Storage.saveConfig();
         });
-
-        for (Language value : Language.values()) {
-            MenuItem item = new MenuItem(value.getTitle());
-            item.setOnAction(event -> changeLanguage(value));
-            languageSelector.getItems().add(item);
-        }
     }
 
     private void changeLanguage(Language value) {

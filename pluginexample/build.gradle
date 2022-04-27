@@ -1,0 +1,14 @@
+plugins {
+    id 'java'
+}
+
+group 'pl.baluch'
+version '0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation rootProject
+}
