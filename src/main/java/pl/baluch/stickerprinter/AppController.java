@@ -11,6 +11,7 @@ import pl.baluch.stickerprinter.windows.PageStyleWindow;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -33,11 +34,21 @@ public class AppController implements Initializable {
     }
 
     private void setupMenu() {
+        ResourceBundle resourceBundle = Storage.getResourceBundle();
         try {
             PluginManager.getInstance().load();
             int i = 0;
             for (Plugin plugin : PluginManager.getInstance().getPlugins()) {
-                MenuItem menuItem = new MenuItem(plugin.getName());
+                MenuItem unloadPlugin = new MenuItem(resourceBundle.getString("menu.plugins.unload"));
+                unloadPlugin.setOnAction(event -> {
+                    try {
+                        PluginManager.getInstance().unload(plugin);
+                        pluginsMenu.getItems().removeIf(item -> Objects.equals(item.getText(), plugin.getName()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+                Menu menuItem = new Menu(plugin.getName(), null, unloadPlugin);
                 pluginsMenu.getItems().add(i++, menuItem);
             }
         } catch (IOException | InstantiationException | IllegalAccessException e) {

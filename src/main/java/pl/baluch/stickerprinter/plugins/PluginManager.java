@@ -6,14 +6,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.zip.ZipFile;
 
 public class PluginManager {
     private static PluginManager instance;
-    private final Set<Plugin> pluginList = new HashSet<>();
+    private final Map<Plugin, PluginInfo> pluginList = new HashMap<>();
 
     public static PluginManager getInstance() {
         if(instance == null){
@@ -45,10 +43,9 @@ public class PluginManager {
                 if(pluginMain.isPresent()){
                     Plugin plugin = (Plugin) pluginMain.get().newInstance();
                     System.out.println("Loaded plugin: " + plugin.getName());
-                    pluginList.add(plugin);
+                    pluginList.put(plugin, new PluginInfo(file, child));
                 }else{
                     System.err.println("Plugin without main class: " + file.getName());
-
                 }
             }else{
                 System.err.println("Invalid file in plugins dir: " + file.getName());
@@ -56,7 +53,14 @@ public class PluginManager {
         }
     }
 
-    public Set<Plugin> getPlugins() {
-        return pluginList;
+    public Collection<Plugin> getPlugins() {
+        return pluginList.keySet();
+    }
+
+    public void unload(Plugin plugin) throws IOException {
+        PluginInfo pluginInfo = pluginList.get(plugin);
+        pluginList.remove(plugin);
+        pluginInfo.getClassLoader().close();
+        pluginInfo.getFile().delete();
     }
 }
