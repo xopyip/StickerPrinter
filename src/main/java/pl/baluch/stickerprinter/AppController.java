@@ -1,11 +1,18 @@
 package pl.baluch.stickerprinter;
 
+import com.sun.javafx.collections.ObservableListWrapper;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import pl.baluch.stickerprinter.data.PageStyle;
+import pl.baluch.stickerprinter.plugins.Item;
 import pl.baluch.stickerprinter.plugins.Plugin;
 import pl.baluch.stickerprinter.plugins.PluginManager;
 import pl.baluch.stickerprinter.windows.PageStyleWindow;
@@ -13,9 +20,7 @@ import pl.baluch.stickerprinter.windows.PageStyleWindow;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class AppController implements Initializable {
     @FXML
@@ -30,22 +35,38 @@ public class AppController implements Initializable {
     public Menu pluginsMenu;
     @FXML
     public MenuItem pluginLoadMenu;
+    @FXML
+    public TextField searchItemField;
+    @FXML
+    public ListView<Item> itemsList;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        setupItemsList();
         setupPageStyles();
         setupMenu();
     }
 
+    private void setupItemsList() {
+        ObservableList<Item> data = FXCollections.observableArrayList(PluginManager.getInstance().getItems());
+        FilteredList<Item> itemFilteredList = new FilteredList<>(data, s -> true);
+        itemsList.setItems(itemFilteredList);
+
+        PluginManager.getInstance().addObserver((o, arg) -> {
+            List<Item> items = PluginManager.getInstance().getItems();
+            data.clear();
+            data.addAll(items);
+        });
+
+        searchItemField.textProperty().addListener((observable, oldValue, newValue) -> {
+            itemFilteredList.setPredicate(s -> s.toString().toLowerCase(Locale.ROOT).contains(newValue.toLowerCase(Locale.ROOT))); //todo: better searching
+        });
+    }
+
     private void setupMenu() {
         ResourceBundle resourceBundle = Storage.getResourceBundle();
-        try {
-            PluginManager.getInstance().load();
-            for (Plugin plugin : PluginManager.getInstance().getPlugins()) {
-                addPluginMenu(plugin);
-            }
-        } catch (IOException | InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
+        for (Plugin plugin : PluginManager.getInstance().getPlugins()) {
+            addPluginMenu(plugin);
         }
         pluginLoadMenu.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();

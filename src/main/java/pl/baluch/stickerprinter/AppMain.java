@@ -6,6 +6,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import pl.baluch.stickerprinter.plugins.PluginManager;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -22,6 +23,11 @@ public class AppMain extends Application {
     @Override
     public void start(Stage primaryStage) {
         stage = primaryStage;
+        try {
+            PluginManager.getInstance().load();
+        } catch (IOException | InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
         FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/main.fxml"));
 
         fxmlLoader.setResources(Storage.getResourceBundle());

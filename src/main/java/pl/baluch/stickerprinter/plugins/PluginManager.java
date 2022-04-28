@@ -9,9 +9,10 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipFile;
 
-public class PluginManager {
+public class PluginManager extends Observable {
     private static PluginManager instance;
     private final Map<Plugin, PluginInfo> pluginList = new HashMap<>();
 
@@ -30,6 +31,9 @@ public class PluginManager {
                 System.err.println("Invalid file in plugins dir: " + file.getName());
             }
         }
+
+        setChanged();
+        notifyObservers();
     }
 
     public Collection<Plugin> getPlugins() {
@@ -75,6 +79,17 @@ public class PluginManager {
     public Optional<Plugin> loadExternal(File file) throws IOException, InstantiationException, IllegalAccessException {
         File target = new File(Storage.getPluginsDir(), file.getName());
         Files.copy(file.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        return loadInternal(target);
+        Optional<Plugin> plugin = loadInternal(target);
+
+        if(plugin.isPresent()){
+            setChanged();
+            notifyObservers();
+        }
+
+        return plugin;
+    }
+
+    public List<Item> getItems() {
+        return pluginList.keySet().stream().flatMap(plugin -> plugin.getItems().stream()).collect(Collectors.toList());
     }
 }

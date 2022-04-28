@@ -1,0 +1,43 @@
+package pl.baluch.stickerprinter.plugins;
+
+import javafx.scene.control.Alert;
+import pl.baluch.stickerprinter.data.Sticker;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public abstract class Item {
+    private final Map<String, String> properties = new HashMap<>();
+
+    private final Map<String, CustomPropertyType> customProperties = new HashMap<>();
+
+    protected void addProperty(String key, String value){
+        properties.put(key, value);
+    }
+
+    protected void addCustomProperty(String name, CustomPropertyType type) {
+        customProperties.put(name, type);
+    }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
+
+    protected abstract String getName();
+
+    public Sticker createSticker(){
+        Sticker sticker = new Sticker();
+        properties.forEach(sticker::addProperty);
+        customProperties.forEach((k, v) -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("Custom properties not implemented yet"); //todo
+        });
+        return sticker;
+    }
+
+    public enum CustomPropertyType{
+        NUMBER,
+        STRING;
+    }
+}
