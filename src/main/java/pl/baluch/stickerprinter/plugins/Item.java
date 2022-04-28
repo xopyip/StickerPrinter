@@ -32,6 +32,7 @@ public abstract class Item {
         customProperties.forEach((k, v) -> {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setHeaderText("Custom properties not implemented yet"); //todo
+            alert.showAndWait();
         });
         return sticker;
     }
