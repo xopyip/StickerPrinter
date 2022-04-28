@@ -37,6 +37,8 @@ public class AppController implements Initializable {
     public TextField searchItemField;
     @FXML
     public ListView<Item> itemsList;
+    @FXML
+    public Label leftStatus;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -49,14 +51,17 @@ public class AppController implements Initializable {
      * Setups left column with items view
      */
     private void setupItemsList() {
+        ResourceBundle resourceBundle = Storage.getResourceBundle();
         ObservableList<Item> data = FXCollections.observableArrayList(PluginManager.getInstance().getItems());
         FilteredList<Item> itemFilteredList = new FilteredList<>(data, s -> true);
         itemsList.setItems(itemFilteredList);
+        leftStatus.setText(String.format(resourceBundle.getString("status.left.format"), data.size()));
 
         PluginManager.getInstance().addObserver((o, arg) -> {
             List<Item> items = PluginManager.getInstance().getItems();
             data.clear();
             data.addAll(items);
+            leftStatus.setText(String.format(resourceBundle.getString("status.left.format"), items.size()));
         });
 
         searchItemField.textProperty().addListener((observable, oldValue, newValue) -> {
