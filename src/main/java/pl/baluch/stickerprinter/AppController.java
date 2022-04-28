@@ -1,8 +1,6 @@
 package pl.baluch.stickerprinter;
 
-import com.sun.javafx.collections.ObservableListWrapper;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -47,6 +45,9 @@ public class AppController implements Initializable {
         setupMenu();
     }
 
+    /**
+     * Setups left column with items view
+     */
     private void setupItemsList() {
         ObservableList<Item> data = FXCollections.observableArrayList(PluginManager.getInstance().getItems());
         FilteredList<Item> itemFilteredList = new FilteredList<>(data, s -> true);
@@ -63,6 +64,9 @@ public class AppController implements Initializable {
         });
     }
 
+    /**
+     * Setups menu, submenus and their handlers
+     */
     private void setupMenu() {
         ResourceBundle resourceBundle = Storage.getResourceBundle();
         for (Plugin plugin : PluginManager.getInstance().getPlugins()) {
@@ -86,6 +90,10 @@ public class AppController implements Initializable {
         }
     }
 
+    /**
+     * Add plugin to the menu with their submenus
+     * @param plugin - plugin to be added
+     */
     private void addPluginMenu(Plugin plugin) {
         ResourceBundle resourceBundle = Storage.getResourceBundle();
         MenuItem unloadPlugin = new MenuItem(resourceBundle.getString("menu.plugins.unload"));
@@ -101,10 +109,19 @@ public class AppController implements Initializable {
         pluginsMenu.getItems().add(0, menuItem);
     }
 
+    /**
+     * Setups right column with page styles
+     */
     private void setupPageStyles() {
+        //initialize page styles
         pageStyle.getItems().addAll(Storage.getConfig().getPageStyles());
         pageStyle.getSelectionModel().selectFirst();
         pageStyle.getItems().add(new PageStyle.New());
+
+        //draw preview
+        Platform.runLater(() -> pageStyle.getSelectionModel().getSelectedItem().drawPreview(previewPane));
+
+        //add change handler
         pageStyle.setOnAction(event -> {
             SingleSelectionModel<PageStyle> selectionModel = pageStyle.getSelectionModel();
             if (selectionModel.getSelectedItem() instanceof PageStyle.New) {
@@ -120,6 +137,8 @@ public class AppController implements Initializable {
             }
             selectionModel.getSelectedItem().drawPreview(previewPane);
         });
+
+        //add delete handler
         deletePageStyleButton.setOnMouseClicked(event -> {
             PageStyle selectedItem = this.pageStyle.getSelectionModel().getSelectedItem();
             pageStyle.getItems().remove(selectedItem);
@@ -129,6 +148,10 @@ public class AppController implements Initializable {
         });
     }
 
+    /**
+     * Changes language to value and restarts application
+     * @param value - target language
+     */
     private void changeLanguage(Language value) {
         ResourceBundle resourceBundle = Storage.getResourceBundle();
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
