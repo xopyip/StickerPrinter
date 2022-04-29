@@ -39,19 +39,20 @@ public class AppController implements Initializable {
     public ListView<Item> itemsList;
     @FXML
     public Label leftStatus;
+    @FXML
+    public Label cellRatioLabel;
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        setupItemsList();
-        setupPageStyles();
-        setupMenu();
+    public void initialize(URL location, ResourceBundle resourceBundle) {
+        setupItemsList(resourceBundle);
+        setupPageStyles(resourceBundle);
+        setupMenu(resourceBundle);
     }
 
     /**
      * Setups left column with items view
      */
-    private void setupItemsList() {
-        ResourceBundle resourceBundle = Storage.getResourceBundle();
+    private void setupItemsList(ResourceBundle resourceBundle) {
         ObservableList<Item> data = FXCollections.observableArrayList(PluginManager.getInstance().getItems());
         FilteredList<Item> itemFilteredList = new FilteredList<>(data, s -> true);
         itemsList.setItems(itemFilteredList);
@@ -72,10 +73,9 @@ public class AppController implements Initializable {
     /**
      * Setups menu, submenus and their handlers
      */
-    private void setupMenu() {
-        ResourceBundle resourceBundle = Storage.getResourceBundle();
+    private void setupMenu(ResourceBundle resourceBundle) {
         for (Plugin plugin : PluginManager.getInstance().getPlugins()) {
-            addPluginMenu(plugin);
+            addPluginMenu(plugin, resourceBundle);
         }
         pluginLoadMenu.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
@@ -83,24 +83,24 @@ public class AppController implements Initializable {
             fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter(resourceBundle.getString("plugins.extension.name"), ".jar"));
             File file = fileChooser.showOpenDialog(AppMain.getStage().getOwner());
             try {
-                PluginManager.getInstance().loadExternal(file).ifPresent(this::addPluginMenu);
+                PluginManager.getInstance().loadExternal(file).ifPresent(item -> addPluginMenu(item, resourceBundle));
             } catch (IOException | InstantiationException | IllegalAccessException e) {
                 e.printStackTrace();
             }
         });
         for (Language value : Language.values()) {
             MenuItem item = new MenuItem(value.getTitle());
-            item.setOnAction(event -> changeLanguage(value));
+            item.setOnAction(event -> changeLanguage(value, resourceBundle));
             languageSelector.getItems().add(item);
         }
     }
 
     /**
      * Add plugin to the menu with their submenus
+     *
      * @param plugin - plugin to be added
      */
-    private void addPluginMenu(Plugin plugin) {
-        ResourceBundle resourceBundle = Storage.getResourceBundle();
+    private void addPluginMenu(Plugin plugin, ResourceBundle resourceBundle) {
         MenuItem unloadPlugin = new MenuItem(resourceBundle.getString("menu.plugins.unload"));
         unloadPlugin.setOnAction(event -> {
             try {
@@ -117,14 +117,17 @@ public class AppController implements Initializable {
     /**
      * Setups right column with page styles
      */
-    private void setupPageStyles() {
+    private void setupPageStyles(ResourceBundle resourceBundle) {
         //initialize page styles
         pageStyle.getItems().addAll(Storage.getConfig().getPageStyles());
         pageStyle.getSelectionModel().selectFirst();
         pageStyle.getItems().add(new PageStyle.New());
 
         //draw preview
-        Platform.runLater(() -> pageStyle.getSelectionModel().getSelectedItem().drawPreview(previewPane));
+        Platform.runLater(() -> {
+            pageStyle.getSelectionModel().getSelectedItem().drawPreview(previewPane);
+            cellRatioLabel.setText(String.format(resourceBundle.getString("pagestyle.ratio"), pageStyle.getSelectionModel().getSelectedItem().getCellRatio()));
+        });
 
         //add change handler
         pageStyle.setOnAction(event -> {
@@ -132,7 +135,7 @@ public class AppController implements Initializable {
             if (selectionModel.getSelectedItem() instanceof PageStyle.New) {
                 PageStyleWindow pageStyleWindow = new PageStyleWindow();
                 PageStyle pageStyle = pageStyleWindow.createPageStyle();
-                if(pageStyle == null){
+                if (pageStyle == null) {
                     return;
                 }
                 this.pageStyle.getItems().add(this.pageStyle.getItems().size() - 1, pageStyle);
@@ -141,6 +144,7 @@ public class AppController implements Initializable {
                 Storage.saveConfig();
             }
             selectionModel.getSelectedItem().drawPreview(previewPane);
+            cellRatioLabel.setText(String.format(resourceBundle.getString("pagestyle.ratio"), pageStyle.getSelectionModel().getSelectedItem().getCellRatio()));
         });
 
         //add delete handler
@@ -155,10 +159,10 @@ public class AppController implements Initializable {
 
     /**
      * Changes language to value and restarts application
+     *
      * @param value - target language
      */
-    private void changeLanguage(Language value) {
-        ResourceBundle resourceBundle = Storage.getResourceBundle();
+    private void changeLanguage(Language value, ResourceBundle resourceBundle) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(resourceBundle.getString("language.title"));
         alert.setHeaderText(resourceBundle.getString("language.header"));

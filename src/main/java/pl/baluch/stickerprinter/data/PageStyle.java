@@ -72,6 +72,23 @@ public class PageStyle {
         this.rows = rows;
     }
 
+    /**
+     * Calculate ratio of cell
+     *
+     * @return ratio always bigger than 1
+     */
+    public float getCellRatio() {
+        float width = PAGE_WIDTH - marginHorizontal * 2;
+        float height = PAGE_HEIGHT - marginVertical * 2;
+        width /= columns;
+        height /= rows;
+        float ratio = width / height;
+        if (ratio < 1) {
+            return 1 / ratio;
+        }
+        return ratio;
+    }
+
     public static class New extends PageStyle {
         public New() {
             super(Storage.getResourceBundle().getString("print.newpagestyle"));
@@ -83,10 +100,10 @@ public class PageStyle {
         double scaledPageWidth;
         double scaledPageHeight;
 
-        if(previewPane.getWidth() / PAGE_WIDTH < previewPane.getHeight() / PAGE_HEIGHT){
+        if (previewPane.getWidth() / PAGE_WIDTH < previewPane.getHeight() / PAGE_HEIGHT) {
             scaledPageWidth = previewPane.getWidth();
             scaledPageHeight = previewPane.getWidth() * PAGE_HEIGHT / PAGE_WIDTH;
-        }else{
+        } else {
             scaledPageHeight = previewPane.getHeight();
             scaledPageWidth = previewPane.getHeight() * PAGE_WIDTH / PAGE_HEIGHT;
         }
@@ -106,7 +123,7 @@ public class PageStyle {
 
         //map values to pane size
         for (Node child : previewPane.getChildren()) {
-            if(child instanceof Line){
+            if (child instanceof Line) {
                 Line line = (Line) child;
                 line.setStartX(line.getStartX() * scaledPageWidth / PAGE_WIDTH);
                 line.setEndX(line.getEndX() * scaledPageWidth / PAGE_WIDTH);

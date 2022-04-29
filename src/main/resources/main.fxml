@@ -107,13 +107,21 @@
                   </Label>
                   <Button fx:id="deletePageStyleButton" layoutX="172.0" layoutY="62.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="35.0" text="X" />
                   <Pane fx:id="previewPane" layoutX="14.0" layoutY="94.0" prefHeight="289.0" prefWidth="200.0" />
+                  <Label fx:id="cellRatioLabel" alignment="CENTER" layoutX="8.0" layoutY="539.0" maxWidth="-1.0" prefHeight="14.0" prefWidth="209.0" text="sdf">
+                     <font>
+                        <Font size="11.0" fx:id="x31" />
+                     </font>
+                     <textFill>
+                        <Color red="0.625" green="0.625" blue="0.625" fx:id="x41" />
+                     </textFill>
+                  </Label>
           </children>
         </AnchorPane>
       </items>
     </SplitPane>
     <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">
       <children>
-        <Label maxHeight="1.7976931348623157E308" maxWidth="-1.0" fx:id="leftStatus" HBox.hgrow="ALWAYS">
+        <Label fx:id="leftStatus" maxHeight="1.7976931348623157E308" maxWidth="-1.0" HBox.hgrow="ALWAYS">
           <font>
             <Font size="11.0" fx:id="x3" />
           </font>
