@@ -4,6 +4,8 @@ import pl.baluch.stickerprinter.Storage;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
@@ -52,26 +54,33 @@ public class PluginManager extends Observable {
                 new URL[]{file.toURI().toURL()},
                 this.getClass().getClassLoader()
         );
-        ZipFile zipFile = new ZipFile(file);
-        Optional<? extends Class<?>> pluginMain = zipFile.stream()
-                .filter(entry -> entry.getName().endsWith(".class"))
-                .map(entry -> entry.getName().replace(".class", "").replace("/", "."))
-                .map(className -> {
-                    try {
-                        return child.loadClass(className);
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                    return null;
-                }).filter(pluginClass -> pluginClass != null && Plugin.class.isAssignableFrom(pluginClass))
-                .findFirst();
-        if (pluginMain.isPresent()) {
-            Plugin plugin = (Plugin) pluginMain.get().newInstance();
-            System.out.println("Loaded plugin: " + plugin.getName());
-            pluginList.put(plugin, new PluginInfo(file, child));
-            return Optional.of(plugin);
-        } else {
-            System.err.println("Plugin without main class: " + file.getName());
+        try(ZipFile zipFile = new ZipFile(file)){
+            Optional<? extends Class<?>> pluginMain = zipFile.stream()
+                    .filter(entry -> entry.getName().endsWith(".class"))
+                    .map(entry -> entry.getName().replace(".class", "").replace("/", "."))
+                    .map(className -> {
+                        try {
+                            return child.loadClass(className);
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }).filter(pluginClass -> pluginClass != null && Plugin.class.isAssignableFrom(pluginClass))
+                    .findFirst();
+            if (pluginMain.isPresent()) {
+                Constructor<?> constructor = pluginMain.get().getDeclaredConstructor();
+                Plugin plugin = (Plugin) constructor.newInstance();
+                System.out.println("Loaded plugin: " + plugin.getName());
+                pluginList.put(plugin, new PluginInfo(file, child));
+                return Optional.of(plugin);
+            } else {
+                System.err.println("Plugin without main class: " + file.getName());
+            }
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }catch (NoSuchMethodException e){
+            System.err.println("Plugin must have constructor without arguments: " + file.getName());
+            return Optional.empty();
         }
         return Optional.empty();
     }
