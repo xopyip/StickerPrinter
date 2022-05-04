@@ -1,6 +1,5 @@
 package pl.baluch.stickerprinter;
 
-import com.google.gson.Gson;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -9,8 +8,6 @@ import javafx.stage.Stage;
 import pl.baluch.stickerprinter.plugins.PluginManager;
 
 import java.io.IOException;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
 public class AppMain extends Application {
 

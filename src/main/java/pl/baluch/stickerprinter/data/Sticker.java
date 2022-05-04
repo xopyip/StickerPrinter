@@ -6,7 +6,7 @@ import java.util.Map;
 public class Sticker {
     private final Map<String, String> properties = new HashMap<>();
 
-    public void addProperty(String key, String value){
+    public void addProperty(String key, String value) {
         properties.put(key, value);
     }
 

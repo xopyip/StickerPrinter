@@ -82,6 +82,9 @@ public class AppController implements Initializable {
             fileChooser.setTitle(resourceBundle.getString("plugins.chooser.title"));
             fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter(resourceBundle.getString("plugins.extension.name"), ".jar"));
             File file = fileChooser.showOpenDialog(AppMain.getStage().getOwner());
+            if(file == null){
+                return;
+            }
             try {
                 PluginManager.getInstance().loadExternal(file).ifPresent(item -> addPluginMenu(item, resourceBundle));
             } catch (IOException | InstantiationException | IllegalAccessException e) {

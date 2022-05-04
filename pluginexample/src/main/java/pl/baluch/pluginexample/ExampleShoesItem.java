@@ -2,15 +2,16 @@ package pl.baluch.pluginexample;
 
 import pl.baluch.stickerprinter.plugins.Item;
 
-public class ExampleItem extends Item {
+public class ExampleShoesItem extends Item {
     private final String name;
 
-    public ExampleItem(String name, String desc, String color) {
+    public ExampleShoesItem(String name, String desc, String color, int size) {
         super();
         this.name = name;
         addProperty("name", name);
         addProperty("desc", desc);
         addProperty("color", color);
+        addProperty("size", String.valueOf(size));
         addCustomProperty("amount", CustomPropertyType.NUMBER);
     }
 
