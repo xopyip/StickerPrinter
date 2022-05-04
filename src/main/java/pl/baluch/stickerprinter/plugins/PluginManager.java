@@ -47,6 +47,9 @@ public class PluginManager extends Observable {
         pluginList.remove(plugin);
         pluginInfo.getClassLoader().close();
         pluginInfo.getFile().delete();
+
+        setChanged();
+        notifyObservers();
     }
 
     private Optional<Plugin> loadInternal(File file) throws IOException, InstantiationException, IllegalAccessException {
