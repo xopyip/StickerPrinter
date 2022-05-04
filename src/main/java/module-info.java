@@ -3,4 +3,5 @@ module pl.baluch.stickerprinter {
     requires javafx.fxml;
     requires com.google.gson;
     exports pl.baluch.stickerprinter;
+    exports pl.baluch.stickerprinter.plugins;
 }
