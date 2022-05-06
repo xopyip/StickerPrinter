@@ -4,4 +4,5 @@ module pl.baluch.stickerprinter {
     requires com.google.gson;
     exports pl.baluch.stickerprinter;
     exports pl.baluch.stickerprinter.plugins;
+    exports pl.baluch.stickerprinter.data;
 }

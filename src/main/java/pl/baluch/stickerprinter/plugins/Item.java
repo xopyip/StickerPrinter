@@ -1,10 +1,10 @@
 package pl.baluch.stickerprinter.plugins;
 
 import javafx.scene.control.Alert;
+import pl.baluch.stickerprinter.StickerProperty;
 import pl.baluch.stickerprinter.data.Sticker;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public abstract class Item {
     private final Map<String, String> properties = new HashMap<>();
@@ -44,6 +44,13 @@ public abstract class Item {
             alert.showAndWait();
         });
         return sticker;
+    }
+
+    public List<StickerProperty> getPreviewProperties() {
+        List<StickerProperty> previewProperties = new ArrayList<>();
+        properties.forEach((k,v) -> previewProperties.add(new StickerProperty(k,v)));
+        customProperties.forEach((k, vt) -> previewProperties.add(new StickerProperty(k, "???")));
+        return previewProperties;
     }
 
     public enum CustomPropertyType{

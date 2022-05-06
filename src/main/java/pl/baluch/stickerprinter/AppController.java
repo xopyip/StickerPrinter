@@ -3,11 +3,14 @@ package pl.baluch.stickerprinter;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import pl.baluch.stickerprinter.data.PageStyle;
@@ -44,12 +47,26 @@ public class AppController implements Initializable {
     public Label cellRatioLabel;
     @FXML
     public ChoiceBox<String> itemCategoryChoice;
+    @FXML
+    public Pane stickerPreviewPane;
+    @FXML
+    public TableView<StickerProperty> stickerPreviewDataTable;
+    @FXML
+    public TableColumn<StickerProperty, String> stickerPreviewKeyColumn;
+    @FXML
+    public TableColumn<StickerProperty, String> stickerPreviewValueColumn;
 
     @Override
     public void initialize(URL location, ResourceBundle resourceBundle) {
+        setupStickerPreview(resourceBundle);
         setupItemsList(resourceBundle);
         setupPageStyles(resourceBundle);
         setupMenu(resourceBundle);
+    }
+
+    private void setupStickerPreview(ResourceBundle resourceBundle) {
+        stickerPreviewKeyColumn.setCellValueFactory(new PropertyValueFactory<>("key"));
+        stickerPreviewValueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
     }
 
     /**
@@ -89,6 +106,16 @@ public class AppController implements Initializable {
         searchItemField.textProperty().addListener((observable, oldValue, newValue) -> {
             itemFilteredList.setPredicate(s -> s.toString().toLowerCase(Locale.ROOT).contains(newValue.toLowerCase(Locale.ROOT))); //todo: better searching
         });
+
+        //update sticker preview on selected item change
+        itemsList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateStickerPreview(newValue));
+    }
+
+    private void updateStickerPreview(Item selectedItem) {
+        stickerPreviewDataTable.getItems().clear();
+        if(selectedItem != null){
+            stickerPreviewDataTable.getItems().addAll(selectedItem.getPreviewProperties());
+        }
     }
 
     /**
