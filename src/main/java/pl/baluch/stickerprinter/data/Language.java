@@ -1,4 +1,4 @@
-package pl.baluch.stickerprinter;
+package pl.baluch.stickerprinter.data;
 
 public enum Language {
     Polish("Polski", "pl"),

@@ -1,10 +1,7 @@
 package pl.baluch.stickerprinter;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
@@ -13,7 +10,9 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
+import pl.baluch.stickerprinter.data.Language;
 import pl.baluch.stickerprinter.data.PageStyle;
+import pl.baluch.stickerprinter.data.StickerProperty;
 import pl.baluch.stickerprinter.plugins.Item;
 import pl.baluch.stickerprinter.plugins.Plugin;
 import pl.baluch.stickerprinter.plugins.PluginManager;

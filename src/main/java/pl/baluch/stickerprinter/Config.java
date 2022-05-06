@@ -1,5 +1,6 @@
 package pl.baluch.stickerprinter;
 
+import pl.baluch.stickerprinter.data.Language;
 import pl.baluch.stickerprinter.data.PageStyle;
 
 import java.util.ArrayList;

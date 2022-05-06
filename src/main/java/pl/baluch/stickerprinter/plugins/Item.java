@@ -1,7 +1,7 @@
 package pl.baluch.stickerprinter.plugins;
 
 import javafx.scene.control.Alert;
-import pl.baluch.stickerprinter.StickerProperty;
+import pl.baluch.stickerprinter.data.StickerProperty;
 import pl.baluch.stickerprinter.data.Sticker;
 
 import java.util.*;
@@ -13,7 +13,6 @@ public abstract class Item {
     private String category;
 
     public Item(String category){
-
         this.category = category;
     }
     protected void addProperty(String key, String value){
