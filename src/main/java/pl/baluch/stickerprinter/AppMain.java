@@ -1,10 +1,15 @@
 package pl.baluch.stickerprinter;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+import pl.baluch.stickerprinter.plugins.Plugin;
 import pl.baluch.stickerprinter.plugins.PluginManager;
 
 import java.io.IOException;
@@ -25,6 +30,7 @@ public class AppMain extends Application {
         } catch (IOException | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
+        stage.setOnCloseRequest(event -> PluginManager.getInstance().onClose());
         FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/main.fxml"));
 
         fxmlLoader.setResources(Storage.getResourceBundle());

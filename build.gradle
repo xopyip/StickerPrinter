@@ -12,7 +12,7 @@ application.mainModule = "pl.baluch.stickerprinter"
 
 javafx {
     version = "17.0.1"
-    modules = [ 'javafx.controls', 'javafx.fxml' ]
+    modules = [ 'javafx.controls', 'javafx.graphics', 'javafx.fxml' ]
 }
 
 jlink {

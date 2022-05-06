@@ -5,20 +5,46 @@ import pl.baluch.stickerprinter.plugins.Plugin;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
-public class ExamplePlugin implements Plugin {
+public class ExamplePlugin extends Plugin {
 
-    @Override
-    public String getName() {
-        return "ExamplePlugin";
+    private Set<Item> items;
+
+    public ExamplePlugin() {
+        super("ExamplePlugin");
+
+        items = new HashSet<>();
+        addShirts(items);
+        addShoes(items);
+
+        Thread thread = new Thread(this::updateThread);
+        thread.setDaemon(false);
+        thread.start();
+    }
+
+    private void updateThread() {
+        int i = 0;
+        while (!this.exit) {
+            if (i > 5) {
+                items.removeIf(item -> item instanceof ExampleShoesItem && ((ExampleShoesItem) item).getName().equals("Product added on the fly"));
+                i = 0;
+            } else {
+                items.add(new ExampleShoesItem("Product added on the fly", "Third description", "blue", ThreadLocalRandom.current().nextInt(36, 45)));
+            }
+            i++;
+            updateProducts();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override
     public Set<Item> getItems() {
-        Set<Item> items = new HashSet<>();
-        addShirts(items);
-        addShoes(items);
-        return items;
+        return this.items;
     }
 
     private void addShoes(Set<Item> items) {

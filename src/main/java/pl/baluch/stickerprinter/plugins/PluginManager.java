@@ -2,6 +2,7 @@ package pl.baluch.stickerprinter.plugins;
 
 import pl.baluch.stickerprinter.Storage;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
@@ -78,6 +79,7 @@ public class PluginManager {
                 Plugin plugin = (Plugin) constructor.newInstance();
                 System.out.println("Loaded plugin: " + plugin.getName());
                 pluginList.put(plugin, new PluginInfo(file, child));
+                plugin.addChangeListener(evt -> support.firePropertyChange("plugins", null, plugin));
                 return Optional.of(plugin);
             } else {
                 System.err.println("Plugin without main class: " + file.getName());
@@ -102,6 +104,7 @@ public class PluginManager {
     }
 
     private Stream<Item> getItemsStream() {
+        //todo: cache per plugin, on update we have information about updated plugin so we can reload items from specific plugin only
         return pluginList.keySet().stream()
                 .flatMap(plugin -> plugin.getItems().stream());
     }
@@ -117,5 +120,9 @@ public class PluginManager {
             return getItemsStream().collect(Collectors.toList());
         }
         return getItemsStream().filter(item -> item.getCategory().equals(category)).collect(Collectors.toList());
+    }
+
+    public void onClose() {
+        pluginList.forEach((k,v) -> k.setExit());
     }
 }

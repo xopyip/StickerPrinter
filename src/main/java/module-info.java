@@ -1,6 +1,7 @@
 module pl.baluch.stickerprinter {
     requires javafx.controls;
     requires javafx.fxml;
+    requires javafx.graphics;
     requires com.google.gson;
     requires java.desktop;
     exports pl.baluch.stickerprinter;
