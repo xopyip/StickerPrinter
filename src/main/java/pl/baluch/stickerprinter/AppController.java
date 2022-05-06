@@ -1,8 +1,9 @@
 package pl.baluch.stickerprinter;
 
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.*;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -41,6 +42,8 @@ public class AppController implements Initializable {
     public Label leftStatus;
     @FXML
     public Label cellRatioLabel;
+    @FXML
+    public ChoiceBox<String> itemCategoryChoice;
 
     @Override
     public void initialize(URL location, ResourceBundle resourceBundle) {
@@ -53,18 +56,36 @@ public class AppController implements Initializable {
      * Setups left column with items view
      */
     private void setupItemsList(ResourceBundle resourceBundle) {
-        ObservableList<Item> data = FXCollections.observableArrayList(PluginManager.getInstance().getItems());
+        //Load categories
+        ObservableList<String> categories = FXCollections.observableList(PluginManager.getInstance().getCategories());
+        itemCategoryChoice.setItems(categories);
+        itemCategoryChoice.getSelectionModel().selectFirst();
+
+        //Load items
+        ObservableList<Item> data = FXCollections.observableList(PluginManager.getInstance().getItems(itemCategoryChoice.getValue()));
         FilteredList<Item> itemFilteredList = new FilteredList<>(data, s -> true);
         itemsList.setItems(itemFilteredList);
         leftStatus.setText(String.format(resourceBundle.getString("status.left.format"), data.size()));
 
         PluginManager.getInstance().addObserver((o, arg) -> {
-            List<Item> items = PluginManager.getInstance().getItems();
+            //Refresh items and categories after new plugin load or unload
+            categories.clear();
+            categories.addAll(PluginManager.getInstance().getCategories());
+
+            List<Item> items = PluginManager.getInstance().getItems(itemCategoryChoice.getValue());
             data.clear();
             data.addAll(items);
             leftStatus.setText(String.format(resourceBundle.getString("status.left.format"), items.size()));
         });
 
+        //update items on category change
+        itemCategoryChoice.valueProperty().addListener((observable, oldValue, newValue) -> {
+            List<Item> items = PluginManager.getInstance().getItems(newValue);
+            data.clear();
+            data.addAll(items);
+        });
+
+        //update items on search text change
         searchItemField.textProperty().addListener((observable, oldValue, newValue) -> {
             itemFilteredList.setPredicate(s -> s.toString().toLowerCase(Locale.ROOT).contains(newValue.toLowerCase(Locale.ROOT))); //todo: better searching
         });

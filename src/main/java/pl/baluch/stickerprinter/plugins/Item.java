@@ -10,7 +10,12 @@ public abstract class Item {
     private final Map<String, String> properties = new HashMap<>();
 
     private final Map<String, CustomPropertyType> customProperties = new HashMap<>();
+    private String category;
 
+    public Item(String category){
+
+        this.category = category;
+    }
     protected void addProperty(String key, String value){
         properties.put(key, value);
     }
@@ -25,6 +30,10 @@ public abstract class Item {
     }
 
     protected abstract String getName();
+
+    public String getCategory() {
+        return category;
+    }
 
     public Sticker createSticker(){
         Sticker sticker = new Sticker();

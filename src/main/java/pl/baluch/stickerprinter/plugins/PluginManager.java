@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipFile;
 
 public class PluginManager extends Observable {
@@ -57,7 +58,7 @@ public class PluginManager extends Observable {
                 new URL[]{file.toURI().toURL()},
                 this.getClass().getClassLoader()
         );
-        try(ZipFile zipFile = new ZipFile(file)){
+        try (ZipFile zipFile = new ZipFile(file)) {
             Optional<? extends Class<?>> pluginMain = zipFile.stream()
                     .filter(entry -> entry.getName().endsWith(".class"))
                     .map(entry -> entry.getName().replace(".class", "").replace("/", "."))
@@ -81,7 +82,7 @@ public class PluginManager extends Observable {
             }
         } catch (InvocationTargetException e) {
             throw new RuntimeException(e);
-        }catch (NoSuchMethodException e){
+        } catch (NoSuchMethodException e) {
             System.err.println("Plugin must have constructor without arguments: " + file.getName());
             return Optional.empty();
         }
@@ -93,7 +94,7 @@ public class PluginManager extends Observable {
         Files.copy(file.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
         Optional<Plugin> plugin = loadInternal(target);
 
-        if(plugin.isPresent()){
+        if (plugin.isPresent()) {
             setChanged();
             notifyObservers();
         }
@@ -101,7 +102,21 @@ public class PluginManager extends Observable {
         return plugin;
     }
 
-    public List<Item> getItems() {
-        return pluginList.keySet().stream().flatMap(plugin -> plugin.getItems().stream()).collect(Collectors.toList());
+    private Stream<Item> getItemsStream() {
+        return pluginList.keySet().stream()
+                .flatMap(plugin -> plugin.getItems().stream());
+    }
+
+    public List<String> getCategories() {
+        List<String> collect = getItemsStream().map(Item::getCategory).distinct().collect(Collectors.toList());
+        collect.add(0, Storage.getResourceBundle().getString("items.all"));
+        return collect;
+    }
+
+    public List<Item> getItems(String category){
+        if(category.equals(Storage.getResourceBundle().getString("items.all"))){
+            return getItemsStream().collect(Collectors.toList());
+        }
+        return getItemsStream().filter(item -> item.getCategory().equals(category)).collect(Collectors.toList());
     }
 }

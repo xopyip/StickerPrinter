@@ -6,7 +6,7 @@ public class ExampleShirtItem extends Item {
     private final String name;
 
     public ExampleShirtItem(String name, String desc, String color) {
-        super();
+        super("Shirt");
         this.name = name;
         addProperty("name", name);
         addProperty("desc", desc);
