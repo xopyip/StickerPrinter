@@ -110,16 +110,17 @@ public class PluginManager {
     }
 
     public List<String> getCategories() {
-        List<String> collect = getItemsStream().map(Item::getCategory).distinct().collect(Collectors.toList());
+        List<String> collect = getItemsStream().map(Item::getCategory).distinct().sorted(String::compareToIgnoreCase).collect(Collectors.toList());
         collect.add(0, Storage.getResourceBundle().getString("items.all"));
         return collect;
     }
 
     public List<Item> getItems(String category){
+        Stream<Item> sortedItemStream = getItemsStream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName()));
         if(Objects.equals(category, Storage.getResourceBundle().getString("items.all"))){
-            return getItemsStream().collect(Collectors.toList());
+            return sortedItemStream.collect(Collectors.toList());
         }
-        return getItemsStream().filter(item -> item.getCategory().equals(category)).collect(Collectors.toList());
+        return sortedItemStream.filter(item -> item.getCategory().equals(category)).collect(Collectors.toList());
     }
 
     public void onClose() {

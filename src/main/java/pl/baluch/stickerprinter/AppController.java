@@ -85,13 +85,10 @@ public class AppController implements Initializable {
 
         PluginManager.getInstance().addChangeListener((event) -> {
             //Refresh items and categories after new plugin load or unload
-            categories.clear();
-            categories.addAll(PluginManager.getInstance().getCategories());
-            itemCategoryChoice.getSelectionModel().selectFirst();
+            Utils.migrateLists(1, categories, PluginManager.getInstance().getCategories());
 
             List<Item> items = PluginManager.getInstance().getItems(itemCategoryChoice.getValue());
-            data.clear();
-            data.addAll(items);
+            Utils.migrateLists(0, data, items, (a,b) -> a.getName().compareToIgnoreCase(b.getName()));
             leftStatus.setText(String.format(resourceBundle.getString("status.left.format"), items.size()));
         });
 

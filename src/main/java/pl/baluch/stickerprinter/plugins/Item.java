@@ -28,7 +28,7 @@ public abstract class Item {
         return getName();
     }
 
-    protected abstract String getName();
+    public abstract String getName();
 
     public String getCategory() {
         return category;
