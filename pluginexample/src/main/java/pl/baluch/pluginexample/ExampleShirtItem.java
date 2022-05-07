@@ -15,7 +15,7 @@ public class ExampleShirtItem extends Item {
     }
 
     @Override
-    protected String getName() {
+    public String getName() {
         return name;
     }
 }

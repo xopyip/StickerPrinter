@@ -2,7 +2,6 @@ package pl.baluch.stickerprinter.plugins;
 
 import pl.baluch.stickerprinter.Storage;
 
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
@@ -109,6 +108,7 @@ public class PluginManager {
                 .flatMap(plugin -> plugin.getItems().stream());
     }
 
+    int i = 0;
     public List<String> getCategories() {
         List<String> collect = getItemsStream().map(Item::getCategory).distinct().sorted(String::compareToIgnoreCase).collect(Collectors.toList());
         collect.add(0, Storage.getResourceBundle().getString("items.all"));

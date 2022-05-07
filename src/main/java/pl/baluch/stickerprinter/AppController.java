@@ -85,10 +85,10 @@ public class AppController implements Initializable {
 
         PluginManager.getInstance().addChangeListener((event) -> {
             //Refresh items and categories after new plugin load or unload
-            Utils.migrateLists(1, categories, PluginManager.getInstance().getCategories());
+            Utils.migrateLists(categories, PluginManager.getInstance().getCategories());
 
             List<Item> items = PluginManager.getInstance().getItems(itemCategoryChoice.getValue());
-            Utils.migrateLists(0, data, items, (a,b) -> a.getName().compareToIgnoreCase(b.getName()));
+            Utils.migrateLists(data, items);
             leftStatus.setText(String.format(resourceBundle.getString("status.left.format"), items.size()));
         });
 
@@ -110,7 +110,7 @@ public class AppController implements Initializable {
 
     private void updateStickerPreview(Item selectedItem) {
         stickerPreviewDataTable.getItems().clear();
-        if(selectedItem != null){
+        if (selectedItem != null) {
             stickerPreviewDataTable.getItems().addAll(selectedItem.getPreviewProperties());
         }
     }
@@ -127,7 +127,7 @@ public class AppController implements Initializable {
             fileChooser.setTitle(resourceBundle.getString("plugins.chooser.title"));
             fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter(resourceBundle.getString("plugins.extension.name"), ".jar"));
             File file = fileChooser.showOpenDialog(AppMain.getStage().getOwner());
-            if(file == null){
+            if (file == null) {
                 return;
             }
             try {
