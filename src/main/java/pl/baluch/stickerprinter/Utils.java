@@ -1,8 +1,5 @@
 package pl.baluch.stickerprinter;
 
-import javafx.collections.ObservableList;
-
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -21,22 +18,27 @@ public class Utils {
         for (int newIdx = startIdx; newIdx < newList.size(); ) {
             int cmp = comparator.compare(oldList.get(oldIdx), newList.get(newIdx));
             if (cmp > 0) {
+                //There is new item in newList, so we are adding it to oldOne and skip this position on each list
                 oldList.add(oldIdx, newList.get(newIdx));
                 oldIdx++;
                 newIdx++;
             } else if (cmp == 0) {
+                //Items are same so we skip to next positions
                 oldIdx++;
                 newIdx++;
             } else {
+                //Current item from oldList is missing in newList, so we must remove it
                 oldList.remove(oldIdx);
             }
             if (oldIdx == oldList.size()) {
+                //adding all remaining items from newList to oldList
                 for (; newIdx < newList.size(); newIdx++) {
                     oldList.add(newList.get(newIdx));
                 }
                 return;
             }
         }
+        //removing all unnecessary items from oldList
         while (oldIdx < oldList.size()) {
             oldList.remove(oldIdx);
         }
