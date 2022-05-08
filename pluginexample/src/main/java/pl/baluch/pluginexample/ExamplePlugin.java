@@ -41,7 +41,7 @@ public class ExamplePlugin extends Plugin {
     }
 
 
-    @ItemsSupplier(category="AutoGen")
+    @ItemsSupplier(category="AutoGen", visibleInAll = false)
     public List<Item> getAutoGen() {
         return autoGenItems;
     }

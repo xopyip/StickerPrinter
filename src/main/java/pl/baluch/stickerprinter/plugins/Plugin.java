@@ -7,14 +7,13 @@ import java.beans.PropertyChangeSupport;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class Plugin {
     private final PropertyChangeSupport support = new PropertyChangeSupport(this);
     private final String name;
     protected boolean exit = false;
-    private final Map<String, Supplier<Collection<Item>>> itemSuppliersByCategory = new HashMap<>();
+    private final Map<String, ReflectionItemsSupplier> itemSuppliersByCategory = new HashMap<>();
 
     protected Plugin(String name) {
         this.name = name;
@@ -30,13 +29,7 @@ public class Plugin {
                 }
                 ItemsSupplier supplierInfo = declaredMethod.getAnnotation(ItemsSupplier.class);
 
-                itemSuppliersByCategory.put(supplierInfo.category(), () -> {
-                    try {
-                        return (Collection<Item>) declaredMethod.invoke(Plugin.this);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+                itemSuppliersByCategory.put(supplierInfo.category(), new ReflectionItemsSupplier(supplierInfo, declaredMethod));
             }
         }
     }
@@ -55,7 +48,7 @@ public class Plugin {
 
     public List<Item> getItems(){
         return itemSuppliersByCategory.values().stream()
-                .flatMap(supplier -> supplier.get().stream())
+                .flatMap(supplier -> supplier.get(true).stream())
                 .sorted((a,b) -> a.getName().compareToIgnoreCase(b.getName()))
                 .collect(Collectors.toList());
     }
@@ -63,7 +56,7 @@ public class Plugin {
         if(!itemSuppliersByCategory.containsKey(category)){
             return new ArrayList<>();
         }
-        return new ArrayList<>(itemSuppliersByCategory.get(category).get());
+        return new ArrayList<>(itemSuppliersByCategory.get(category).get(false));
     }
     public Set<String> getCategories(){
         return itemSuppliersByCategory.keySet();
@@ -71,5 +64,26 @@ public class Plugin {
 
     public void setExit() {
         this.exit = true;
+    }
+
+    private class ReflectionItemsSupplier {
+        private ItemsSupplier supplierInfo;
+        private Method declaredMethod;
+
+        public ReflectionItemsSupplier(ItemsSupplier supplierInfo, Method declaredMethod) {
+            this.supplierInfo = supplierInfo;
+            this.declaredMethod = declaredMethod;
+        }
+
+        public Collection<Item> get(boolean forAll) {
+            if(!forAll || supplierInfo.visibleInAll()){
+                try {
+                    return (Collection<Item>) declaredMethod.invoke(Plugin.this);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+            }
+            return new ArrayList<>();
+        }
     }
 }
