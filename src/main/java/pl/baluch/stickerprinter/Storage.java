@@ -20,15 +20,19 @@ public class Storage {
         dir.mkdirs();
         Gson gson = new Gson();
         try (FileReader fileReader = new FileReader(new File(dir, "config.json"))) {
-            return config = gson.fromJson(fileReader, Config.class);
+            config = gson.fromJson(fileReader, Config.class);
+            if(config == null){
+                config = new Config();
+            }
         } catch (FileNotFoundException e) {
-            return config = new Config();
+            config = new Config();
         } catch (JsonSyntaxException | JsonIOException | IOException e) {
             System.err.println("Config loading problem:");
             e.printStackTrace();
             //todo: backup config and display warning message
-            return config = new Config();
+            config = new Config();
         }
+        return config;
     }
 
     public static void saveConfig() {

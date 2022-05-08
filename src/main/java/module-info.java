@@ -10,6 +10,7 @@ module pl.baluch.stickerprinter {
     exports pl.baluch.stickerprinter.data;
     exports pl.baluch.stickerprinter.windows;
 
-    opens pl.baluch.stickerprinter to javafx.fxml;
+    opens pl.baluch.stickerprinter to javafx.fxml, com.google.gson;
+    opens pl.baluch.stickerprinter.data to com.google.gson;
     opens pl.baluch.stickerprinter.windows to javafx.fxml;
 }
