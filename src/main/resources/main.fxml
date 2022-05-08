@@ -113,6 +113,14 @@
                               </TextFlow>
                            </content>
                         </ScrollPane>
+                        <Label fx:id="stickerPreviewItemTypeText" alignment="CENTER" layoutX="215.0" layoutY="14.0" style="&#10;" textAlignment="CENTER" wrapText="false">
+                           <font>
+                              <Font size="18.0" fx:id="x12" />
+                           </font>
+                           <textFill>
+                              <Color red="0.624" green="0.624" blue="0.624" fx:id="x22" />
+                           </textFill>
+                        </Label>
               </children>
             </AnchorPane>
           </content>

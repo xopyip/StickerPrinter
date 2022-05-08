@@ -63,12 +63,12 @@ public class PluginManager {
         try (ZipFile zipFile = new ZipFile(file)) {
             Optional<? extends Class<?>> pluginMain = zipFile.stream()
                     .filter(entry -> entry.getName().endsWith(".class"))
+                    .filter(entry -> !entry.getName().equalsIgnoreCase("module-info.class"))
                     .map(entry -> entry.getName().replace(".class", "").replace("/", "."))
                     .map(className -> {
                         try {
                             return child.loadClass(className);
-                        } catch (ClassNotFoundException e) {
-                            e.printStackTrace();
+                        } catch (ClassNotFoundException ignored) {
                         }
                         return null;
                     }).filter(pluginClass -> pluginClass != null && Plugin.class.isAssignableFrom(pluginClass))
@@ -102,25 +102,28 @@ public class PluginManager {
         return plugin;
     }
 
-    private Stream<Item> getItemsStream() {
-        //todo: cache per plugin, on update we have information about updated plugin so we can reload items from specific plugin only
+    //todo: cache per plugin, on update we have information about updated plugin so we can reload items from specific plugin only
+    private Stream<Item> getAllItemsStream() {
         return pluginList.keySet().stream()
                 .flatMap(plugin -> plugin.getItems().stream());
+    }
+    private Stream<Item> getItemsStream(String category) {
+        return pluginList.keySet().stream()
+                .flatMap(plugin -> plugin.getItems(category).stream());
     }
 
     int i = 0;
     public List<String> getCategories() {
-        List<String> collect = getItemsStream().map(Item::getCategory).distinct().sorted(String::compareToIgnoreCase).collect(Collectors.toList());
+        List<String> collect = pluginList.keySet().stream().flatMap(plugin -> plugin.getCategories().stream()).distinct().sorted(String::compareToIgnoreCase).collect(Collectors.toList());
         collect.add(0, Storage.getResourceBundle().getString("items.all"));
         return collect;
     }
 
     public List<Item> getItems(String category){
-        Stream<Item> sortedItemStream = getItemsStream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName()));
         if(Objects.equals(category, Storage.getResourceBundle().getString("items.all"))){
-            return sortedItemStream.collect(Collectors.toList());
+            return getAllItemsStream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList());
         }
-        return sortedItemStream.filter(item -> item.getCategory().equals(category)).collect(Collectors.toList());
+        return getItemsStream(category).collect(Collectors.toList());
     }
 
     public void onClose() {

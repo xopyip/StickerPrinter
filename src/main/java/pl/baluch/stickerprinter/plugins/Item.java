@@ -10,12 +10,15 @@ public abstract class Item {
     private final Map<String, String> properties = new HashMap<>();
 
     private final Map<String, CustomPropertyType> customProperties = new HashMap<>();
-    private String category;
+    private String name;
+    private String typeName;
 
-    public Item(String category){
-        this.category = category;
+    public Item(String name, String typeName) {
+        this.name = name;
+        this.typeName = typeName;
     }
-    protected void addProperty(String key, String value){
+
+    protected void addProperty(String key, String value) {
         properties.put(key, value);
     }
 
@@ -25,16 +28,23 @@ public abstract class Item {
 
     @Override
     public String toString() {
-        return getName();
+        return name;
     }
 
-    public abstract String getName();
-
-    public String getCategory() {
-        return category;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Item item = (Item) o;
+        return Objects.equals(name, item.name) && Objects.equals(properties, item.properties) && Objects.equals(customProperties, item.customProperties);
     }
 
-    public Sticker createSticker(){
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, properties, customProperties);
+    }
+
+    public Sticker createSticker() {
         Sticker sticker = new Sticker();
         properties.forEach(sticker::addProperty);
         customProperties.forEach((k, v) -> {
@@ -47,12 +57,20 @@ public abstract class Item {
 
     public List<StickerProperty> getPreviewProperties() {
         List<StickerProperty> previewProperties = new ArrayList<>();
-        properties.forEach((k,v) -> previewProperties.add(new StickerProperty(k,v)));
+        properties.forEach((k, v) -> previewProperties.add(new StickerProperty(k, v)));
         customProperties.forEach((k, vt) -> previewProperties.add(new StickerProperty(k, "???")));
         return previewProperties;
     }
 
-    public enum CustomPropertyType{
+    public String getName() {
+        return name;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public enum CustomPropertyType {
         NUMBER,
         STRING;
     }

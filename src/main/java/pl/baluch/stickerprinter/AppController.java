@@ -57,6 +57,8 @@ public class AppController implements Initializable {
     private TableColumn<StickerProperty, String> stickerPreviewValueColumn;
     @FXML
     private Text stickerPreviewPropertyText;
+    @FXML
+    private Label stickerPreviewItemTypeText;
 
     @Override
     public void initialize(URL location, ResourceBundle resourceBundle) {
@@ -109,13 +111,15 @@ public class AppController implements Initializable {
         });
 
         //update sticker preview on selected item change
-        itemsList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateStickerPreview(newValue));
+        itemsList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateStickerPreview(resourceBundle, newValue));
     }
 
-    private void updateStickerPreview(Item selectedItem) {
+    private void updateStickerPreview(ResourceBundle resourceBundle, Item selectedItem) {
         stickerPreviewDataTable.getItems().clear();
+        stickerPreviewItemTypeText.setText("");
         if (selectedItem != null) {
             stickerPreviewDataTable.getItems().addAll(selectedItem.getPreviewProperties());
+            stickerPreviewItemTypeText.setText(String.format(resourceBundle.getString("sticker.preview.itemtype"),selectedItem.getTypeName()));
         }
     }
 

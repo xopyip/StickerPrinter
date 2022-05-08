@@ -4,31 +4,70 @@ import javafx.application.Platform;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.Set;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
-public abstract class Plugin {
+public class Plugin {
     private final PropertyChangeSupport support = new PropertyChangeSupport(this);
     private final String name;
     protected boolean exit = false;
+    private final Map<String, Supplier<Collection<Item>>> itemSuppliersByCategory = new HashMap<>();
 
     protected Plugin(String name) {
         this.name = name;
+        for (Method declaredMethod : this.getClass().getDeclaredMethods()) {
+            if(declaredMethod.isAnnotationPresent(ItemsSupplier.class)){
+                if(declaredMethod.getParameterCount() > 0){
+                    System.err.println(declaredMethod.getName() + " should not have any parameters.");
+                    continue;
+                }
+                if(!Collection.class.isAssignableFrom(declaredMethod.getReturnType())){
+                    System.err.println(declaredMethod.getName() + " should return a collection.");
+                    continue;
+                }
+                ItemsSupplier supplierInfo = declaredMethod.getAnnotation(ItemsSupplier.class);
+
+                itemSuppliersByCategory.put(supplierInfo.category(), () -> {
+                    try {
+                        return (Collection<Item>) declaredMethod.invoke(Plugin.this);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+            }
+        }
     }
 
     public void addChangeListener(PropertyChangeListener listener) {
         support.addPropertyChangeListener(listener);
     }
 
-    protected void updateProducts() {
-        Platform.runLater(() -> support.firePropertyChange("products", null, null));
+    protected void updateProducts(String category) {
+        Platform.runLater(() -> support.firePropertyChange("products", null, category));
     }
-
 
     public String getName() {
         return this.name;
     }
 
-    public abstract Set<Item> getItems();
+    public List<Item> getItems(){
+        return itemSuppliersByCategory.values().stream()
+                .flatMap(supplier -> supplier.get().stream())
+                .sorted((a,b) -> a.getName().compareToIgnoreCase(b.getName()))
+                .collect(Collectors.toList());
+    }
+    public List<Item> getItems(String category){
+        if(!itemSuppliersByCategory.containsKey(category)){
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(itemSuppliersByCategory.get(category).get());
+    }
+    public Set<String> getCategories(){
+        return itemSuppliersByCategory.keySet();
+    }
 
     public void setExit() {
         this.exit = true;
