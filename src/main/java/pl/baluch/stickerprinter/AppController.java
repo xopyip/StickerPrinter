@@ -9,6 +9,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import pl.baluch.stickerprinter.data.Language;
 import pl.baluch.stickerprinter.data.PageStyle;
@@ -54,6 +55,8 @@ public class AppController implements Initializable {
     private TableColumn<StickerProperty, String> stickerPreviewKeyColumn;
     @FXML
     private TableColumn<StickerProperty, String> stickerPreviewValueColumn;
+    @FXML
+    private Text stickerPreviewPropertyText;
 
     @Override
     public void initialize(URL location, ResourceBundle resourceBundle) {
@@ -66,6 +69,7 @@ public class AppController implements Initializable {
     private void setupStickerPreview(ResourceBundle resourceBundle) {
         stickerPreviewKeyColumn.setCellValueFactory(new PropertyValueFactory<>("key"));
         stickerPreviewValueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
+        stickerPreviewDataTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> stickerPreviewPropertyText.setText(newValue.getKey() + ": " + newValue.getValue()));
     }
 
     /**
