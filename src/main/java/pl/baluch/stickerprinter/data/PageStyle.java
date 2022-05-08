@@ -2,7 +2,8 @@ package pl.baluch.stickerprinter.data;
 
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.Line;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import pl.baluch.stickerprinter.Storage;
 
 public class PageStyle {
@@ -98,40 +99,37 @@ public class PageStyle {
     public void drawPreview(Pane previewPane) {
         previewPane.getChildren().clear();
         double scaledPageWidth;
-        double scaledPageHeight;
 
         if (previewPane.getWidth() / PAGE_WIDTH < previewPane.getHeight() / PAGE_HEIGHT) {
             scaledPageWidth = previewPane.getWidth();
-            scaledPageHeight = previewPane.getWidth() * PAGE_HEIGHT / PAGE_WIDTH;
         } else {
-            scaledPageHeight = previewPane.getHeight();
             scaledPageWidth = previewPane.getHeight() * PAGE_WIDTH / PAGE_HEIGHT;
         }
+        double scaleRatio = scaledPageWidth / PAGE_WIDTH;
 
-        previewPane.getChildren().add(new Line(0, 0, PAGE_WIDTH, 0));
-        previewPane.getChildren().add(new Line(0, PAGE_HEIGHT, PAGE_WIDTH, PAGE_HEIGHT));
-        previewPane.getChildren().add(new Line(0, 0, 0, PAGE_HEIGHT));
-        previewPane.getChildren().add(new Line(PAGE_WIDTH, 0, PAGE_WIDTH, PAGE_HEIGHT));
-        for (int i = 0; i < columns + 1; i++) {
-            double x = marginHorizontal + i * (PAGE_WIDTH - marginHorizontal * 2.) / columns;
-            previewPane.getChildren().add(new Line(x, marginVertical, x, PAGE_HEIGHT - marginVertical));
-        }
-        for (int i = 0; i < rows + 1; i++) {
-            double y = marginVertical + i * (PAGE_HEIGHT - marginVertical * 2.) / rows;
-            previewPane.getChildren().add(new Line(marginHorizontal, y, PAGE_WIDTH - marginHorizontal, y));
-        }
-
-        //map values to pane size
-        for (Node child : previewPane.getChildren()) {
-            if (child instanceof Line) {
-                Line line = (Line) child;
-                line.setStartX(line.getStartX() * scaledPageWidth / PAGE_WIDTH);
-                line.setEndX(line.getEndX() * scaledPageWidth / PAGE_WIDTH);
-                line.setStartY(line.getStartY() * scaledPageHeight / PAGE_HEIGHT);
-                line.setEndY(line.getEndY() * scaledPageHeight / PAGE_HEIGHT);
+        previewPane.getChildren().add(makeRectangle(0, 0, PAGE_WIDTH, PAGE_HEIGHT, false, scaleRatio));
+        double columnWidth = (PAGE_WIDTH - marginHorizontal * 2f)/columns;
+        double rowHeight = (PAGE_HEIGHT - marginVertical * 2f)/rows;
+        for (int i = 0; i < columns ; i++) {
+            double x = marginHorizontal + i * columnWidth;
+            for (int j = 0; j < rows; j++) {
+                double y = marginVertical + j * rowHeight;
+                previewPane.getChildren().add(makeRectangle(x, y, columnWidth, rowHeight, true, scaleRatio));
             }
         }
+
         previewPane.applyCss();
         previewPane.layout();
+    }
+
+    private Node makeRectangle(double x, double y, double w, double h, boolean isSticker, double scaleRatio) {
+        Rectangle rectangle = new Rectangle(x * scaleRatio, y * scaleRatio, w * scaleRatio, h * scaleRatio);
+        if (isSticker) {
+            rectangle.setOnMouseEntered(event -> rectangle.setFill(Color.color(0, 0, 0, 0.1f)));
+            rectangle.setOnMouseExited(event -> rectangle.setFill(Color.TRANSPARENT));
+        }
+        rectangle.setFill(Color.TRANSPARENT);
+        rectangle.setStroke(Color.BLACK);
+        return rectangle;
     }
 }
