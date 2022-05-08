@@ -25,35 +25,35 @@ import java.util.*;
 
 public class AppController implements Initializable {
     @FXML
-    public Menu languageSelector;
+    private Menu languageSelector;
     @FXML
-    public ChoiceBox<PageStyle> pageStyle;
+    private ChoiceBox<PageStyle> pageStyle;
     @FXML
-    public Pane previewPane;
+    private Pane previewPane;
     @FXML
-    public Button deletePageStyleButton;
+    private Button deletePageStyleButton;
     @FXML
-    public Menu pluginsMenu;
+    private Menu pluginsMenu;
     @FXML
-    public MenuItem pluginLoadMenu;
+    private MenuItem pluginLoadMenu;
     @FXML
-    public TextField searchItemField;
+    private TextField searchItemField;
     @FXML
-    public ListView<Item> itemsList;
+    private ListView<Item> itemsList;
     @FXML
-    public Label leftStatus;
+    private Label leftStatus;
     @FXML
-    public Label cellRatioLabel;
+    private Label cellRatioLabel;
     @FXML
-    public ChoiceBox<String> itemCategoryChoice;
+    private ChoiceBox<String> itemCategoryChoice;
     @FXML
-    public Pane stickerPreviewPane;
+    private Pane stickerPreviewPane;
     @FXML
-    public TableView<StickerProperty> stickerPreviewDataTable;
+    private TableView<StickerProperty> stickerPreviewDataTable;
     @FXML
-    public TableColumn<StickerProperty, String> stickerPreviewKeyColumn;
+    private TableColumn<StickerProperty, String> stickerPreviewKeyColumn;
     @FXML
-    public TableColumn<StickerProperty, String> stickerPreviewValueColumn;
+    private TableColumn<StickerProperty, String> stickerPreviewValueColumn;
 
     @Override
     public void initialize(URL location, ResourceBundle resourceBundle) {

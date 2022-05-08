@@ -14,9 +14,9 @@ import java.util.function.Consumer;
 
 public class PageStyleController implements Initializable {
     @FXML
-    public Button saveButton;
+    private Button saveButton;
     @FXML
-    public Pane previewPane;
+    private Pane previewPane;
     @FXML
     private Spinner<Integer> rowAmount;
     @FXML
