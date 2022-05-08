@@ -1,7 +1,5 @@
 package pl.baluch.stickerprinter;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +10,7 @@ import java.util.List;
 public class TestMigrateList {
     @Test
     public void testSameLists() {
-        ObservableList<String> a = FXCollections.observableList(new ArrayList<>(Arrays.asList("a", "b", "c", "d")));
+        List<String> a = new ArrayList<>(Arrays.asList("a", "b", "c", "d"));
         List<String> b = new ArrayList<>(Arrays.asList("a", "b", "c", "d"));
 
         List<String> copyOfA = new ArrayList<>(a);
@@ -23,7 +21,7 @@ public class TestMigrateList {
 
     @Test
     public void testDifferentLists() {
-        ObservableList<String> a = FXCollections.observableList(new ArrayList<>(Arrays.asList("a", "b", "c", "d")));
+        List<String> a = new ArrayList<>(Arrays.asList("a", "b", "c", "d"));
         List<String> b = new ArrayList<>(Arrays.asList("e", "f", "g", "h"));
 
         Utils.migrateLists(a, b);
@@ -33,7 +31,7 @@ public class TestMigrateList {
 
     @Test
     public void testAddition() {
-        ObservableList<String> a = FXCollections.observableList(new ArrayList<>(Arrays.asList("a", "b", "c", "d")));
+        List<String> a = new ArrayList<>(Arrays.asList("a", "b", "c", "d"));
         List<String> b = new ArrayList<>(Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h"));
 
         Utils.migrateLists(a, b);
@@ -43,7 +41,7 @@ public class TestMigrateList {
 
     @Test
     public void testSubtraction() {
-        ObservableList<String> a = FXCollections.observableList(new ArrayList<>(Arrays.asList("a", "b", "c", "d")));
+        List<String> a = new ArrayList<>(Arrays.asList("a", "b", "c", "d"));
         List<String> b = new ArrayList<>(Arrays.asList("a", "b"));
 
         Utils.migrateLists(a, b);
@@ -53,7 +51,7 @@ public class TestMigrateList {
 
     @Test
     public void testMixed() {
-        ObservableList<String> a = FXCollections.observableList(new ArrayList<>(Arrays.asList("a", "b", "c", "d")));
+        List<String> a = new ArrayList<>(Arrays.asList("a", "b", "c", "d"));
         List<String> b = new ArrayList<>(Arrays.asList("a", "b", "d", "e"));
 
         Utils.migrateLists(a, b);
