@@ -10,14 +10,17 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import pl.baluch.stickerprinter.data.Language;
 import pl.baluch.stickerprinter.data.PageStyle;
+import pl.baluch.stickerprinter.data.StickerDesign;
 import pl.baluch.stickerprinter.data.StickerProperty;
 import pl.baluch.stickerprinter.plugins.Item;
 import pl.baluch.stickerprinter.plugins.Plugin;
 import pl.baluch.stickerprinter.plugins.PluginManager;
 import pl.baluch.stickerprinter.windows.PageStyleWindow;
+import pl.baluch.stickerprinter.windows.StickerEditorWindow;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,6 +62,8 @@ public class AppController implements Initializable {
     private Text stickerPreviewPropertyText;
     @FXML
     private Label stickerPreviewItemTypeText;
+    @FXML
+    private Button stickerDesignEdit;
 
     @Override
     public void initialize(URL location, ResourceBundle resourceBundle) {
@@ -72,6 +77,10 @@ public class AppController implements Initializable {
         stickerPreviewKeyColumn.setCellValueFactory(new PropertyValueFactory<>("key"));
         stickerPreviewValueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
         stickerPreviewDataTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> stickerPreviewPropertyText.setText(newValue.getKey() + ": " + newValue.getValue()));
+        stickerDesignEdit.setOnMouseClicked(event -> {
+            StickerEditorWindow editorWindow = new StickerEditorWindow(itemsList.getSelectionModel().getSelectedItem(), pageStyle.getSelectionModel().getSelectedItem());
+            editorWindow.showAndWait();
+        });
     }
 
     /**
@@ -117,10 +126,28 @@ public class AppController implements Initializable {
     private void updateStickerPreview(ResourceBundle resourceBundle, Item selectedItem) {
         stickerPreviewDataTable.getItems().clear();
         stickerPreviewItemTypeText.setText("");
+        stickerDesignEdit.setVisible(selectedItem != null);
         if (selectedItem != null) {
             stickerPreviewDataTable.getItems().addAll(selectedItem.getPreviewProperties());
             stickerPreviewItemTypeText.setText(String.format(resourceBundle.getString("sticker.preview.itemtype"),selectedItem.getTypeName()));
+            Optional<StickerDesign> any = Storage.getConfig().getStickerDesigns()
+                    .stream().filter(design -> design.matches(getPageStyle().map(PageStyle::getCellRatio).orElse(-1f), selectedItem.getTypeName())).findAny();
+            stickerDesignEdit.setText(any.isPresent() ? resourceBundle.getString("sticker.preview.edit") : resourceBundle.getString("sticker.preview.create"));
+            if (any.isPresent()) {
+                any.get().renderPreview(stickerPreviewPane, selectedItem);
+            }else{
+                stickerPreviewPane.getChildren().clear();
+                TextFlow textFlow = new TextFlow(new Text(resourceBundle.getString("sticker.preview.no_design")));
+                textFlow.setLayoutX(10);
+                textFlow.setLayoutY(10);
+                textFlow.setPrefWidth(stickerPreviewPane.getWidth() - 20);
+                stickerPreviewPane.getChildren().add(textFlow);
+            }
         }
+    }
+
+    private Optional<PageStyle> getPageStyle() {
+        return Optional.ofNullable(pageStyle.getSelectionModel().getSelectedItem());
     }
 
     /**

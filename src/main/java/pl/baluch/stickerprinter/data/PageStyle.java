@@ -5,6 +5,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import pl.baluch.stickerprinter.Storage;
+import pl.baluch.stickerprinter.Utils;
 
 public class PageStyle {
     private String name;
@@ -83,11 +84,7 @@ public class PageStyle {
         float height = PAGE_HEIGHT - marginVertical * 2;
         width /= columns;
         height /= rows;
-        float ratio = width / height;
-        if (ratio < 1) {
-            return 1 / ratio;
-        }
-        return ratio;
+        return Utils.getRatio(width, height);
     }
 
     public static class New extends PageStyle {

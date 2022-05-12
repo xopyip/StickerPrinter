@@ -49,6 +49,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
@@ -113,14 +114,20 @@
                               </TextFlow>
                            </content>
                         </ScrollPane>
-                        <Label fx:id="stickerPreviewItemTypeText" alignment="CENTER" layoutX="215.0" layoutY="14.0" style="&#10;" textAlignment="CENTER" wrapText="false">
-                           <font>
-                              <Font size="18.0" fx:id="x12" />
-                           </font>
-                           <textFill>
-                              <Color red="0.624" green="0.624" blue="0.624" fx:id="x22" />
-                           </textFill>
-                        </Label>
+                        <HBox alignment="CENTER" layoutX="218.0" layoutY="6.0" prefHeight="34.0" prefWidth="209.0">
+                           <children>
+                              <Label fx:id="stickerPreviewItemTypeText" alignment="CENTER" minWidth="-Infinity" style="&#10;" textAlignment="CENTER" wrapText="false">
+                                 <font>
+                                    <Font size="18.0" fx:id="x12" />
+                                 </font>
+                                 <textFill>
+                                    <Color red="0.624" green="0.624" blue="0.624" fx:id="x22" />
+                                 </textFill>
+                              </Label>
+                              <Region prefHeight="200.0" prefWidth="200.0" />
+                              <Button fx:id="stickerDesignEdit" alignment="CENTER_RIGHT" minWidth="-Infinity" mnemonicParsing="false" text="Edit" textAlignment="RIGHT" textOverrun="CLIP" visible="false" />
+                           </children>
+                        </HBox>
               </children>
             </AnchorPane>
           </content>
@@ -139,7 +146,7 @@
                   </Label>
                   <Button fx:id="deletePageStyleButton" layoutX="172.0" layoutY="62.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="35.0" text="X" />
                   <Pane fx:id="previewPane" layoutX="14.0" layoutY="94.0" prefHeight="289.0" prefWidth="200.0" />
-                  <Label fx:id="cellRatioLabel" alignment="CENTER" layoutX="8.0" layoutY="539.0" maxWidth="-1.0" prefHeight="14.0" prefWidth="209.0" text="sdf">
+                  <Label fx:id="cellRatioLabel" alignment="CENTER" layoutX="8.0" layoutY="539.0" maxWidth="-1.0" prefHeight="14.0" prefWidth="209.0">
                      <font>
                         <Font size="11.0" fx:id="x31" />
                      </font>

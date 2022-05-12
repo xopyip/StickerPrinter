@@ -2,6 +2,7 @@ package pl.baluch.stickerprinter;
 
 import pl.baluch.stickerprinter.data.Language;
 import pl.baluch.stickerprinter.data.PageStyle;
+import pl.baluch.stickerprinter.data.StickerDesign;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +16,8 @@ public class Config {
             new PageStyle("2x4", 2, 4, 0, 0)
     ));
 
+    private List<StickerDesign> stickerDesigns = new ArrayList<>();
+
     public Language getLocale() {
         return locale;
     }
@@ -25,5 +28,9 @@ public class Config {
 
     public List<PageStyle> getPageStyles() {
         return pageStyles;
+    }
+
+    public List<StickerDesign> getStickerDesigns() {
+        return stickerDesigns;
     }
 }

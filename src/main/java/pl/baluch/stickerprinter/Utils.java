@@ -15,4 +15,11 @@ public class Utils {
         newList.stream().filter(el -> !oldList.contains(el)).forEach(oldList::add);
     }
 
+    public static float getRatio(float width, float height) {
+        float ratio = width / height;
+        if (ratio < 1) {
+            return 1 / ratio;
+        }
+        return ratio;
+    }
 }
