@@ -22,6 +22,8 @@ public class StickerEditorWindow extends Stage {
         Parent parent = null;
         try {
             parent = fxmlLoader.load();
+            StickerEditorController controller = fxmlLoader.getController();
+            controller.setStage(this);
         } catch (IOException e) {
             e.printStackTrace();
         }

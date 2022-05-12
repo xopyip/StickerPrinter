@@ -2,6 +2,7 @@ package pl.baluch.stickerprinter.data;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
+import pl.baluch.stickerprinter.elements.StickerAnchorPane;
 import pl.baluch.stickerprinter.plugins.Item;
 
 public class StickerDesign {
@@ -10,21 +11,30 @@ public class StickerDesign {
     //how many times ratio can be multiplied/divided and stay valid
     //should be at least 1.0
     private float tolerance;
-    private boolean isVertical;
+    private Orientation orientation;
     //name of item group
     private String itemGroup;
+    private StickerAnchorPane node = new StickerAnchorPane();
 
     public StickerDesign() {
     }
 
-    public StickerDesign(float ratio, float tolerance, boolean isVertical, String itemGroup) {
+    public StickerDesign(float ratio, float tolerance, Orientation orientation, String itemGroup) {
         this.ratio = ratio;
         this.tolerance = tolerance;
-        this.isVertical = isVertical;
+        this.orientation = orientation;
         if(tolerance < 1){
             throw new IllegalArgumentException("Tolerance must be at least 1");
         }
         this.itemGroup = itemGroup;
+    }
+
+    public void setTolerance(float tolerance) {
+        this.tolerance = tolerance;
+    }
+
+    public void setOrientation(Orientation orientation) {
+        this.orientation = orientation;
     }
 
     public boolean matches(float ratio, String itemGroup){
@@ -36,5 +46,9 @@ public class StickerDesign {
     public void renderPreview(Pane previewPane, Item item) {
         previewPane.getChildren().clear();
         previewPane.getChildren().add(new Text(item.getName()));
+    }
+
+    public StickerAnchorPane getParentNode() {
+        return this.node;
     }
 }
