@@ -16,7 +16,7 @@ public class Text extends StickerElement {
         if(width >= 0){
             text.setPrefWidth(width);
         }
-        //super.setupMovable(pane, text); //todo: implementation
+        super.setupMovable(pane, this, text);
         pane.getChildren().add(text);
     }
 }

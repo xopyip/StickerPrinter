@@ -91,7 +91,6 @@ public class StickerEditorController implements Initializable {
     }
 
     private void setupDragTarget(Rectangle rectangle, Consumer<StickerElement.Provider<?>> onDrop) {
-
         rectangle.setOnDragOver(event -> {
             event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             event.consume();
@@ -138,9 +137,9 @@ public class StickerEditorController implements Initializable {
 
         design.getParentNode().draw(stickerPane);
 
-        Rectangle dropRectangle = newDropRectangle(x, y, size.getWidth(), size.getHeight());
-        previewPane.getChildren().add(dropRectangle);
         if (design.getParentNode().countChildren() == 0) {
+            Rectangle dropRectangle = newDropRectangle(x, y, size.getWidth(), size.getHeight());
+            previewPane.getChildren().add(dropRectangle);
             setupDragTarget(dropRectangle, provider -> {
                 StickerElement o = provider.get();
                 design.getParentNode().addChild(o);
@@ -153,8 +152,8 @@ public class StickerEditorController implements Initializable {
         AnchorPane rectangle = new AnchorPane();
         rectangle.setLayoutX(x);
         rectangle.setLayoutY(y);
-        rectangle.setPrefWidth(width);
-        rectangle.setPrefHeight(height);
+        rectangle.setPrefSize(width, height);
+        rectangle.setMaxSize(width, height);
         rectangle.setStyle("-fx-border-color: black; -fx-border-width: 1px;");
         return rectangle;
     }
