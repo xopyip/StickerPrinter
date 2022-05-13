@@ -11,13 +11,11 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import pl.baluch.stickerprinter.data.DropZone;
 import pl.baluch.stickerprinter.data.Orientation;
 import pl.baluch.stickerprinter.data.PageStyle;
 import pl.baluch.stickerprinter.data.StickerDesign;
-import pl.baluch.stickerprinter.elements.HBox;
-import pl.baluch.stickerprinter.elements.StickerElement;
-import pl.baluch.stickerprinter.elements.Text;
-import pl.baluch.stickerprinter.elements.VSpacer;
+import pl.baluch.stickerprinter.elements.*;
 import pl.baluch.stickerprinter.plugins.Item;
 
 import java.net.URL;
@@ -41,6 +39,7 @@ public class StickerEditorController implements Initializable {
     private Item item;
     private PageStyle pageStyle;
     private StickerEditorWindow stickerEditorWindow;
+    private AnchorPane stickerPane;
 
     public StickerEditorController(Item item, PageStyle pageStyle) {
         this.item = item;
@@ -87,8 +86,13 @@ public class StickerEditorController implements Initializable {
             ClipboardContent content = new ClipboardContent();
             content.putString(stickerElementsList.getSelectionModel().getSelectedItem().name());
             db.setContent(content);
+            stickerPane.getChildren().removeIf(node -> node instanceof DropZone);
+            setupDropZones(stickerPane, design.getParentNode());
 
             event.consume();
+        });
+        stickerElementsList.setOnDragDone(event -> {
+            stickerPane.getChildren().removeIf(node -> node instanceof DropZone);
         });
     }
 
@@ -134,19 +138,31 @@ public class StickerEditorController implements Initializable {
         };
         double x = (previewPaneWidth - size.getWidth()) / 2;
         double y = (previewPaneHeight - size.getHeight()) / 2;
-        AnchorPane stickerPane = newPreviewPane(x, y, size.getWidth(), size.getHeight());
+        stickerPane = newPreviewPane(x, y, size.getWidth(), size.getHeight());
         previewPane.getChildren().add(stickerPane);
+        design.getParentNode().setX(0);
+        design.getParentNode().setY(0);
+        design.getParentNode().setWidth(size.getWidth());
+        design.getParentNode().setHeight(size.getHeight());
 
         design.getParentNode().draw(stickerPane);
+    }
 
-        if (design.getParentNode().countChildren() == 0) {
-            Rectangle dropRectangle = newDropRectangle(x, y, size.getWidth(), size.getHeight());
-            previewPane.getChildren().add(dropRectangle);
-            setupDragTarget(dropRectangle, provider -> {
+    private void setupDropZones(Pane previewPane, ContainerStickerElement parentNode) {
+        for (DropZone dropZone : parentNode.getDropZones()) {
+            previewPane.getChildren().add(dropZone);
+
+            setupDragTarget(dropZone, provider -> {
                 StickerElement o = provider.get();
                 design.getParentNode().addChild(o);
                 updatePreviews();
             });
+
+            for (StickerElement child : parentNode.getChildren()) {
+                if(child instanceof ContainerStickerElement) {
+                    setupDropZones(previewPane, (ContainerStickerElement) child);
+                }
+            }
         }
     }
 
@@ -157,12 +173,6 @@ public class StickerEditorController implements Initializable {
         rectangle.setPrefSize(width, height);
         rectangle.setMaxSize(width, height);
         rectangle.setStyle("-fx-border-color: black; -fx-border-width: 1px;");
-        return rectangle;
-    }
-
-    private Rectangle newDropRectangle(double x, double y, double width, double height) {
-        Rectangle rectangle = new Rectangle(x, y, width, height);
-        rectangle.setFill(Color.TRANSPARENT);
         return rectangle;
     }
 

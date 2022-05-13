@@ -15,6 +15,16 @@ public abstract class StickerElement {
     protected double width = -1;
     protected double height = -1;
 
+    public StickerElement(int x, int y, int w, int h) {
+        this.x = x;
+        this.y = y;
+        this.width = w;
+        this.height = h;
+    }
+
+    public StickerElement() {
+    }
+
     public abstract void draw(Pane pane);
 
     protected void setupNode(Pane pane, StickerElement stickerElement, Node node) {
@@ -137,12 +147,14 @@ public abstract class StickerElement {
     }
 
 
-    private void setX(double x) {
+    public void setX(double x) {
         this.x = x;
+        updateBoundary();
     }
 
     public void setY(double y) {
         this.y = y;
+        updateBoundary();
     }
 
     public double getX() {
@@ -155,10 +167,12 @@ public abstract class StickerElement {
 
     public void setHeight(double height) {
         this.height = height;
+        updateBoundary();
     }
 
     public void setWidth(double width) {
         this.width = width;
+        updateBoundary();
     }
 
     public double getHeight() {
@@ -169,7 +183,10 @@ public abstract class StickerElement {
         return width;
     }
 
-    protected void setPositionAndSize(Node node) {
+    protected void updateBoundary() {
+    }
+
+    protected void setupPositionAndSize(Node node) {
         if (x >= 0) {
             node.setLayoutX(x);
         }
