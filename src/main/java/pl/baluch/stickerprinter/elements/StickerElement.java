@@ -1,5 +1,7 @@
 package pl.baluch.stickerprinter.elements;
 
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.input.ClipboardContent;
@@ -33,9 +35,17 @@ public abstract class StickerElement {
                 db.setContent(content);
                 event.consume();
             });
+            SimpleObjectProperty<javafx.geometry.Point2D> startLocation = new SimpleObjectProperty<>();
             node.setOnMouseDragged(event -> {
                 double x = event.getX();
                 double y = event.getY();
+                Point2D point2D = startLocation.get();
+                if(point2D == null){
+                    System.out.println("reset");
+                    startLocation.setValue(point2D = new Point2D(event.getX(), event.getY()));
+                }
+                x -= point2D.getX();
+                y -= point2D.getY();
                 if (anchorPane.contains(node.getLayoutX() + x, node.getLayoutY() + y)) {
                     stickerElement.setX(x + node.getLayoutX());
                     stickerElement.setY(y + node.getLayoutY());
@@ -43,9 +53,7 @@ public abstract class StickerElement {
                     node.setLayoutY(stickerElement.getY());
                 }
             });
-            node.setOnMouseReleased(event -> {
-                System.out.println("released");
-            });
+            node.setOnMouseReleased(event -> startLocation.setValue(null));
         }
     }
 
