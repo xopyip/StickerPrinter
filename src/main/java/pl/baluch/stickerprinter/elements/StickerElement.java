@@ -41,7 +41,6 @@ public abstract class StickerElement {
                 double y = event.getY();
                 Point2D point2D = startLocation.get();
                 if(point2D == null){
-                    System.out.println("reset");
                     startLocation.setValue(point2D = new Point2D(event.getX(), event.getY()));
                 }
                 x -= point2D.getX();
