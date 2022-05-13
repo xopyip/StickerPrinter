@@ -1,22 +1,15 @@
 package pl.baluch.stickerprinter.elements;
 
-import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.TextFlow;
 
 public class Text extends StickerElement {
     @Override
     public void draw(Pane pane) {
-        Label text = new Label("Test");
-        if(x >= 0){
-            text.setLayoutX(x);
-        }
-        if(y >= 0){
-            text.setLayoutY(y);
-        }
-        if(width >= 0){
-            text.setPrefWidth(width);
-        }
-        super.setupMovable(pane, this, text);
-        pane.getChildren().add(text);
+        javafx.scene.text.Text text = new javafx.scene.text.Text("Test");
+        TextFlow textFlow = new TextFlow(text);
+        super.setPositionAndSize(textFlow);
+        super.setupNode(pane, this, textFlow);
+        pane.getChildren().add(textFlow);
     }
 }

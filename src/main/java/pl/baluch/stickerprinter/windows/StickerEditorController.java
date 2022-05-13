@@ -14,6 +14,7 @@ import javafx.scene.shape.Rectangle;
 import pl.baluch.stickerprinter.data.Orientation;
 import pl.baluch.stickerprinter.data.PageStyle;
 import pl.baluch.stickerprinter.data.StickerDesign;
+import pl.baluch.stickerprinter.elements.HBox;
 import pl.baluch.stickerprinter.elements.StickerElement;
 import pl.baluch.stickerprinter.elements.Text;
 import pl.baluch.stickerprinter.elements.VSpacer;
@@ -71,7 +72,8 @@ public class StickerEditorController implements Initializable {
     private void setupStickerElements(ResourceBundle resources) {
         stickerElementsList.getItems().addAll(
                 new StickerElement.Provider<>(resources.getString("sticker.elements.text"), Text::new),
-                new StickerElement.Provider<>(resources.getString("sticker.elements.vSpacer"), VSpacer::new)
+                new StickerElement.Provider<>(resources.getString("sticker.elements.vSpacer"), VSpacer::new),
+                new StickerElement.Provider<>(resources.getString("sticker.elements.hBox"), HBox::new)
         );
         setupDragSource();
     }

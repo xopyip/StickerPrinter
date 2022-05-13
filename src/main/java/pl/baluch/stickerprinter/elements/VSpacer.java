@@ -7,7 +7,7 @@ public class VSpacer extends StickerElement {
     @Override
     public void draw(Pane pane) {
         Region region = new Region();
-        super.setupMovable(pane, this, region);
+        super.setupNode(pane, this, region);
         pane.getChildren().add(region);
     }
 }
