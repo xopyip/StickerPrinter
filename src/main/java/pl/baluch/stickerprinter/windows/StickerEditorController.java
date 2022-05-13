@@ -87,7 +87,7 @@ public class StickerEditorController implements Initializable {
             content.putString(stickerElementsList.getSelectionModel().getSelectedItem().name());
             db.setContent(content);
             stickerPane.getChildren().removeIf(node -> node instanceof DropZone);
-            setupDropZones(stickerPane, design.getParentNode());
+            setupDropZones(stickerPane, design.getParentNode(), 0, 0);
 
             event.consume();
         });
@@ -148,19 +148,21 @@ public class StickerEditorController implements Initializable {
         design.getParentNode().draw(stickerPane);
     }
 
-    private void setupDropZones(Pane previewPane, ContainerStickerElement parentNode) {
+    private void setupDropZones(Pane previewPane, ContainerStickerElement parentNode, double x, double y) {
         for (DropZone dropZone : parentNode.getDropZones()) {
-            previewPane.getChildren().add(dropZone);
+            DropZone newDropZone = new DropZone(dropZone.getContainer(), dropZone.getX() + x, dropZone.getY() + y, dropZone.getWidth(), dropZone.getHeight());
+            previewPane.getChildren().add(newDropZone);
 
-            setupDragTarget(dropZone, provider -> {
+            setupDragTarget(newDropZone, provider -> {
                 StickerElement o = provider.get();
-                design.getParentNode().addChild(o);
+                newDropZone.getContainer().addChild(o);
+                design.getParentNode().dump().forEach(System.out::println);
                 updatePreviews();
             });
 
             for (StickerElement child : parentNode.getChildren()) {
                 if(child instanceof ContainerStickerElement) {
-                    setupDropZones(previewPane, (ContainerStickerElement) child);
+                    setupDropZones(previewPane, (ContainerStickerElement) child, x + parentNode.getX(), y + parentNode.getY());
                 }
             }
         }

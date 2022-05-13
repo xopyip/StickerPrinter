@@ -6,7 +6,7 @@ import pl.baluch.stickerprinter.data.DropZone;
 public class HBox extends ContainerStickerElement {
 
     public HBox() {
-        super();
+        super(); //todo: fix dropzones inside containers with their own layout
         this.width = 20;
         this.height = 20;
         updateBoundary();
@@ -20,7 +20,19 @@ public class HBox extends ContainerStickerElement {
     @Override
     protected void updateBoundary() {
         dropZones.clear();
-        dropZones.add(new DropZone(x, y, width, height));
+        dropZones.add(new DropZone(this, x, y, width, height));
+    }
+
+    @Override
+    public void addChild(StickerElement o) {
+        super.addChild(o);
+        o.setHeight(height);
+    }
+
+    @Override
+    public void setHeight(double height) {
+        super.setHeight(height);
+        children.forEach(child -> child.setHeight(height));
     }
 
     @Override
@@ -31,6 +43,4 @@ public class HBox extends ContainerStickerElement {
         super.setupNode(pane, this, hBox);
         pane.getChildren().add(hBox);
     }
-
-
 }

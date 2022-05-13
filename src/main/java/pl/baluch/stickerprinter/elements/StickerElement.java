@@ -7,6 +7,8 @@ import javafx.scene.Node;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 
 public abstract class StickerElement {
@@ -30,7 +32,7 @@ public abstract class StickerElement {
     protected void setupNode(Pane pane, StickerElement stickerElement, Node node) {
         boolean isDraggable = pane instanceof AnchorPane;
         boolean isResizable = node instanceof Region;
-        if(isResizable){
+        if (isResizable) {
             ((Region) node).setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.DOTTED, null, BorderStroke.THIN)));
         }
         //todo: divide into listeners and simply change listener
@@ -57,7 +59,7 @@ public abstract class StickerElement {
                 else if (bottom) pane.setCursor(Cursor.S_RESIZE);
                 else if (top) pane.setCursor(Cursor.N_RESIZE);
                 else if (right) pane.setCursor(Cursor.E_RESIZE);
-                else if (pane.getCursor().toString().endsWith("_RESIZE")) pane.setCursor(Cursor.DEFAULT);
+                else if (pane.getCursor() != null && pane.getCursor().toString().endsWith("_RESIZE")) pane.setCursor(Cursor.DEFAULT);
             }
             if (isDraggable && pane.getCursor() == Cursor.DEFAULT && pane.contains(event.getX(), event.getY())) {
                 pane.setCursor(Cursor.MOVE);
@@ -201,6 +203,10 @@ public abstract class StickerElement {
                 region.setPrefHeight(height);
             }
         }
+    }
+
+    public List<String> dump(){
+        return Arrays.asList(" - " + getClass().getSimpleName());
     }
 
     public record Provider<T extends StickerElement>(String name, Supplier<T> supplier) {

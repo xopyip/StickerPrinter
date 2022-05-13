@@ -3,7 +3,9 @@ package pl.baluch.stickerprinter.elements;
 import pl.baluch.stickerprinter.data.DropZone;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class ContainerStickerElement extends StickerElement {
     protected Set<StickerElement> children = new HashSet<>();
@@ -30,5 +32,12 @@ public abstract class ContainerStickerElement extends StickerElement {
 
     public Set<DropZone> getDropZones() {
         return dropZones;
+    }
+
+    @Override
+    public List<String> dump() {
+        List<String> collect = children.stream().flatMap(children -> children.dump().stream()).map(s -> "    " + s).collect(Collectors.toList());
+        collect.addAll(0, super.dump());
+        return collect;
     }
 }

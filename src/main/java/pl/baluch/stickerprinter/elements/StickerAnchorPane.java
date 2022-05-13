@@ -7,7 +7,7 @@ public class StickerAnchorPane extends ContainerStickerElement {
     @Override
     protected void updateBoundary() {
         dropZones.clear();
-        dropZones.add(new DropZone(x, y, width, height));
+        dropZones.add(new DropZone(this, x, y, width, height));
     }
 
     @Override
