@@ -10,12 +10,12 @@ public class StickerAnchorPane extends ContainerStickerElement<AnchorPane> {
         super(new AnchorPane(), 0, 0, 100, 100);
         disableResizing();
         disableDragging();
+        addBoundaryListener((observable, oldValue, newValue) -> updateBoundary());
     }
 
-    @Override
     protected void updateBoundary() {
         dropZones.clear();
-        dropZones.add(new DropZone(this, x, y, width, height));
+        dropZones.add(new DropZone(this, getX(), getY(), getWidth(), getHeight()));
     }
 
     @Override

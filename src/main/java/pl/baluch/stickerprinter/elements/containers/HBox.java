@@ -12,15 +12,15 @@ public class HBox extends ContainerStickerElement<javafx.scene.layout.HBox> {
 
     public HBox() {
         super(new javafx.scene.layout.HBox());
-        this.width = 20;
-        this.height = 20;
-        updateBoundary();
+        addBoundaryListener((observable, oldValue, newValue) -> updateBoundary());
+        setWidth(50);
+        setHeight(30);
+        addHeightListener((observable, oldValue, newValue) -> children.forEach(child -> child.setHeight(newValue.doubleValue())));
     }
 
-    @Override
     protected void updateBoundary() {
         dropZones.clear();
-        dropZones.add(new DropZone(this, x, y, width, height));
+        dropZones.add(new DropZone(this, getX(), getY(), getWidth(), getHeight()));
     }
 
     @Override
@@ -33,8 +33,15 @@ public class HBox extends ContainerStickerElement<javafx.scene.layout.HBox> {
 
     @Override
     public void addChild(StickerElement<Node> o) {
-        o.setHeight(height);
+        o.setHeight(height.get());
         o.setX(children.stream().mapToDouble(StickerElement::getWidth).sum());
+        o.addWidthListener((observable, oldValue, newValue) -> {
+            double posX = 0;
+            for (StickerElement<Node> child : children) {
+                child.setX(posX);
+                posX += child.getWidth();
+            }
+        });
         super.addChild(o);
         updateBoundary();
     }

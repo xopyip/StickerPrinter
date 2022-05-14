@@ -1,6 +1,8 @@
 package pl.baluch.stickerprinter.elements;
 
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -12,10 +14,10 @@ import java.util.Stack;
 import java.util.function.Supplier;
 
 public abstract class StickerElement<T extends Node> {
-    protected double x = 0;
-    protected double y = 0;
-    protected double width = -1;
-    protected double height = -1;
+    protected SimpleDoubleProperty x = new SimpleDoubleProperty(0);
+    protected SimpleDoubleProperty y = new SimpleDoubleProperty(0);
+    protected SimpleDoubleProperty width = new SimpleDoubleProperty(-1);
+    protected SimpleDoubleProperty height = new SimpleDoubleProperty(-1);
     private boolean resizableDisabled = false;
     private boolean draggingDisabled = false;
     protected transient T node = null;
@@ -23,10 +25,10 @@ public abstract class StickerElement<T extends Node> {
 
     public StickerElement(T node, int x, int y, int w, int h) {
         this.node = node;
-        this.x = x;
-        this.y = y;
-        this.width = w;
-        this.height = h;
+        this.x.set(x);
+        this.y.set(y);
+        this.width.set(w);
+        this.height.set(h);
     }
 
     public StickerElement(T node) {
@@ -182,57 +184,50 @@ public abstract class StickerElement<T extends Node> {
 
 
     public void setX(double x) {
-        this.x = x;
-        updateBoundary();
+        this.x.set(x);
     }
 
     public void setY(double y) {
-        this.y = y;
-        updateBoundary();
+        this.y.set(y);
     }
 
     public double getX() {
-        return x;
+        return x.get();
     }
 
     public double getY() {
-        return y;
+        return y.get();
     }
 
     public void setHeight(double height) {
-        this.height = height;
-        updateBoundary();
+        this.height.set(height);
     }
 
     public void setWidth(double width) {
-        this.width = width;
-        updateBoundary();
+        this.width.set(width);
     }
 
     public double getHeight() {
-        return height;
+        return height.get();
     }
 
     public double getWidth() {
-        return width;
-    }
-
-    protected void updateBoundary() {
+        return width.get();
     }
 
     protected void setupPositionAndSize(Node node) {
-        if (x >= 0) {
-            node.setLayoutX(x);
+        if (x.get() >= 0) {
+            node.setLayoutX(x.get());
         }
-        if (y >= 0) {
-            node.setLayoutY(y);
+        if (y.get() >= 0) {
+            node.setLayoutY(y.get());
         }
         if (node instanceof Region region) {
-            if (width >= 0) {
-                region.setPrefWidth(width);
+            if (width.get() >= 0) {
+                region.setPrefWidth(width.get());
             }
-            if (height >= 0) {
-                region.setPrefHeight(height);
+            if (height.get() >= 0) {
+                region.setPrefHeight(height.get());
             }
         }
     }
@@ -247,6 +242,25 @@ public abstract class StickerElement<T extends Node> {
 
     protected void disableDragging() {
         this.draggingDisabled = true;
+    }
+
+    public void addBoundaryListener(ChangeListener<Number> o) {
+        addSizeListener(o);
+        addPositionListener(o);
+    }
+    public void addPositionListener(ChangeListener<Number> o) {
+        x.addListener(o);
+        y.addListener(o);
+    }
+    public void addSizeListener(ChangeListener<Number> o) {
+        addWidthListener(o);
+        addHeightListener(o);
+    }
+    public void addWidthListener(ChangeListener<Number> o) {
+        width.addListener(o);
+    }
+    public void addHeightListener(ChangeListener<Number> o) {
+        height.addListener(o);
     }
 
     public record Provider<T extends Node>(String name, Supplier<StickerElement<T>> supplier) {
