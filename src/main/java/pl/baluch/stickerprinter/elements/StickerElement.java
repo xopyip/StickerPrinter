@@ -7,31 +7,34 @@ import javafx.scene.Node;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
-public abstract class StickerElement {
+public abstract class StickerElement<T extends Node> {
     protected double x = 0;
     protected double y = 0;
     protected double width = -1;
     protected double height = -1;
     private boolean resizableDisabled = false;
+    private boolean draggingDisabled = false;
+    protected transient T node = null;
 
-    public StickerElement(int x, int y, int w, int h) {
+    public StickerElement(T node, int x, int y, int w, int h) {
+        this.node = node;
         this.x = x;
         this.y = y;
         this.width = w;
         this.height = h;
     }
 
-    public StickerElement() {
+    public StickerElement(T node) {
+        this.node = node;
     }
 
     public abstract void draw(Pane pane);
 
     protected void setupNode(Pane pane, Node node) {
-        boolean isDraggable = pane instanceof AnchorPane;
+        boolean isDraggable = (pane instanceof AnchorPane) && !draggingDisabled;
         boolean isResizable = (node instanceof Region) && !resizableDisabled;
         if (isResizable) {
             ((Region) node).setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.DOTTED, null, BorderStroke.THIN)));
@@ -207,16 +210,19 @@ public abstract class StickerElement {
     }
 
     public List<String> dump(){
-        return Arrays.asList(" - " + getClass().getSimpleName());
+        return List.of(" - " + getClass().getSimpleName());
     }
 
     protected void disableResizing() {
         this.resizableDisabled = true;
     }
+    protected void disableDragging() {
+        this.draggingDisabled = true;
+    }
 
-    public record Provider<T extends StickerElement>(String name, Supplier<T> supplier) {
+    public record Provider<T extends Node>(String name, Supplier<StickerElement<T>> supplier) {
 
-        public T get() {
+        public StickerElement<T> get() {
             return this.supplier.get();
         }
 

@@ -2,7 +2,7 @@ package pl.baluch.stickerprinter.data;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
-import pl.baluch.stickerprinter.elements.StickerAnchorPane;
+import pl.baluch.stickerprinter.elements.containers.StickerAnchorPane;
 import pl.baluch.stickerprinter.plugins.Item;
 
 public class StickerDesign {

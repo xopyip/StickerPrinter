@@ -3,20 +3,26 @@ package pl.baluch.stickerprinter.windows;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Dimension2D;
-import javafx.scene.control.Label;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import pl.baluch.stickerprinter.data.DropZone;
 import pl.baluch.stickerprinter.data.Orientation;
 import pl.baluch.stickerprinter.data.PageStyle;
 import pl.baluch.stickerprinter.data.StickerDesign;
-import pl.baluch.stickerprinter.elements.*;
+import pl.baluch.stickerprinter.elements.ContainerStickerElement;
+import pl.baluch.stickerprinter.elements.StickerElement;
+import pl.baluch.stickerprinter.elements.children.HSpacer;
+import pl.baluch.stickerprinter.elements.children.Text;
+import pl.baluch.stickerprinter.elements.children.VSpacer;
+import pl.baluch.stickerprinter.elements.containers.HBox;
 import pl.baluch.stickerprinter.plugins.Item;
 
 import java.net.URL;
@@ -75,7 +81,7 @@ public class StickerEditorController implements Initializable {
                 new StickerElement.Provider<>(resources.getString("sticker.elements.vSpacer"), VSpacer::new),
                 new StickerElement.Provider<>(resources.getString("sticker.elements.hSpacer"), HSpacer::new),
                 new StickerElement.Provider<>(resources.getString("sticker.elements.hBox"), HBox::new),
-                new StickerElement.Provider<>(resources.getString("sticker.elements.label"), pl.baluch.stickerprinter.elements.Label::new)
+                new StickerElement.Provider<>(resources.getString("sticker.elements.label"), pl.baluch.stickerprinter.elements.children.Label::new)
         );
         setupDragSource();
     }
@@ -90,7 +96,7 @@ public class StickerEditorController implements Initializable {
             content.putString(stickerElementsList.getSelectionModel().getSelectedItem().name());
             db.setContent(content);
             stickerPane.getChildren().removeIf(node -> node instanceof DropZone);
-            setupDropZones(stickerPane, design.getParentNode(), 0, 0);
+            setupDropZones(stickerPane, (ContainerStickerElement) design.getParentNode(), 0, 0);
 
             event.consume();
         });
@@ -151,19 +157,19 @@ public class StickerEditorController implements Initializable {
         design.getParentNode().draw(stickerPane);
     }
 
-    private void setupDropZones(Pane previewPane, ContainerStickerElement parentNode, double x, double y) {
+    private void setupDropZones(Pane previewPane, ContainerStickerElement<Region> parentNode, double x, double y) {
         for (DropZone dropZone : parentNode.getDropZones()) {
             DropZone newDropZone = new DropZone(dropZone.getContainer(), dropZone.getX() + x, dropZone.getY() + y, dropZone.getWidth(), dropZone.getHeight());
             previewPane.getChildren().add(newDropZone);
 
             setupDragTarget(newDropZone, provider -> {
-                StickerElement o = provider.get();
+                StickerElement<?> o = provider.get();
                 newDropZone.getContainer().addChild(o);
                 design.getParentNode().dump().forEach(System.out::println);
                 updatePreviews();
             });
 
-            for (StickerElement child : parentNode.getChildren()) {
+            for (StickerElement<Node> child : parentNode.getChildren()) {
                 if(child instanceof ContainerStickerElement) {
                     setupDropZones(previewPane, (ContainerStickerElement) child, x + parentNode.getX(), y + parentNode.getY());
                 }
