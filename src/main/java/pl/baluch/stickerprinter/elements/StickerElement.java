@@ -43,13 +43,25 @@ public abstract class StickerElement<T extends Node> {
         }
         //todo: divide into listeners and simply change listener
         node.setOnMouseEntered(event -> {
+            if (!mouseOverStack.empty())
+                mouseOverStack.peek().setHighlighted(false);
             mouseOverStack.add(this);
+            this.setHighlighted(true);
             if (isDraggable) {
                 node.setCursor(Cursor.MOVE);
             }
         });
         node.setOnMouseExited(event -> {
-            mouseOverStack.remove(this);
+            this.setHighlighted(false);
+            //removing redundant elements from stack to prevent highlighting of other elements after fast mouse movement
+            while (!mouseOverStack.empty() && mouseOverStack.peek() != this) {
+                mouseOverStack.peek().setHighlighted(false);
+                mouseOverStack.pop();
+            }
+            if (!mouseOverStack.empty())
+                mouseOverStack.pop();
+            if(!mouseOverStack.empty())
+                mouseOverStack.peek().setHighlighted(true);
             node.setCursor(Cursor.DEFAULT);
         });
         node.setOnMouseMoved(event -> {
@@ -69,7 +81,7 @@ public abstract class StickerElement<T extends Node> {
                 else if (bottom) node.setCursor(Cursor.S_RESIZE);
                 else if (top) node.setCursor(Cursor.N_RESIZE);
                 else if (right) node.setCursor(Cursor.E_RESIZE);
-                else if (node.getCursor() != null && node.getCursor().toString().endsWith("_RESIZE"))
+                else if (node.getCursor() == null || node.getCursor().toString().endsWith("_RESIZE"))
                     node.setCursor(Cursor.DEFAULT);
             }
             if (isDraggable && node.getCursor() == Cursor.DEFAULT && mouseOverStack.peek() == this) {
@@ -107,7 +119,6 @@ public abstract class StickerElement<T extends Node> {
             }
             if (isResizable && savedCursor.get() != null) {
                 Cursor cursor = savedCursor.get();
-                System.out.println("Resizing " + cursor + " node: " + this);
                 Point2D point2D = startLocation.get();
                 if (point2D == null) {
                     startLocation.setValue(point2D = new Point2D(event.getScreenX(), event.getScreenY()));
@@ -156,6 +167,17 @@ public abstract class StickerElement<T extends Node> {
             }
         });
 
+    }
+
+    private void setHighlighted(boolean b) {
+        if(draggingDisabled  && resizableDisabled){
+            return;
+        }
+        if (b) {
+            node.getStyleClass().add("highlighted");
+        } else {
+            node.getStyleClass().remove("highlighted");
+        }
     }
 
 
