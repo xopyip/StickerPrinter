@@ -9,7 +9,7 @@ public class Text extends StickerElement {
         javafx.scene.text.Text text = new javafx.scene.text.Text("Test");
         TextFlow textFlow = new TextFlow(text);
         super.setupPositionAndSize(textFlow);
-        super.setupNode(pane, this, textFlow);
+        super.setupNode(pane, textFlow);
         pane.getChildren().add(textFlow);
     }
 }

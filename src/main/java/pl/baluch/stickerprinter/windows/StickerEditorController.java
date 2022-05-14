@@ -3,6 +3,7 @@ package pl.baluch.stickerprinter.windows;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Dimension2D;
+import javafx.scene.control.Label;
 import javafx.scene.control.*;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
@@ -72,7 +73,9 @@ public class StickerEditorController implements Initializable {
         stickerElementsList.getItems().addAll(
                 new StickerElement.Provider<>(resources.getString("sticker.elements.text"), Text::new),
                 new StickerElement.Provider<>(resources.getString("sticker.elements.vSpacer"), VSpacer::new),
-                new StickerElement.Provider<>(resources.getString("sticker.elements.hBox"), HBox::new)
+                new StickerElement.Provider<>(resources.getString("sticker.elements.hSpacer"), HSpacer::new),
+                new StickerElement.Provider<>(resources.getString("sticker.elements.hBox"), HBox::new),
+                new StickerElement.Provider<>(resources.getString("sticker.elements.label"), pl.baluch.stickerprinter.elements.Label::new)
         );
         setupDragSource();
     }

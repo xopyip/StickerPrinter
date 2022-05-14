@@ -1,13 +1,13 @@
 package pl.baluch.stickerprinter.elements;
 
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
 
-public class VSpacer extends StickerElement {
+public class HSpacer extends StickerElement {
 
-    public VSpacer() {
+    public HSpacer() {
         super();
         this.disableResizing();
     }
@@ -15,7 +15,7 @@ public class VSpacer extends StickerElement {
     @Override
     public void draw(Pane pane) {
         Region region = new Region();
-        VBox.setVgrow(region, Priority.ALWAYS);
+        HBox.setHgrow(region, Priority.ALWAYS);
         super.setupNode(pane, region);
         pane.getChildren().add(region);
     }

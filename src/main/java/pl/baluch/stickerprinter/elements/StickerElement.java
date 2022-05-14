@@ -16,6 +16,7 @@ public abstract class StickerElement {
     protected double y = 0;
     protected double width = -1;
     protected double height = -1;
+    private boolean resizableDisabled = false;
 
     public StickerElement(int x, int y, int w, int h) {
         this.x = x;
@@ -29,9 +30,9 @@ public abstract class StickerElement {
 
     public abstract void draw(Pane pane);
 
-    protected void setupNode(Pane pane, StickerElement stickerElement, Node node) {
+    protected void setupNode(Pane pane, Node node) {
         boolean isDraggable = pane instanceof AnchorPane;
-        boolean isResizable = node instanceof Region;
+        boolean isResizable = (node instanceof Region) && !resizableDisabled;
         if (isResizable) {
             ((Region) node).setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.DOTTED, null, BorderStroke.THIN)));
         }
@@ -88,10 +89,10 @@ public abstract class StickerElement {
                 x -= point2D.getX();
                 y -= point2D.getY();
                 if (pane.contains(node.getLayoutX() + x, node.getLayoutY() + y)) {
-                    stickerElement.setX(x + node.getLayoutX());
-                    stickerElement.setY(y + node.getLayoutY());
-                    node.setLayoutX(stickerElement.getX());
-                    node.setLayoutY(stickerElement.getY());
+                    this.setX(x + node.getLayoutX());
+                    this.setY(y + node.getLayoutY());
+                    node.setLayoutX(this.getX());
+                    node.setLayoutY(this.getY());
                 }
             }
             if (isResizable) {
@@ -107,10 +108,10 @@ public abstract class StickerElement {
                     boolean resizeLeft = cursor == Cursor.W_RESIZE || cursor == Cursor.NW_RESIZE || cursor == Cursor.SW_RESIZE;
                     boolean resizeRight = cursor == Cursor.E_RESIZE || cursor == Cursor.NE_RESIZE || cursor == Cursor.SE_RESIZE;
 
-                    double newX = stickerElement.getX();
-                    double newY = stickerElement.getY();
-                    double newWidth = stickerElement.getWidth();
-                    double newHeight = stickerElement.getHeight();
+                    double newX = this.getX();
+                    double newY = this.getY();
+                    double newWidth = this.getWidth();
+                    double newHeight = this.getHeight();
                     double dx = event.getScreenX() - point2D.getX();
                     double dy = event.getScreenY() - point2D.getY();
                     if (resizeTop) {
@@ -138,10 +139,10 @@ public abstract class StickerElement {
             startLocation.setValue(null);
             if (resizeDirection.get() != null && isResizable) {
 
-                stickerElement.setX(node.getLayoutX());
-                stickerElement.setY(node.getLayoutY());
-                stickerElement.setWidth(((Region) node).getPrefWidth());
-                stickerElement.setHeight(((Region) node).getPrefHeight());
+                this.setX(node.getLayoutX());
+                this.setY(node.getLayoutY());
+                this.setWidth(((Region) node).getPrefWidth());
+                this.setHeight(((Region) node).getPrefHeight());
                 resizeDirection.setValue(null);
             }
         });
@@ -207,6 +208,10 @@ public abstract class StickerElement {
 
     public List<String> dump(){
         return Arrays.asList(" - " + getClass().getSimpleName());
+    }
+
+    protected void disableResizing() {
+        this.resizableDisabled = true;
     }
 
     public record Provider<T extends StickerElement>(String name, Supplier<T> supplier) {
