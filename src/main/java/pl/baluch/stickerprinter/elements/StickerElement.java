@@ -21,6 +21,8 @@ public abstract class StickerElement<T extends Node> {
     private boolean resizableDisabled = false;
     private boolean draggingDisabled = false;
     protected transient T node = null;
+
+    //Stack to trace hover state
     private static final Stack<StickerElement<?>> mouseOverStack = new Stack<>();
 
     public StickerElement(T node, int x, int y, int w, int h) {
@@ -37,6 +39,11 @@ public abstract class StickerElement<T extends Node> {
 
     public abstract void draw(Pane pane);
 
+    /**
+     * Sets required listeners and properties to make element resiable and draggable
+     * @param pane - parent pane
+     * @param node - node to be resized and dragged
+     */
     protected void setupNode(Pane pane, Node node) {
         boolean isDraggable = (pane instanceof AnchorPane) && !draggingDisabled;
         boolean isResizable = (node instanceof Region) && !resizableDisabled;
@@ -171,6 +178,10 @@ public abstract class StickerElement<T extends Node> {
 
     }
 
+    /**
+     * Set highlighted state of the node if node can be resized or moved
+     * @param b - true if node should be highlighted
+     */
     private void setHighlighted(boolean b) {
         if(draggingDisabled  && resizableDisabled){
             return;
