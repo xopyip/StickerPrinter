@@ -8,6 +8,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 import java.util.List;
+import java.util.Stack;
 import java.util.function.Supplier;
 
 public abstract class StickerElement<T extends Node> {
@@ -18,6 +19,7 @@ public abstract class StickerElement<T extends Node> {
     private boolean resizableDisabled = false;
     private boolean draggingDisabled = false;
     protected transient T node = null;
+    private static final Stack<StickerElement<?>> mouseOverStack = new Stack<>();
 
     public StickerElement(T node, int x, int y, int w, int h) {
         this.node = node;
@@ -41,13 +43,17 @@ public abstract class StickerElement<T extends Node> {
         }
         //todo: divide into listeners and simply change listener
         node.setOnMouseEntered(event -> {
+            mouseOverStack.add(this);
             if (isDraggable) {
-                pane.setCursor(Cursor.MOVE);
+                node.setCursor(Cursor.MOVE);
             }
         });
-        node.setOnMouseExited(event -> pane.setCursor(Cursor.DEFAULT));
+        node.setOnMouseExited(event -> {
+            mouseOverStack.remove(this);
+            node.setCursor(Cursor.DEFAULT);
+        });
         node.setOnMouseMoved(event -> {
-            if (isResizable) {
+            if (isResizable && mouseOverStack.peek() == this) {
                 double cursorX = event.getX();
                 double cursorY = event.getY();
                 boolean left = cursorX <= 1;
@@ -55,34 +61,35 @@ public abstract class StickerElement<T extends Node> {
                 boolean top = cursorY <= 1;
                 boolean bottom = cursorY >= ((Region) node).getPrefHeight() - 1;
 
-                if (left && top) pane.setCursor(Cursor.NW_RESIZE);
-                else if (right && top) pane.setCursor(Cursor.NE_RESIZE);
-                else if (right && bottom) pane.setCursor(Cursor.SE_RESIZE);
-                else if (left && bottom) pane.setCursor(Cursor.SW_RESIZE);
-                else if (left) pane.setCursor(Cursor.W_RESIZE);
-                else if (bottom) pane.setCursor(Cursor.S_RESIZE);
-                else if (top) pane.setCursor(Cursor.N_RESIZE);
-                else if (right) pane.setCursor(Cursor.E_RESIZE);
-                else if (pane.getCursor() != null && pane.getCursor().toString().endsWith("_RESIZE")) pane.setCursor(Cursor.DEFAULT);
+                if (left && top) node.setCursor(Cursor.NW_RESIZE);
+                else if (right && top) node.setCursor(Cursor.NE_RESIZE);
+                else if (right && bottom) node.setCursor(Cursor.SE_RESIZE);
+                else if (left && bottom) node.setCursor(Cursor.SW_RESIZE);
+                else if (left) node.setCursor(Cursor.W_RESIZE);
+                else if (bottom) node.setCursor(Cursor.S_RESIZE);
+                else if (top) node.setCursor(Cursor.N_RESIZE);
+                else if (right) node.setCursor(Cursor.E_RESIZE);
+                else if (node.getCursor() != null && node.getCursor().toString().endsWith("_RESIZE"))
+                    node.setCursor(Cursor.DEFAULT);
             }
-            if (isDraggable && pane.getCursor() == Cursor.DEFAULT && pane.contains(event.getX(), event.getY())) {
-                pane.setCursor(Cursor.MOVE);
+            if (isDraggable && node.getCursor() == Cursor.DEFAULT && mouseOverStack.peek() == this) {
+                node.setCursor(Cursor.MOVE);
             }
         });
 
         SimpleObjectProperty<Point2D> startLocation = new SimpleObjectProperty<>();
-        SimpleObjectProperty<Cursor> resizeDirection = new SimpleObjectProperty<>();
+        SimpleObjectProperty<Cursor> savedCursor = new SimpleObjectProperty<>();
 
         node.setOnMousePressed(event -> {
-            if (pane.getCursor() != Cursor.DEFAULT && resizeDirection.get() == null && pane.getCursor() != Cursor.DEFAULT) {
-                resizeDirection.set(pane.getCursor());
+            if (node.getCursor() != Cursor.DEFAULT && savedCursor.get() == null && node.getCursor() != Cursor.DEFAULT && mouseOverStack.peek() == this) {
+                savedCursor.set(node.getCursor());
             }
         });
 
 
         //setup drag source
         node.setOnMouseDragged(event -> {
-            if (isDraggable && resizeDirection.get() == Cursor.MOVE) {
+            if (isDraggable && savedCursor.get() == Cursor.MOVE) {
                 double x = event.getX();
                 double y = event.getY();
                 Point2D point2D = startLocation.get();
@@ -98,55 +105,54 @@ public abstract class StickerElement<T extends Node> {
                     node.setLayoutY(this.getY());
                 }
             }
-            if (isResizable) {
-                Cursor cursor = resizeDirection.get();
-                if (cursor != null) {
-                    Point2D point2D = startLocation.get();
-                    if (point2D == null) {
-                        startLocation.setValue(point2D = new Point2D(event.getScreenX(), event.getScreenY()));
-                    }
-                    Region region = (Region) node;
-                    boolean resizeTop = cursor == Cursor.N_RESIZE || cursor == Cursor.NW_RESIZE || cursor == Cursor.NE_RESIZE;
-                    boolean resizeBottom = cursor == Cursor.S_RESIZE || cursor == Cursor.SW_RESIZE || cursor == Cursor.SE_RESIZE;
-                    boolean resizeLeft = cursor == Cursor.W_RESIZE || cursor == Cursor.NW_RESIZE || cursor == Cursor.SW_RESIZE;
-                    boolean resizeRight = cursor == Cursor.E_RESIZE || cursor == Cursor.NE_RESIZE || cursor == Cursor.SE_RESIZE;
-
-                    double newX = this.getX();
-                    double newY = this.getY();
-                    double newWidth = this.getWidth();
-                    double newHeight = this.getHeight();
-                    double dx = event.getScreenX() - point2D.getX();
-                    double dy = event.getScreenY() - point2D.getY();
-                    if (resizeTop) {
-                        newY += dy;
-                        newHeight -= dy;
-                    }
-                    if (resizeLeft) {
-                        newX += dx;
-                        newWidth -= dx;
-                    }
-                    if (resizeRight) {
-                        newWidth += dx;
-                    }
-                    if (resizeBottom) {
-                        newHeight += dy;
-                    }
-                    region.setLayoutX(newX);
-                    region.setLayoutY(newY);
-                    region.setPrefWidth(newWidth);
-                    region.setPrefHeight(newHeight);
+            if (isResizable && savedCursor.get() != null) {
+                Cursor cursor = savedCursor.get();
+                System.out.println("Resizing " + cursor + " node: " + this);
+                Point2D point2D = startLocation.get();
+                if (point2D == null) {
+                    startLocation.setValue(point2D = new Point2D(event.getScreenX(), event.getScreenY()));
                 }
+                Region region = (Region) node;
+                boolean resizeTop = cursor == Cursor.N_RESIZE || cursor == Cursor.NW_RESIZE || cursor == Cursor.NE_RESIZE;
+                boolean resizeBottom = cursor == Cursor.S_RESIZE || cursor == Cursor.SW_RESIZE || cursor == Cursor.SE_RESIZE;
+                boolean resizeLeft = cursor == Cursor.W_RESIZE || cursor == Cursor.NW_RESIZE || cursor == Cursor.SW_RESIZE;
+                boolean resizeRight = cursor == Cursor.E_RESIZE || cursor == Cursor.NE_RESIZE || cursor == Cursor.SE_RESIZE;
+
+                double newX = this.getX();
+                double newY = this.getY();
+                double newWidth = this.getWidth();
+                double newHeight = this.getHeight();
+                double dx = event.getScreenX() - point2D.getX();
+                double dy = event.getScreenY() - point2D.getY();
+                if (resizeTop) {
+                    newY += dy;
+                    newHeight -= dy;
+                }
+                if (resizeLeft) {
+                    newX += dx;
+                    newWidth -= dx;
+                }
+                if (resizeRight) {
+                    newWidth += dx;
+                }
+                if (resizeBottom) {
+                    newHeight += dy;
+                }
+                region.setLayoutX(newX);
+                region.setLayoutY(newY);
+                region.setPrefWidth(newWidth);
+                region.setPrefHeight(newHeight);
             }
         });
         node.setOnMouseReleased(event -> {
             startLocation.setValue(null);
-            if (resizeDirection.get() != null && isResizable) {
+            if (savedCursor.get() != null && isResizable) {
 
                 this.setX(node.getLayoutX());
                 this.setY(node.getLayoutY());
                 this.setWidth(((Region) node).getPrefWidth());
                 this.setHeight(((Region) node).getPrefHeight());
-                resizeDirection.setValue(null);
+                savedCursor.setValue(null);
             }
         });
 
@@ -209,13 +215,14 @@ public abstract class StickerElement<T extends Node> {
         }
     }
 
-    public List<String> dump(){
+    public List<String> dump() {
         return List.of(" - " + getClass().getSimpleName());
     }
 
     protected void disableResizing() {
         this.resizableDisabled = true;
     }
+
     protected void disableDragging() {
         this.draggingDisabled = true;
     }
