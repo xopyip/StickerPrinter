@@ -4,6 +4,7 @@ import javafx.scene.Node;
 import pl.baluch.stickerprinter.Storage;
 import pl.baluch.stickerprinter.elements.children.HSpacer;
 import pl.baluch.stickerprinter.elements.children.Text;
+import pl.baluch.stickerprinter.elements.containers.TextFlow;
 import pl.baluch.stickerprinter.elements.children.VSpacer;
 import pl.baluch.stickerprinter.elements.containers.HBox;
 import pl.baluch.stickerprinter.elements.containers.StickerAnchorPane;
@@ -12,6 +13,7 @@ import java.util.function.Supplier;
 
 public enum StickerElementTypes {
     ANCHOR_PANE(() -> Storage.getResourceBundle().getString("sticker.elements.anchorPane"), StickerAnchorPane::new),
+    TEXT_FLOW(() -> Storage.getResourceBundle().getString("sticker.elements.textFlow"), TextFlow::new),
     TEXT(() -> Storage.getResourceBundle().getString("sticker.elements.text"), Text::new),
     V_SPACER(() -> Storage.getResourceBundle().getString("sticker.elements.vSpacer"), VSpacer::new),
     H_SPACER(() -> Storage.getResourceBundle().getString("sticker.elements.hSpacer"), HSpacer::new),

@@ -3,14 +3,15 @@ package pl.baluch.stickerprinter.elements.children;
 import com.google.gson.JsonObject;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.layout.Pane;
-import javafx.scene.text.TextFlow;
 import pl.baluch.stickerprinter.elements.StickerElement;
 
-public class Text extends StickerElement<TextFlow> {
+;
+
+public class Text extends StickerElement<javafx.scene.text.Text> {
     private final SimpleStringProperty text = new SimpleStringProperty("Test");
     public Text() {
-        super(new TextFlow(new javafx.scene.text.Text()));
-        //todo: reimplemnt this as block
+        super(new javafx.scene.text.Text());
+        node.textProperty().bind(text);
     }
 
     @Override
@@ -22,11 +23,13 @@ public class Text extends StickerElement<TextFlow> {
 
     @Override
     public void deserialize(JsonObject properties) {
-
+        text.set(properties.get("text").getAsString());
     }
 
     @Override
     public JsonObject serialize() {
-        return null;
+        JsonObject properties = new JsonObject();
+        properties.addProperty("text", text.get());
+        return properties;
     }
 }
