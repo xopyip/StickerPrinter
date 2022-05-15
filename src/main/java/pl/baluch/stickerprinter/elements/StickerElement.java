@@ -1,5 +1,6 @@
 package pl.baluch.stickerprinter.elements;
 
+import com.google.gson.JsonObject;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -11,7 +12,6 @@ import javafx.scene.paint.Color;
 
 import java.util.List;
 import java.util.Stack;
-import java.util.function.Supplier;
 
 public abstract class StickerElement<T extends Node> {
     protected SimpleDoubleProperty x = new SimpleDoubleProperty(0);
@@ -24,6 +24,7 @@ public abstract class StickerElement<T extends Node> {
 
     //Stack to trace hover state
     private static final Stack<StickerElement<?>> mouseOverStack = new Stack<>();
+    private StickerElementTypes type;
 
     public StickerElement(T node, int x, int y, int w, int h) {
         this.node = node;
@@ -41,6 +42,7 @@ public abstract class StickerElement<T extends Node> {
 
     /**
      * Sets required listeners and properties to make element resiable and draggable
+     *
      * @param pane - parent pane
      * @param node - node to be resized and dragged
      */
@@ -69,7 +71,7 @@ public abstract class StickerElement<T extends Node> {
             }
             if (!mouseOverStack.empty())
                 mouseOverStack.pop();
-            if(!mouseOverStack.empty())
+            if (!mouseOverStack.empty())
                 mouseOverStack.peek().setHighlighted(true);
             node.setCursor(Cursor.DEFAULT);
         });
@@ -180,10 +182,11 @@ public abstract class StickerElement<T extends Node> {
 
     /**
      * Set highlighted state of the node if node can be resized or moved
+     *
      * @param b - true if node should be highlighted
      */
     private void setHighlighted(boolean b) {
-        if(draggingDisabled  && resizableDisabled){
+        if (draggingDisabled && resizableDisabled) {
             return;
         }
         if (b) {
@@ -259,30 +262,55 @@ public abstract class StickerElement<T extends Node> {
         addSizeListener(o);
         addPositionListener(o);
     }
+
     public void addPositionListener(ChangeListener<Number> o) {
         x.addListener(o);
         y.addListener(o);
     }
+
     public void addSizeListener(ChangeListener<Number> o) {
         addWidthListener(o);
         addHeightListener(o);
     }
+
     public void addWidthListener(ChangeListener<Number> o) {
         width.addListener(o);
     }
+
     public void addHeightListener(ChangeListener<Number> o) {
         height.addListener(o);
     }
 
-    public record Provider<T extends Node>(String name, Supplier<StickerElement<T>> supplier) {
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
 
-        public StickerElement<T> get() {
-            return this.supplier.get();
+    public void setType(StickerElementTypes type) {
+        this.type = type;
+    }
+
+    public StickerElementTypes getType() {
+        return type;
+    }
+
+    public abstract void deserialize(JsonObject properties);
+
+    public abstract JsonObject serialize();
+
+    public record Provider(StickerElementTypes type) {
+
+
+        public StickerElement<? extends Node> get() {
+            StickerElement<? extends Node> stickerElement = type.getSupplier().get();
+            stickerElement.setType(type);
+            return stickerElement;
         }
 
         @Override
         public String toString() {
-            return this.name;
+            return type.getName();
         }
+
     }
 }

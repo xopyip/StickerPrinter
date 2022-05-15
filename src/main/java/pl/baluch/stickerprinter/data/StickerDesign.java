@@ -51,4 +51,19 @@ public class StickerDesign {
     public StickerAnchorPane getParentNode() {
         return this.node;
     }
+
+    @Override
+    public String toString() {
+        return "StickerDesign{" +
+                "ratio=" + ratio +
+                ", tolerance=" + tolerance +
+                ", orientation=" + orientation +
+                ", itemGroup='" + itemGroup + '\'' +
+                ", node=" + node +
+                '}';
+    }
+
+    public double getTolerance() {
+        return tolerance;
+    }
 }

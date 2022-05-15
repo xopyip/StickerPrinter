@@ -4,6 +4,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.Region;
 import pl.baluch.stickerprinter.data.DropZone;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,5 +43,12 @@ public abstract class ContainerStickerElement<T extends Region> extends StickerE
         List<String> collect = children.stream().flatMap(children -> children.dump().stream()).map(s -> "    " + s).collect(Collectors.toList());
         collect.addAll(0, super.dump());
         return collect;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "{" +
+                "children=" + Arrays.toString(children.toArray()) +
+                '}';
     }
 }

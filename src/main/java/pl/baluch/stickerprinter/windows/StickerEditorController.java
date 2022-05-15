@@ -13,19 +13,18 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import pl.baluch.stickerprinter.Storage;
 import pl.baluch.stickerprinter.data.DropZone;
 import pl.baluch.stickerprinter.data.Orientation;
 import pl.baluch.stickerprinter.data.PageStyle;
 import pl.baluch.stickerprinter.data.StickerDesign;
 import pl.baluch.stickerprinter.elements.ContainerStickerElement;
 import pl.baluch.stickerprinter.elements.StickerElement;
-import pl.baluch.stickerprinter.elements.children.HSpacer;
-import pl.baluch.stickerprinter.elements.children.Text;
-import pl.baluch.stickerprinter.elements.children.VSpacer;
-import pl.baluch.stickerprinter.elements.containers.HBox;
+import pl.baluch.stickerprinter.elements.StickerElementTypes;
 import pl.baluch.stickerprinter.plugins.Item;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
@@ -42,7 +41,7 @@ public class StickerEditorController implements Initializable {
     @FXML
     public Button saveButton;
     @FXML
-    private ListView<StickerElement.Provider<?>> stickerElementsList;
+    private ListView<StickerElement.Provider> stickerElementsList;
     private Item item;
     private PageStyle pageStyle;
     private StickerEditorWindow stickerEditorWindow;
@@ -59,7 +58,10 @@ public class StickerEditorController implements Initializable {
 
         orientationChoiceBox.getItems().addAll(Orientation.values());
         orientationChoiceBox.getSelectionModel().selectFirst();
-        this.design = new StickerDesign(pageStyle.getCellRatio(), 1, orientationChoiceBox.getSelectionModel().getSelectedItem(), item.getTypeName());
+        this.design = Storage.getConfig()
+                .getStickerDesign(pageStyle.getCellRatio(),item.getTypeName())
+                .orElse(new StickerDesign(pageStyle.getCellRatio(), 1, orientationChoiceBox.getSelectionModel().getSelectedItem(), item.getTypeName()));
+        toleranceSlider.setValue(design.getTolerance());
 
         toleranceSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             design.setTolerance(newValue.floatValue());
@@ -71,18 +73,19 @@ public class StickerEditorController implements Initializable {
         });
         updatePreviews();
         setupStickerElements(resources);
-        saveButton.setOnMouseClicked(event -> System.err.println("Not implemented yet"));
+        saveButton.setOnMouseClicked(event -> {
+            if(!Storage.getConfig().getStickerDesigns().contains(design)){
+                Storage.getConfig().getStickerDesigns().add(design);
+            }
+            Storage.saveConfig();
+            stickerEditorWindow.close();
+        });
 
     }
 
     private void setupStickerElements(ResourceBundle resources) {
-        stickerElementsList.getItems().addAll(
-                new StickerElement.Provider<>(resources.getString("sticker.elements.text"), Text::new),
-                new StickerElement.Provider<>(resources.getString("sticker.elements.vSpacer"), VSpacer::new),
-                new StickerElement.Provider<>(resources.getString("sticker.elements.hSpacer"), HSpacer::new),
-                new StickerElement.Provider<>(resources.getString("sticker.elements.hBox"), HBox::new),
-                new StickerElement.Provider<>(resources.getString("sticker.elements.label"), pl.baluch.stickerprinter.elements.children.Label::new)
-        );
+        Arrays.stream(StickerElementTypes.values()).map(StickerElement.Provider::new).forEach(stickerElementsList.getItems()::add);
+        stickerElementsList.getItems().addAll();
         setupDragSource();
     }
 
@@ -93,7 +96,7 @@ public class StickerEditorController implements Initializable {
             Dragboard db = stickerElementsList.startDragAndDrop(TransferMode.ANY);
 
             ClipboardContent content = new ClipboardContent();
-            content.putString(stickerElementsList.getSelectionModel().getSelectedItem().name());
+            content.putString(stickerElementsList.getSelectionModel().getSelectedItem().toString());
             db.setContent(content);
             stickerPane.getChildren().removeIf(node -> node instanceof DropZone);
             setupDropZones(stickerPane, (ContainerStickerElement) design.getParentNode(), 0, 0);
@@ -105,7 +108,7 @@ public class StickerEditorController implements Initializable {
         });
     }
 
-    private void setupDragTarget(Rectangle rectangle, Consumer<StickerElement.Provider<?>> onDrop) {
+    private void setupDragTarget(Rectangle rectangle, Consumer<StickerElement.Provider> onDrop) {
         rectangle.setOnDragOver(event -> {
             event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             event.consume();
@@ -121,7 +124,7 @@ public class StickerEditorController implements Initializable {
         rectangle.setOnDragDropped(event -> {
             Dragboard db = event.getDragboard();
             if (db.hasString()) {
-                StickerElement.Provider<?> provider = stickerElementsList.getItems().stream().filter(el -> el.name().equals(db.getString())).findAny().get();
+                StickerElement.Provider provider = stickerElementsList.getItems().stream().filter(el -> el.toString().equals(db.getString())).findAny().get();
                 onDrop.accept(provider);
                 event.setDropCompleted(true);
             }
@@ -167,11 +170,11 @@ public class StickerEditorController implements Initializable {
                 design.getParentNode().dump().forEach(System.out::println);
                 updatePreviews();
             });
+        }
 
-            for (StickerElement<? extends Node> child : parentNode.getChildren()) {
-                if(child instanceof ContainerStickerElement) {
-                    setupDropZones(previewPane, (ContainerStickerElement) child, x + parentNode.getX(), y + parentNode.getY());
-                }
+        for (StickerElement<? extends Node> child : parentNode.getChildren()) {
+            if(child instanceof ContainerStickerElement) {
+                setupDropZones(previewPane, (ContainerStickerElement) child, x + parentNode.getX(), y + parentNode.getY());
             }
         }
     }

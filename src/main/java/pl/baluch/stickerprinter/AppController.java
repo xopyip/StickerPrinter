@@ -80,6 +80,7 @@ public class AppController implements Initializable {
         stickerDesignEdit.setOnMouseClicked(event -> {
             StickerEditorWindow editorWindow = new StickerEditorWindow(itemsList.getSelectionModel().getSelectedItem(), pageStyle.getSelectionModel().getSelectedItem());
             editorWindow.showAndWait();
+            updateStickerPreview(resourceBundle, itemsList.getSelectionModel().getSelectedItem());
         });
     }
 

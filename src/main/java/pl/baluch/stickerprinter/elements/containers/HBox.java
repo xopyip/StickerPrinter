@@ -1,12 +1,11 @@
 package pl.baluch.stickerprinter.elements.containers;
 
+import com.google.gson.JsonObject;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import pl.baluch.stickerprinter.data.DropZone;
 import pl.baluch.stickerprinter.elements.ContainerStickerElement;
 import pl.baluch.stickerprinter.elements.StickerElement;
-
-import java.util.Set;
 
 public class HBox extends ContainerStickerElement<javafx.scene.layout.HBox> {
 
@@ -21,14 +20,6 @@ public class HBox extends ContainerStickerElement<javafx.scene.layout.HBox> {
     protected void updateBoundary() {
         dropZones.clear();
         dropZones.add(new DropZone(this, getX(), getY(), getWidth(), getHeight()));
-    }
-
-    @Override
-    public Set<DropZone> getDropZones() {
-        for (StickerElement<?> child : this.children) {
-            System.out.println(child.getWidth());
-        }
-        return super.getDropZones();
     }
 
     @Override
@@ -50,6 +41,16 @@ public class HBox extends ContainerStickerElement<javafx.scene.layout.HBox> {
     public void setHeight(double height) {
         super.setHeight(height);
         children.forEach(child -> child.setHeight(height));
+    }
+
+    @Override
+    public void deserialize(JsonObject properties) {
+
+    }
+
+    @Override
+    public JsonObject serialize() {
+        return null;
     }
 
     @Override

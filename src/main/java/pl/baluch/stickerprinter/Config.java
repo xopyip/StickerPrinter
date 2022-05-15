@@ -7,6 +7,7 @@ import pl.baluch.stickerprinter.data.StickerDesign;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class Config {
     private Language locale = Language.English;
@@ -32,5 +33,11 @@ public class Config {
 
     public List<StickerDesign> getStickerDesigns() {
         return stickerDesigns;
+    }
+
+    public Optional<StickerDesign> getStickerDesign(float cellRatio, String typeName) {
+        return stickerDesigns.stream()
+                .filter(design -> design.matches(cellRatio, typeName))
+                .findFirst();
     }
 }
