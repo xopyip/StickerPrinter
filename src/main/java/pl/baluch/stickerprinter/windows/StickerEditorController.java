@@ -163,13 +163,12 @@ public class StickerEditorController implements Initializable {
             previewPane.getChildren().add(newDropZone);
 
             setupDragTarget(newDropZone, provider -> {
-                StickerElement<?> o = provider.get();
-                newDropZone.getContainer().addChild(o);
+                newDropZone.getContainer().addChild(provider.get());
                 design.getParentNode().dump().forEach(System.out::println);
                 updatePreviews();
             });
 
-            for (StickerElement<Node> child : parentNode.getChildren()) {
+            for (StickerElement<? extends Node> child : parentNode.getChildren()) {
                 if(child instanceof ContainerStickerElement) {
                     setupDropZones(previewPane, (ContainerStickerElement) child, x + parentNode.getX(), y + parentNode.getY());
                 }

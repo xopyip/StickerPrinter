@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public abstract class ContainerStickerElement<T extends Region> extends StickerElement<T> {
-    protected Set<StickerElement<Node>> children = new HashSet<>();
+    protected Set<StickerElement<? extends Node>> children = new HashSet<>();
     protected transient Set<DropZone> dropZones = new HashSet<>();
 
     public ContainerStickerElement(T node, int x, int y, int w, int h) {
@@ -21,7 +21,7 @@ public abstract class ContainerStickerElement<T extends Region> extends StickerE
         super(node);
     }
 
-    public void addChild(StickerElement<Node> o) {
+    public void addChild(StickerElement<? extends Node> o) {
         this.children.add(o);
     }
 
@@ -29,7 +29,7 @@ public abstract class ContainerStickerElement<T extends Region> extends StickerE
         return this.children.size();
     }
 
-    public Set<StickerElement<Node>> getChildren() {
+    public Set<StickerElement<? extends Node>> getChildren() {
         return children;
     }
 

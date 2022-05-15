@@ -32,12 +32,12 @@ public class HBox extends ContainerStickerElement<javafx.scene.layout.HBox> {
     }
 
     @Override
-    public void addChild(StickerElement<Node> o) {
+    public void addChild(StickerElement<? extends Node> o) {
         o.setHeight(height.get());
         o.setX(children.stream().mapToDouble(StickerElement::getWidth).sum());
         o.addWidthListener((observable, oldValue, newValue) -> {
             double posX = 0;
-            for (StickerElement<Node> child : children) {
+            for (StickerElement<? extends Node> child : children) {
                 child.setX(posX);
                 posX += child.getWidth();
             }
