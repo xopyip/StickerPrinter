@@ -7,7 +7,7 @@ import javafx.scene.text.TextFlow;
 import pl.baluch.stickerprinter.elements.StickerElement;
 
 public class Text extends StickerElement<TextFlow> {
-    private SimpleStringProperty text = new SimpleStringProperty("Test");
+    private final SimpleStringProperty text = new SimpleStringProperty("Test");
     public Text() {
         super(new TextFlow(new javafx.scene.text.Text()));
         //todo: reimplemnt this as block

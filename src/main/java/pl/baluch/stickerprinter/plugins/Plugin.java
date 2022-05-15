@@ -67,8 +67,8 @@ public class Plugin {
     }
 
     private class ReflectionItemsSupplier {
-        private ItemsSupplier supplierInfo;
-        private Method declaredMethod;
+        private final ItemsSupplier supplierInfo;
+        private final Method declaredMethod;
 
         public ReflectionItemsSupplier(ItemsSupplier supplierInfo, Method declaredMethod) {
             this.supplierInfo = supplierInfo;

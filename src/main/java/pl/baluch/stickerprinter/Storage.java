@@ -16,7 +16,7 @@ import java.util.ResourceBundle;
 
 public class Storage {
     private static final String SEP = System.getProperty("file.separator");
-    private static File dir = new File(System.getProperty("user.home") + SEP + ".stickerprinter");
+    private static final File dir = new File(System.getProperty("user.home") + SEP + ".stickerprinter");
     private static Config config = null;
     private static Gson gson;
 

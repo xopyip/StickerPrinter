@@ -14,10 +14,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import pl.baluch.stickerprinter.Storage;
-import pl.baluch.stickerprinter.data.DropZone;
-import pl.baluch.stickerprinter.data.Orientation;
-import pl.baluch.stickerprinter.data.PageStyle;
-import pl.baluch.stickerprinter.data.StickerDesign;
+import pl.baluch.stickerprinter.data.*;
 import pl.baluch.stickerprinter.elements.ContainerStickerElement;
 import pl.baluch.stickerprinter.elements.StickerElement;
 import pl.baluch.stickerprinter.elements.StickerElementTypes;
@@ -42,8 +39,8 @@ public class StickerEditorController implements Initializable {
     public Button saveButton;
     @FXML
     private ListView<StickerElement.Provider> stickerElementsList;
-    private Item item;
-    private PageStyle pageStyle;
+    private final Item item;
+    private final PageStyle pageStyle;
     private StickerEditorWindow stickerEditorWindow;
     private AnchorPane stickerPane;
 
@@ -83,16 +80,20 @@ public class StickerEditorController implements Initializable {
 
     }
 
+    /**
+     * Update sticker elements list
+     */
     private void setupStickerElements(ResourceBundle resources) {
         Arrays.stream(StickerElementTypes.values()).map(StickerElement.Provider::new).forEach(stickerElementsList.getItems()::add);
         stickerElementsList.getItems().addAll();
         setupDragSource();
     }
 
+    /**
+     * Sets listeners for dragging elements from list
+     */
     private void setupDragSource() {
-
         stickerElementsList.setOnDragDetected(event -> {
-
             Dragboard db = stickerElementsList.startDragAndDrop(TransferMode.ANY);
 
             ClipboardContent content = new ClipboardContent();
@@ -103,35 +104,12 @@ public class StickerEditorController implements Initializable {
 
             event.consume();
         });
-        stickerElementsList.setOnDragDone(event -> {
-            stickerPane.getChildren().removeIf(node -> node instanceof DropZone);
-        });
+        stickerElementsList.setOnDragDone(event -> stickerPane.getChildren().removeIf(node -> node instanceof DropZone));
     }
 
-    private void setupDragTarget(Rectangle rectangle, Consumer<StickerElement.Provider> onDrop) {
-        rectangle.setOnDragOver(event -> {
-            event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-            event.consume();
-        });
-        rectangle.setOnDragEntered(event -> {
-            rectangle.setFill(Color.LIGHTBLUE);
-            event.consume();
-        });
-        rectangle.setOnDragExited(event -> {
-            rectangle.setFill(Color.TRANSPARENT);
-            event.consume();
-        });
-        rectangle.setOnDragDropped(event -> {
-            Dragboard db = event.getDragboard();
-            if (db.hasString()) {
-                StickerElement.Provider provider = stickerElementsList.getItems().stream().filter(el -> el.toString().equals(db.getString())).findAny().get();
-                onDrop.accept(provider);
-                event.setDropCompleted(true);
-            }
-            event.consume();
-        });
-    }
-
+    /**
+     * Resets preview pane and adds all sticker elements to it
+     */
     private void updatePreviews() {
         Orientation orientation = orientationChoiceBox.getSelectionModel().getSelectedItem();
         float cellRatio = pageStyle.getCellRatio();
@@ -150,7 +128,7 @@ public class StickerEditorController implements Initializable {
         };
         double x = (previewPaneWidth - size.getWidth()) / 2;
         double y = (previewPaneHeight - size.getHeight()) / 2;
-        stickerPane = newPreviewPane(x, y, size.getWidth(), size.getHeight());
+        stickerPane = new PreviewPane(x, y, size.getWidth(), size.getHeight());
         previewPane.getChildren().add(stickerPane);
         design.getParentNode().setX(0);
         design.getParentNode().setY(0);
@@ -160,6 +138,13 @@ public class StickerEditorController implements Initializable {
         design.getParentNode().draw(stickerPane);
     }
 
+    /**
+     * For each dropzone of `parentNode` create a new dropzone with the size and position moved by vector [x,y] and add it to `previewPane`
+     * @param previewPane - parent pane of the dropzones
+     * @param parentNode - node to create dropzones for
+     * @param x - x offset
+     * @param y - y offset
+     */
     private void setupDropZones(Pane previewPane, ContainerStickerElement<Region> parentNode, double x, double y) {
         for (DropZone dropZone : parentNode.getDropZones()) {
             DropZone newDropZone = new DropZone(dropZone.getContainer(), dropZone.getX() + x, dropZone.getY() + y, dropZone.getWidth(), dropZone.getHeight());
@@ -179,14 +164,34 @@ public class StickerEditorController implements Initializable {
         }
     }
 
-    private AnchorPane newPreviewPane(double x, double y, double width, double height) {
-        AnchorPane rectangle = new AnchorPane();
-        rectangle.setLayoutX(x);
-        rectangle.setLayoutY(y);
-        rectangle.setPrefSize(width, height);
-        rectangle.setMaxSize(width, height);
-        rectangle.setStyle("-fx-border-color: black; -fx-border-width: 1px;");
-        return rectangle;
+    /**
+     * Create listeners for drop events on the dropzone
+     * @param rectangle - node of the dropzone
+     * @param onDrop - callback for drop event
+     */
+    private void setupDragTarget(Rectangle rectangle, Consumer<StickerElement.Provider> onDrop) {
+        rectangle.setOnDragOver(event -> {
+            event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+            event.consume();
+        });
+        rectangle.setOnDragEntered(event -> {
+            rectangle.setFill(Color.LIGHTBLUE);
+            event.consume();
+        });
+        rectangle.setOnDragExited(event -> {
+            rectangle.setFill(Color.TRANSPARENT);
+            event.consume();
+        });
+        rectangle.setOnDragDropped(event -> {
+            Dragboard db = event.getDragboard();
+            if (db.hasString()) {
+                StickerElement.Provider provider = stickerElementsList.getItems().stream()
+                        .filter(el -> el.toString().equals(db.getString())).findAny().orElseThrow();
+                onDrop.accept(provider);
+                event.setDropCompleted(true);
+            }
+            event.consume();
+        });
     }
 
     public void setStage(StickerEditorWindow stickerEditorWindow) {

@@ -4,8 +4,8 @@ public enum Language {
     Polish("Polski", "pl"),
     English("English", "en");
 
-    private String title;
-    private String code;
+    private final String title;
+    private final String code;
 
     Language(String title, String code) {
         this.title = title;

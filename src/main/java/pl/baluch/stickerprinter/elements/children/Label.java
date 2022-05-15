@@ -6,7 +6,7 @@ import javafx.scene.layout.Pane;
 import pl.baluch.stickerprinter.elements.StickerElement;
 
 public class Label extends StickerElement<javafx.scene.control.Label> {
-    private SimpleStringProperty text = new SimpleStringProperty("Test");
+    private final SimpleStringProperty text = new SimpleStringProperty("Test");
     public Label() {
         super(new javafx.scene.control.Label());
         node.textProperty().bindBidirectional(text);

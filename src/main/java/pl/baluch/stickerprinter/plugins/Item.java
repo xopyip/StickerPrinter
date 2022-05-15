@@ -10,8 +10,8 @@ public abstract class Item {
     private final Map<String, String> properties = new HashMap<>();
 
     private final Map<String, CustomPropertyType> customProperties = new HashMap<>();
-    private String name;
-    private String typeName;
+    private final String name;
+    private final String typeName;
 
     public Item(String name, String typeName) {
         this.name = name;
@@ -72,6 +72,6 @@ public abstract class Item {
 
     public enum CustomPropertyType {
         NUMBER,
-        STRING;
+        STRING
     }
 }

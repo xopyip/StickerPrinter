@@ -10,7 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class ExamplePlugin extends Plugin {
 
-    private List<Item> autoGenItems = new ArrayList<>();
+    private final List<Item> autoGenItems = new ArrayList<>();
 
     public ExamplePlugin() {
         super("ExamplePlugin");

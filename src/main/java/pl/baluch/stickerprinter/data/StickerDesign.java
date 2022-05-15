@@ -14,7 +14,7 @@ public class StickerDesign {
     private Orientation orientation;
     //name of item group
     private String itemGroup;
-    private StickerAnchorPane node = new StickerAnchorPane();
+    private final StickerAnchorPane node = new StickerAnchorPane();
 
     public StickerDesign() {
     }

@@ -11,13 +11,13 @@ import java.util.Optional;
 
 public class Config {
     private Language locale = Language.English;
-    private List<PageStyle> pageStyles = new ArrayList<>(Arrays.asList(
+    private final List<PageStyle> pageStyles = new ArrayList<>(Arrays.asList(
             new PageStyle("1x1", 1, 1, 0, 0),
             new PageStyle("2x2", 2, 2, 0, 0),
             new PageStyle("2x4", 2, 4, 0, 0)
     ));
 
-    private List<StickerDesign> stickerDesigns = new ArrayList<>();
+    private final List<StickerDesign> stickerDesigns = new ArrayList<>();
 
     public Language getLocale() {
         return locale;

@@ -1,8 +1,8 @@
 package pl.baluch.stickerprinter.data;
 
 public class StickerProperty {
-    private String key;
-    private String value;
+    private final String key;
+    private final String value;
 
     public StickerProperty(String key, String value){
         this.key = key;
