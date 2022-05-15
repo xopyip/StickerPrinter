@@ -18,7 +18,9 @@ public class TextFlow extends ContainerStickerElement<javafx.scene.text.TextFlow
 
     @Override
     public void draw(Pane pane) {
-        super.setupPositionAndSize(node);
+        node.getChildren().clear();
+        setupPositionAndSize(node);
+        children.forEach(child -> child.draw(node));
         super.setupNode(pane, node);
         pane.getChildren().add(node);
     }
