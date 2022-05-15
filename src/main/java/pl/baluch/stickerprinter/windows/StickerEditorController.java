@@ -147,6 +147,9 @@ public class StickerEditorController implements Initializable {
      */
     private void setupDropZones(Pane previewPane, ContainerStickerElement<Region> parentNode, double x, double y) {
         for (DropZone dropZone : parentNode.getDropZones()) {
+            if(!stickerElementsList.getSelectionModel().getSelectedItem().type().isParentValid(dropZone.getContainer())){
+                continue;
+            }
             DropZone newDropZone = new DropZone(dropZone.getContainer(), dropZone.getX() + x, dropZone.getY() + y, dropZone.getWidth(), dropZone.getHeight());
             previewPane.getChildren().add(newDropZone);
 
