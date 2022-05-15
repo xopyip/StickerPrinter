@@ -150,6 +150,9 @@ public class StickerEditorController implements Initializable {
             if(!stickerElementsList.getSelectionModel().getSelectedItem().type().isParentValid(dropZone.getContainer())){
                 continue;
             }
+            if(!dropZone.getContainer().getType().isChildValid(stickerElementsList.getSelectionModel().getSelectedItem().type())){
+                continue;
+            }
             DropZone newDropZone = new DropZone(dropZone.getContainer(), dropZone.getX() + x, dropZone.getY() + y, dropZone.getWidth(), dropZone.getHeight());
             previewPane.getChildren().add(newDropZone);
 

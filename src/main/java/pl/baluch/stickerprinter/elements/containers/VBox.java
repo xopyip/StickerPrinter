@@ -7,14 +7,14 @@ import pl.baluch.stickerprinter.data.DropZone;
 import pl.baluch.stickerprinter.elements.ContainerStickerElement;
 import pl.baluch.stickerprinter.elements.StickerElement;
 
-public class HBox extends ContainerStickerElement<javafx.scene.layout.HBox> {
+public class VBox extends ContainerStickerElement<javafx.scene.layout.VBox> {
 
-    public HBox() {
-        super(new javafx.scene.layout.HBox());
+    public VBox() {
+        super(new javafx.scene.layout.VBox());
         addBoundaryListener((observable, oldValue, newValue) -> updateBoundary());
         setWidth(50);
         setHeight(30);
-        addHeightListener((observable, oldValue, newValue) -> children.forEach(child -> child.setHeight(newValue.doubleValue())));
+        addWidthListener((observable, oldValue, newValue) -> children.forEach(child -> child.setWidth(newValue.doubleValue())));
     }
 
     protected void updateBoundary() {
@@ -24,13 +24,13 @@ public class HBox extends ContainerStickerElement<javafx.scene.layout.HBox> {
 
     @Override
     public void addChild(StickerElement<? extends Node> o) {
-        o.setHeight(getHeight());
-        o.setX(children.stream().mapToDouble(StickerElement::getWidth).sum());
-        o.addWidthListener((observable, oldValue, newValue) -> {
-            double posX = 0;
+        o.setWidth(getWidth());
+        o.setY(children.stream().mapToDouble(StickerElement::getHeight).sum());
+        o.addHeightListener((observable, oldValue, newValue) -> {
+            double posY = 0;
             for (StickerElement<? extends Node> child : children) {
-                child.setX(posX);
-                posX += child.getWidth();
+                child.setY(posY);
+                posY += child.getHeight();
             }
         });
         super.addChild(o);
