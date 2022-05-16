@@ -41,21 +41,24 @@ public class StickerDesign {
     }
 
     public boolean matches(float ratio, String itemGroup){
+        this.tolerance = Math.max(this.tolerance, 1.005f);
         float maxRatio = this.ratio * this.tolerance;
         float minRatio = this.ratio / this.tolerance;
         return (ratio >= minRatio && ratio <= maxRatio) && this.itemGroup.equals(itemGroup);
     }
 
-    public void renderPreview(Pane previewPane, Item item) {
+    public void renderPreview(Pane parentPane, Item item) {
+        AnchorPane previewPane = new AnchorPane();
+        previewPane.setLayoutX(0);
+        previewPane.setLayoutY(0);
         previewPane.setPrefWidth(node.getWidth());
         previewPane.setPrefHeight(node.getHeight());
         previewPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
         previewPane.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-        previewPane.getChildren().clear();
 
         this.getParentNode().draw(previewPane, new DrawContext(item, false));
 
-        double scaleFactor = previewPane.getWidth()/node.getWidth();
+        double scaleFactor = parentPane.getWidth()/node.getWidth();
         Scale scale = new Scale(scaleFactor, scaleFactor, 0, 0);
         Translate translate = new Translate(0, 0);
         previewPane.getTransforms().add(scale);
@@ -71,6 +74,8 @@ public class StickerDesign {
                 translate.setX(0);
             }
         });
+
+        parentPane.getChildren().add(previewPane);
     }
 
     public StickerAnchorPane getParentNode() {

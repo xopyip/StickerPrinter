@@ -5,13 +5,16 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import javafx.beans.property.SimpleDoubleProperty;
+import pl.baluch.stickerprinter.data.StickerDesign;
 import pl.baluch.stickerprinter.elements.StickerElement;
 import pl.baluch.stickerprinter.elements.containers.StickerAnchorPane;
+import pl.baluch.stickerprinter.plugins.Item;
 import pl.baluch.stickerprinter.serialization.SimpleDoublePropertySerializer;
 import pl.baluch.stickerprinter.serialization.StickerElementSerializer;
 
 import java.io.*;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class Storage {
@@ -79,5 +82,10 @@ public class Storage {
             return gsonBuilder.create();
         }
         return gson;
+    }
+
+    public static Optional<StickerDesign> getStickerDesign(float ratio, Item selectedItem) {
+        return Storage.getConfig().getStickerDesigns()
+                .stream().filter(design -> design.matches(ratio, selectedItem.getTypeName())).findAny();
     }
 }
