@@ -229,6 +229,9 @@ public class AppController implements Initializable {
             }
             selectionModel.getSelectedItem().drawPreview(previewPane);
             cellRatioLabel.setText(String.format(resourceBundle.getString("pagestyle.ratio"), pageStyle.getSelectionModel().getSelectedItem().getCellRatio()));
+            if (!itemsList.getSelectionModel().isEmpty()) {
+                updateStickerPreview(resourceBundle, itemsList.getSelectionModel().getSelectedItem());
+            }
         });
 
         //add delete handler
