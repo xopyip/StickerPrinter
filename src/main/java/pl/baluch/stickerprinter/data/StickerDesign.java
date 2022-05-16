@@ -1,7 +1,10 @@
 package pl.baluch.stickerprinter.data;
 
-import javafx.scene.layout.Pane;
-import javafx.scene.text.Text;
+import javafx.geometry.Insets;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.transform.Scale;
+import javafx.scene.transform.Translate;
 import pl.baluch.stickerprinter.elements.containers.StickerAnchorPane;
 import pl.baluch.stickerprinter.plugins.Item;
 
@@ -44,8 +47,30 @@ public class StickerDesign {
     }
 
     public void renderPreview(Pane previewPane, Item item) {
+        previewPane.setPrefWidth(node.getWidth());
+        previewPane.setPrefHeight(node.getHeight());
+        previewPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+        previewPane.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
         previewPane.getChildren().clear();
-        previewPane.getChildren().add(new Text(item.getName()));
+
+        this.getParentNode().draw(previewPane, new DrawContext(item, false));
+
+        double scaleFactor = previewPane.getWidth()/node.getWidth();
+        Scale scale = new Scale(scaleFactor, scaleFactor, 0, 0);
+        Translate translate = new Translate(0, 0);
+        previewPane.getTransforms().add(scale);
+        previewPane.getTransforms().add(translate);
+        previewPane.hoverProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue){
+                scale.setX(scaleFactor * 1.95);
+                scale.setY(scaleFactor * 1.95);
+                translate.setX(-previewPane.getWidth()/2.05);
+            }else{
+                scale.setX(scaleFactor);
+                scale.setY(scaleFactor);
+                translate.setX(0);
+            }
+        });
     }
 
     public StickerAnchorPane getParentNode() {

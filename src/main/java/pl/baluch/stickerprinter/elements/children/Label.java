@@ -3,6 +3,7 @@ package pl.baluch.stickerprinter.elements.children;
 import com.google.gson.JsonObject;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.layout.Pane;
+import pl.baluch.stickerprinter.data.DrawContext;
 import pl.baluch.stickerprinter.elements.StickerElement;
 
 public class Label extends StickerElement<javafx.scene.control.Label> {
@@ -14,9 +15,9 @@ public class Label extends StickerElement<javafx.scene.control.Label> {
     }
 
     @Override
-    public void draw(Pane pane) {
+    public void draw(Pane pane, DrawContext drawContext) {
         super.setupPositionAndSize(node);
-        super.setupNode(pane, node);
+        super.setupNode(pane, node, drawContext);
         pane.getChildren().add(node);
     }
 

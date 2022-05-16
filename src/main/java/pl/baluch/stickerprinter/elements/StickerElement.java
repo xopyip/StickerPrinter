@@ -9,6 +9,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import pl.baluch.stickerprinter.data.DrawContext;
 
 import java.util.List;
 import java.util.Stack;
@@ -20,7 +21,7 @@ public abstract class StickerElement<T extends Node> {
     protected SimpleDoubleProperty height = new SimpleDoubleProperty(-1);
     private boolean resizableDisabled = false;
     private boolean draggingDisabled = false;
-    protected transient T node = null;
+    protected transient T node;
 
     //Stack to trace hover state
     private static final Stack<StickerElement<?>> mouseOverStack = new Stack<>();
@@ -38,17 +39,18 @@ public abstract class StickerElement<T extends Node> {
         this.node = node;
     }
 
-    public abstract void draw(Pane pane);
+    public abstract void draw(Pane pane, DrawContext drawContext);
 
     /**
      * Sets required listeners and properties to make element resiable and draggable
      *
-     * @param pane - parent pane
-     * @param node - node to be resized and dragged
+     * @param pane        - parent pane
+     * @param node        - node to be resized and dragged
+     * @param drawContext - context of drawing
      */
-    protected void setupNode(Pane pane, Node node) {
-        boolean isDraggable = (pane instanceof AnchorPane) && !draggingDisabled;
-        boolean isResizable = (node instanceof Region) && !resizableDisabled;
+    protected void setupNode(Pane pane, Node node, DrawContext drawContext) {
+        boolean isDraggable = (pane instanceof AnchorPane) && !draggingDisabled && drawContext.isEditor();
+        boolean isResizable = (node instanceof Region) && !resizableDisabled && drawContext.isEditor();
         if (isResizable) {
             ((Region) node).setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.DOTTED, null, BorderStroke.THIN)));
         }

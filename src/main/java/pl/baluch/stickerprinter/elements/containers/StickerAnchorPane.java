@@ -3,6 +3,7 @@ package pl.baluch.stickerprinter.elements.containers;
 import com.google.gson.JsonObject;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import pl.baluch.stickerprinter.data.DrawContext;
 import pl.baluch.stickerprinter.data.DropZone;
 import pl.baluch.stickerprinter.elements.ContainerStickerElement;
 
@@ -21,11 +22,11 @@ public class StickerAnchorPane extends ContainerStickerElement<AnchorPane> {
     }
 
     @Override
-    public void draw(Pane pane) {
+    public void draw(Pane pane, DrawContext drawContext) {
         node.getChildren().clear();
         setupPositionAndSize(node);
-        children.forEach(child -> child.draw(node));
-        super.setupNode(pane, node);
+        children.forEach(child -> child.draw(node, drawContext));
+        super.setupNode(pane, node, drawContext);
         pane.getChildren().add(node);
     }
 
