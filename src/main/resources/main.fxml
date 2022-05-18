@@ -154,6 +154,7 @@
                         <Color red="0.625" green="0.625" blue="0.625" fx:id="x41" />
                      </textFill>
                   </Label>
+                  <Button fx:id="printButton" layoutX="6.0" layoutY="521.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="209.0" text="%print.printStickers" textAlignment="CENTER" />
           </children>
         </AnchorPane>
       </items>

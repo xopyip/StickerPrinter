@@ -8,13 +8,22 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.print.PageLayout;
+import javafx.print.PageOrientation;
+import javafx.print.Paper;
+import javafx.print.PrinterJob;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
-import pl.baluch.stickerprinter.data.*;
+import pl.baluch.stickerprinter.data.Language;
+import pl.baluch.stickerprinter.data.PageStyle;
+import pl.baluch.stickerprinter.data.StickerDesign;
+import pl.baluch.stickerprinter.data.StickerProperty;
 import pl.baluch.stickerprinter.events.PrintCellClickedEvent;
 import pl.baluch.stickerprinter.plugins.Item;
 import pl.baluch.stickerprinter.plugins.Plugin;
@@ -64,6 +73,8 @@ public class AppController implements Initializable {
     private Label stickerPreviewItemTypeText;
     @FXML
     private Button stickerDesignEdit;
+    @FXML
+    private Button printButton;
 
     private final SimpleObjectProperty<StickerDesign> stickerDesign = new SimpleObjectProperty<>();
 
@@ -88,6 +99,23 @@ public class AppController implements Initializable {
             StickerEditorWindow editorWindow = new StickerEditorWindow(itemsList.getSelectionModel().getSelectedItem(), pageStyle.getSelectionModel().getSelectedItem());
             editorWindow.showAndWait();
             updateStickerPreview(resourceBundle);
+        });
+        printButton.setOnMouseClicked(event -> {
+            PrinterJob job = PrinterJob.createPrinterJob();
+            if (job != null) {
+                job.showPrintDialog(AppMain.getStage());
+                PageLayout pageLayout = job.getPrinter().createPageLayout(Paper.A4, PageOrientation.PORTRAIT, 0, 0, 0, 0);
+                AnchorPane anchorPane = new AnchorPane();
+                //todo: remove border and background from cell
+                anchorPane.setPrefSize(previewPane.getPrefWidth(), previewPane.getPrefHeight());
+                anchorPane.getChildren().addAll(previewPane.getChildren().stream()
+                        .filter(node -> node.getId() != null && node.getId().startsWith("preview-")).toList());
+                double scaleFactor = pageLayout.getPrintableWidth() / anchorPane.getPrefWidth();
+                Scale scale = new Scale(scaleFactor, scaleFactor);
+                anchorPane.getTransforms().add(scale);
+                job.printPage(pageLayout, anchorPane);
+                job.endJob();
+            }
         });
     }
 
