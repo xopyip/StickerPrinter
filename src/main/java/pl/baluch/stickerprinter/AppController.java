@@ -1,5 +1,6 @@
 package pl.baluch.stickerprinter;
 
+import com.google.common.eventbus.Subscribe;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -13,10 +14,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
-import pl.baluch.stickerprinter.data.Language;
-import pl.baluch.stickerprinter.data.PageStyle;
-import pl.baluch.stickerprinter.data.StickerDesign;
-import pl.baluch.stickerprinter.data.StickerProperty;
+import pl.baluch.stickerprinter.data.*;
+import pl.baluch.stickerprinter.events.PrintCellClickedEvent;
 import pl.baluch.stickerprinter.plugins.Item;
 import pl.baluch.stickerprinter.plugins.Plugin;
 import pl.baluch.stickerprinter.plugins.PluginManager;
@@ -66,7 +65,7 @@ public class AppController implements Initializable {
     @FXML
     private Button stickerDesignEdit;
 
-    private SimpleObjectProperty<StickerDesign> stickerDesign = new SimpleObjectProperty<>();
+    private final SimpleObjectProperty<StickerDesign> stickerDesign = new SimpleObjectProperty<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resourceBundle) {
@@ -74,6 +73,7 @@ public class AppController implements Initializable {
         setupItemsList(resourceBundle);
         setupPageStyles(resourceBundle);
         setupMenu(resourceBundle);
+        AppMain.EVENT_BUS.register(this);
     }
 
     private void setupStickerPreview(ResourceBundle resourceBundle) {
@@ -227,7 +227,7 @@ public class AppController implements Initializable {
 
         //draw preview
         Platform.runLater(() -> {
-            pageStyle.getSelectionModel().getSelectedItem().drawPreview(previewPane);
+            getPageStyle().ifPresent(style -> style.drawPreview(previewPane, true));
             cellRatioLabel.setText(String.format(resourceBundle.getString("pagestyle.ratio"), pageStyle.getSelectionModel().getSelectedItem().getCellRatio()));
         });
 
@@ -245,7 +245,7 @@ public class AppController implements Initializable {
                 Storage.getConfig().getPageStyles().add(pageStyle);
                 Storage.saveConfig();
             }
-            selectionModel.getSelectedItem().drawPreview(previewPane);
+            selectionModel.getSelectedItem().drawPreview(previewPane, true);
             cellRatioLabel.setText(String.format(resourceBundle.getString("pagestyle.ratio"), pageStyle.getSelectionModel().getSelectedItem().getCellRatio()));
         });
 
@@ -277,5 +277,14 @@ public class AppController implements Initializable {
             AppMain.getStage().close();
         }
 
+    }
+
+    @Subscribe
+    public void onCellClicked(PrintCellClickedEvent event) {
+        Optional<StickerDesign> design = getStickerDesign();
+        Optional<Item> item = getItem();
+        if (design.isPresent() && item.isPresent()) {
+            event.printCell().setSticker(design.get(), item.get());
+        }
     }
 }

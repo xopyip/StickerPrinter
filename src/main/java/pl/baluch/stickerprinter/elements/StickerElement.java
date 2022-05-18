@@ -13,6 +13,7 @@ import pl.baluch.stickerprinter.data.DrawContext;
 
 import java.util.List;
 import java.util.Stack;
+import java.util.function.Supplier;
 
 public abstract class StickerElement<T extends Node> {
     protected SimpleDoubleProperty x = new SimpleDoubleProperty(0);
@@ -21,22 +22,22 @@ public abstract class StickerElement<T extends Node> {
     protected SimpleDoubleProperty height = new SimpleDoubleProperty(-1);
     private boolean resizableDisabled = false;
     private boolean draggingDisabled = false;
-    protected transient T node;
+    protected transient Supplier<T> nodeSupplier;
 
     //Stack to trace hover state
     private static final Stack<StickerElement<?>> mouseOverStack = new Stack<>();
     private StickerElementTypes type;
 
-    public StickerElement(T node, int x, int y, int w, int h) {
-        this.node = node;
+    public StickerElement(Supplier<T> node, int x, int y, int w, int h) {
+        this.nodeSupplier = node;
         this.x.set(x);
         this.y.set(y);
         this.width.set(w);
         this.height.set(h);
     }
 
-    public StickerElement(T node) {
-        this.node = node;
+    public StickerElement(Supplier<T> node) {
+        this.nodeSupplier = node;
     }
 
     public abstract void draw(Pane pane, DrawContext drawContext);
@@ -57,24 +58,24 @@ public abstract class StickerElement<T extends Node> {
         //todo: divide into listeners and simply change listener
         node.setOnMouseEntered(event -> {
             if (!mouseOverStack.empty())
-                mouseOverStack.peek().setHighlighted(false);
+                mouseOverStack.peek().setHighlighted(node, false);
             mouseOverStack.add(this);
-            this.setHighlighted(true);
+            this.setHighlighted(node, true);
             if (isDraggable) {
                 node.setCursor(Cursor.MOVE);
             }
         });
         node.setOnMouseExited(event -> {
-            this.setHighlighted(false);
+            this.setHighlighted(node, false);
             //removing redundant elements from stack to prevent highlighting of other elements after fast mouse movement
             while (!mouseOverStack.empty() && mouseOverStack.peek() != this) {
-                mouseOverStack.peek().setHighlighted(false);
+                mouseOverStack.peek().setHighlighted(node, false);
                 mouseOverStack.pop();
             }
             if (!mouseOverStack.empty())
                 mouseOverStack.pop();
             if (!mouseOverStack.empty())
-                mouseOverStack.peek().setHighlighted(true);
+                mouseOverStack.peek().setHighlighted(node, true);
             node.setCursor(Cursor.DEFAULT);
         });
         node.setOnMouseMoved(event -> {
@@ -185,9 +186,10 @@ public abstract class StickerElement<T extends Node> {
     /**
      * Set highlighted state of the node if node can be resized or moved
      *
-     * @param b - true if node should be highlighted
+     * @param node - node to be highlighted
+     * @param b    - true if node should be highlighted
      */
-    private void setHighlighted(boolean b) {
+    private void setHighlighted(Node node, boolean b) {
         if (draggingDisabled && resizableDisabled) {
             return;
         }

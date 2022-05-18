@@ -13,6 +13,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import pl.baluch.stickerprinter.AppMain;
 import pl.baluch.stickerprinter.Storage;
 import pl.baluch.stickerprinter.data.*;
 import pl.baluch.stickerprinter.elements.ContainerStickerElement;
@@ -23,7 +24,6 @@ import pl.baluch.stickerprinter.plugins.Item;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
 
 public class StickerEditorController implements Initializable {
     private StickerDesign design;
@@ -75,9 +75,11 @@ public class StickerEditorController implements Initializable {
                 Storage.getConfig().getStickerDesigns().add(design);
             }
             Storage.saveConfig();
+            AppMain.EVENT_BUS.unregister(StickerEditorController.this);
             stickerEditorWindow.close();
         });
 
+        AppMain.EVENT_BUS.register(this);
     }
 
     /**
@@ -156,11 +158,7 @@ public class StickerEditorController implements Initializable {
             DropZone newDropZone = new DropZone(dropZone.getContainer(), dropZone.getX() + x, dropZone.getY() + y, dropZone.getWidth(), dropZone.getHeight());
             previewPane.getChildren().add(newDropZone);
 
-            setupDragTarget(newDropZone, provider -> {
-                newDropZone.getContainer().addChild(provider.get());
-                design.getParentNode().dump().forEach(System.out::println);
-                updatePreviews();
-            });
+            setupDragTarget(newDropZone, newDropZone.getContainer());
         }
 
         for (StickerElement<? extends Node> child : parentNode.getChildren()) {
@@ -172,10 +170,11 @@ public class StickerEditorController implements Initializable {
 
     /**
      * Create listeners for drop events on the dropzone
+     *
      * @param rectangle - node of the dropzone
-     * @param onDrop - callback for drop event
+     * @param container - container to add to
      */
-    private void setupDragTarget(Rectangle rectangle, Consumer<StickerElement.Provider> onDrop) {
+    private void setupDragTarget(Rectangle rectangle, ContainerStickerElement<?> container) {
         rectangle.setOnDragOver(event -> {
             event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             event.consume();
@@ -193,7 +192,9 @@ public class StickerEditorController implements Initializable {
             if (db.hasString()) {
                 StickerElement.Provider provider = stickerElementsList.getItems().stream()
                         .filter(el -> el.toString().equals(db.getString())).findAny().orElseThrow();
-                onDrop.accept(provider);
+                container.addChild(provider.get());
+                design.getParentNode().dump().forEach(System.out::println);
+                updatePreviews();
                 event.setDropCompleted(true);
             }
             event.consume();

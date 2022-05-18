@@ -11,13 +11,14 @@ import pl.baluch.stickerprinter.elements.StickerElement;
 public class HSpacer extends StickerElement<Region> {
 
     public HSpacer() {
-        super(new Region());
-        HBox.setHgrow(node, Priority.ALWAYS);
+        super(Region::new);
         this.disableResizing();
     }
 
     @Override
     public void draw(Pane pane, DrawContext drawContext) {
+        Region node = nodeSupplier.get();
+        HBox.setHgrow(node, Priority.ALWAYS);
         super.setupNode(pane, node, drawContext);
         pane.getChildren().add(node);
     }

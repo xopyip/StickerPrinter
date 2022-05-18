@@ -9,7 +9,7 @@ import pl.baluch.stickerprinter.elements.ContainerStickerElement;
 
 public class StickerAnchorPane extends ContainerStickerElement<AnchorPane> {
     public StickerAnchorPane() {
-        super(new AnchorPane(), 0, 0, 100, 100);
+        super(AnchorPane::new, 0, 0, 100, 100);
         disableResizing();
         disableDragging();
         addBoundaryListener((observable, oldValue, newValue) -> updateBoundary());
@@ -23,6 +23,7 @@ public class StickerAnchorPane extends ContainerStickerElement<AnchorPane> {
 
     @Override
     public void draw(Pane pane, DrawContext drawContext) {
+        AnchorPane node = nodeSupplier.get();
         node.getChildren().clear();
         setupPositionAndSize(node);
         children.forEach(child -> child.draw(node, drawContext));

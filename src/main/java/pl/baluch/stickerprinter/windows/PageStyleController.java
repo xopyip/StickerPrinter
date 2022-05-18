@@ -43,21 +43,21 @@ public class PageStyleController implements Initializable {
         horizontalMargin.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, pageWidth / 2, 0));
         rowAmount.valueProperty().addListener((observable, oldValue, newValue) -> {
             pageStyle.setRows(newValue);
-            pageStyle.drawPreview(previewPane);
+            pageStyle.drawPreview(previewPane, true);
         });
         columnAmount.valueProperty().addListener((observable, oldValue, newValue) -> {
             pageStyle.setColumns(newValue);
-            pageStyle.drawPreview(previewPane);
+            pageStyle.drawPreview(previewPane, true);
         });
         verticalMargin.valueProperty().addListener((observable, oldValue, newValue) -> {
             pageStyle.setMarginVertical(newValue);
-            pageStyle.drawPreview(previewPane);
+            pageStyle.drawPreview(previewPane, true);
         });
         horizontalMargin.valueProperty().addListener((observable, oldValue, newValue) -> {
             pageStyle.setMarginHorizontal(newValue);
-            pageStyle.drawPreview(previewPane);
+            pageStyle.drawPreview(previewPane, true);
         });
-        Platform.runLater(() -> pageStyle.drawPreview(previewPane));
+        Platform.runLater(() -> pageStyle.drawPreview(previewPane, true));
         saveButton.setOnMouseClicked(event -> {
             pageStyle.setName(name.getText());
             ResourceBundle resourceBundle = Storage.getResourceBundle();

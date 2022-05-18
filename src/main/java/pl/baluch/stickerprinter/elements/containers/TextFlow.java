@@ -8,7 +8,7 @@ import pl.baluch.stickerprinter.elements.ContainerStickerElement;
 
 public class TextFlow extends ContainerStickerElement<javafx.scene.text.TextFlow> {
     public TextFlow() {
-        super(new javafx.scene.text.TextFlow());
+        super(javafx.scene.text.TextFlow::new);
         setWidth(400);
         setHeight(100);
         addBoundaryListener((observable, oldValue, newValue) -> {
@@ -19,6 +19,7 @@ public class TextFlow extends ContainerStickerElement<javafx.scene.text.TextFlow
 
     @Override
     public void draw(Pane pane, DrawContext drawContext) {
+        javafx.scene.text.TextFlow node = nodeSupplier.get();
         node.getChildren().clear();
         setupPositionAndSize(node);
         children.forEach(child -> child.draw(node, drawContext));

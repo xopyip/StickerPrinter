@@ -1,5 +1,6 @@
 package pl.baluch.stickerprinter;
 
+import com.google.common.eventbus.EventBus;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,6 +11,7 @@ import pl.baluch.stickerprinter.plugins.PluginManager;
 import java.io.IOException;
 
 public class AppMain extends Application {
+    public static EventBus EVENT_BUS = new EventBus();
 
     private static Stage stage;
 

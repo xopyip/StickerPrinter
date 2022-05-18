@@ -4,12 +4,14 @@ module pl.baluch.stickerprinter {
     requires javafx.graphics;
     requires com.google.gson;
     requires java.desktop;
+    requires com.google.common;
 
     exports pl.baluch.stickerprinter;
     exports pl.baluch.stickerprinter.plugins;
     exports pl.baluch.stickerprinter.data;
     exports pl.baluch.stickerprinter.windows;
     exports pl.baluch.stickerprinter.elements;
+    exports pl.baluch.stickerprinter.events;
 
     opens pl.baluch.stickerprinter to javafx.fxml, com.google.gson;
     opens pl.baluch.stickerprinter.data to javafx.fxml, com.google.gson;

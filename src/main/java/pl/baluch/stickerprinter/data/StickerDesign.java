@@ -26,7 +26,7 @@ public class StickerDesign {
         this.ratio = ratio;
         this.tolerance = tolerance;
         this.orientation = orientation;
-        if(tolerance < 1){
+        if (tolerance < 1) {
             throw new IllegalArgumentException("Tolerance must be at least 1");
         }
         this.itemGroup = itemGroup;
@@ -40,7 +40,7 @@ public class StickerDesign {
         this.orientation = orientation;
     }
 
-    public boolean matches(float ratio, String itemGroup){
+    public boolean matches(float ratio, String itemGroup) {
         this.tolerance = Math.max(this.tolerance, 1.005f);
         float maxRatio = this.ratio * this.tolerance;
         float minRatio = this.ratio / this.tolerance;
@@ -58,17 +58,17 @@ public class StickerDesign {
 
         this.getParentNode().draw(previewPane, new DrawContext(item, false));
 
-        double scaleFactor = parentPane.getWidth()/node.getWidth();
+        double scaleFactor = parentPane.getPrefWidth() / node.getWidth();
         Scale scale = new Scale(scaleFactor, scaleFactor, 0, 0);
         Translate translate = new Translate(0, 0);
         previewPane.getTransforms().add(scale);
         previewPane.getTransforms().add(translate);
         previewPane.hoverProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue){
+            if (newValue) {
                 scale.setX(scaleFactor * 1.95);
                 scale.setY(scaleFactor * 1.95);
-                translate.setX(-previewPane.getWidth()/2.05);
-            }else{
+                translate.setX(-previewPane.getWidth() / 2.05);
+            } else {
                 scale.setX(scaleFactor);
                 scale.setY(scaleFactor);
                 translate.setX(0);
@@ -95,5 +95,9 @@ public class StickerDesign {
 
     public double getTolerance() {
         return tolerance;
+    }
+
+    public Orientation getOrientation() {
+        return orientation;
     }
 }

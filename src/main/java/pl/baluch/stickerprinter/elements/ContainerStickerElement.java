@@ -8,17 +8,18 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public abstract class ContainerStickerElement<T extends Region> extends StickerElement<T> {
     protected Set<StickerElement<? extends Node>> children = new HashSet<>();
     protected transient Set<DropZone> dropZones = new HashSet<>();
 
-    public ContainerStickerElement(T node, int x, int y, int w, int h) {
+    public ContainerStickerElement(Supplier<T> node, int x, int y, int w, int h) {
         super(node, x, y, w, h);
     }
 
-    public ContainerStickerElement(T node) {
+    public ContainerStickerElement(Supplier<T> node) {
         super(node);
     }
 

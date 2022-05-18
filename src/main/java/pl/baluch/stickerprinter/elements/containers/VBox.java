@@ -11,7 +11,7 @@ import pl.baluch.stickerprinter.elements.StickerElement;
 public class VBox extends ContainerStickerElement<javafx.scene.layout.VBox> {
 
     public VBox() {
-        super(new javafx.scene.layout.VBox());
+        super(javafx.scene.layout.VBox::new);
         addBoundaryListener((observable, oldValue, newValue) -> updateBoundary());
         setWidth(50);
         setHeight(30);
@@ -50,6 +50,7 @@ public class VBox extends ContainerStickerElement<javafx.scene.layout.VBox> {
 
     @Override
     public void draw(Pane pane, DrawContext drawContext) {
+        javafx.scene.layout.VBox node = nodeSupplier.get();
         node.getChildren().clear();
         setupPositionAndSize(node);
         children.forEach(child -> child.draw(node, drawContext));

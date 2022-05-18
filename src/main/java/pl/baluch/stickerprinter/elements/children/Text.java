@@ -11,12 +11,13 @@ public class Text extends StickerElement<javafx.scene.text.Text> {
     private final SimpleStringProperty text = new SimpleStringProperty("Test");
 
     public Text() {
-        super(new javafx.scene.text.Text());
-        node.textProperty().bindBidirectional(text);
+        super(javafx.scene.text.Text::new);
     }
 
     @Override
     public void draw(Pane pane, DrawContext drawContext) {
+        javafx.scene.text.Text node = nodeSupplier.get();
+        node.textProperty().bindBidirectional(text);
         super.setupPositionAndSize(node);
         super.setupNode(pane, node, drawContext);
         pane.getChildren().add(node);

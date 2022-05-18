@@ -9,13 +9,14 @@ import pl.baluch.stickerprinter.elements.StickerElement;
 public class Label extends StickerElement<javafx.scene.control.Label> {
     private final SimpleStringProperty text = new SimpleStringProperty("Test");
     public Label() {
-        super(new javafx.scene.control.Label());
-        node.textProperty().bindBidirectional(text);
-        node.setWrapText(false);
+        super(javafx.scene.control.Label::new);
     }
 
     @Override
     public void draw(Pane pane, DrawContext drawContext) {
+        javafx.scene.control.Label node = nodeSupplier.get();
+        node.textProperty().bindBidirectional(text);
+        node.setWrapText(false);
         super.setupPositionAndSize(node);
         super.setupNode(pane, node, drawContext);
         pane.getChildren().add(node);
