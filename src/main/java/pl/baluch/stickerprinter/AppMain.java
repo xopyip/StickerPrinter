@@ -28,7 +28,7 @@ public class AppMain extends Application {
             e.printStackTrace();
         }
         stage.setOnCloseRequest(event -> PluginManager.getInstance().onClose());
-        FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/main.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/fxml/main/main.fxml"));
 
         fxmlLoader.setResources(Storage.getResourceBundle());
 

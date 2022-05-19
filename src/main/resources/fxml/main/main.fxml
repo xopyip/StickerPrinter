@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="pl.baluch.stickerprinter.windows.main.AppController">
+    <MenuBar VBox.vgrow="NEVER">
+        <Menu mnemonicParsing="false" text="%menu.file">
+            <Menu fx:id="languageSelector" mnemonicParsing="false" text="%menu.languages"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem mnemonicParsing="false" text="%menu.quit"/>
+        </Menu>
+        <Menu fx:id="pluginsMenu" mnemonicParsing="false" text="%menu.plugins">
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem fx:id="pluginLoadMenu" mnemonicParsing="false" text="%menu.plugins.load"/>
+        </Menu>
+    </MenuBar>
+    <SplitPane dividerPositions="0.2505567928730512, 0.7505567928730512" focusTraversable="true"
+               VBox.vgrow="ALWAYS">
+        <fx:include source="itemsList.fxml" fx:id="itemList"/>
+        <fx:include source="preview.fxml" fx:id="preview"/>
+        <fx:include source="print.fxml" fx:id="print"/>
+    </SplitPane>
+    <fx:include source="status.fxml" fx:id="status"/>
+</VBox>

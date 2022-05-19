@@ -84,7 +84,7 @@ public class Storage {
         return gson;
     }
 
-    public static Optional<StickerDesign> getStickerDesign(float ratio, Item selectedItem) {
+    public static Optional<StickerDesign> matchStickerDesign(float ratio, Item selectedItem) {
         return Storage.getConfig().getStickerDesigns()
                 .stream().filter(design -> design.matches(ratio, selectedItem.getTypeName())).findAny();
     }

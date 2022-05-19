@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.*?>
+<AnchorPane  xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
+             fx:controller="pl.baluch.stickerprinter.windows.main.PrintController">
+    <Label alignment="CENTER" layoutX="14.0" layoutY="14.0"
+           text="%print.settings" textAlignment="CENTER"/>
+    <ChoiceBox fx:id="pageStyle" layoutX="14.0" layoutY="62.0" prefWidth="150.0"/>
+    <Label alignment="CENTER" layoutX="14.0" layoutY="44.0" text="%print.pagestyle"
+           textAlignment="CENTER">
+        <font>
+            <Font size="14.0"/>
+        </font>
+        <textFill>
+            <Color red="0.624" green="0.624" blue="0.624"/>
+        </textFill>
+    </Label>
+    <Button fx:id="deletePageStyleButton" layoutX="172.0" layoutY="62.0" mnemonicParsing="false"
+            prefHeight="25.0" prefWidth="35.0" text="X"/>
+    <Pane fx:id="previewPane" layoutX="14.0" layoutY="94.0" prefHeight="289.0" prefWidth="200.0"/>
+    <Label fx:id="cellRatioLabel" alignment="CENTER" layoutX="8.0" layoutY="539.0"
+           prefHeight="14.0" prefWidth="209.0">
+        <font>
+            <Font size="11.0"/>
+        </font>
+        <textFill>
+            <Color red="0.625" green="0.625" blue="0.625"/>
+        </textFill>
+    </Label>
+    <Button fx:id="printButton" layoutX="6.0" layoutY="510.0" mnemonicParsing="false"
+            prefHeight="25.0" prefWidth="209.0" text="%print.printStickers" textAlignment="CENTER"/>
+</AnchorPane>

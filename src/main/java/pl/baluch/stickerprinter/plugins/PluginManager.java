@@ -1,9 +1,10 @@
 package pl.baluch.stickerprinter.plugins;
 
+import pl.baluch.stickerprinter.AppMain;
 import pl.baluch.stickerprinter.Storage;
+import pl.baluch.stickerprinter.events.PluginLoadEvent;
+import pl.baluch.stickerprinter.events.PluginUnloadEvent;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -20,7 +21,6 @@ import java.util.zip.ZipFile;
 public class PluginManager {
     private static PluginManager instance;
     private final Map<Plugin, PluginInfo> pluginList = new HashMap<>();
-    private final PropertyChangeSupport support = new PropertyChangeSupport(this);
 
     public static PluginManager getInstance() {
         if (instance == null) {
@@ -29,14 +29,10 @@ public class PluginManager {
         return instance;
     }
 
-    public void addChangeListener(PropertyChangeListener listener){
-        support.addPropertyChangeListener(listener);
-    }
-
     public void load() throws IOException, InstantiationException, IllegalAccessException {
         for (File file : Storage.listPluginFiles()) {
             if (file.getName().endsWith(".jar")) {
-                loadInternal(file).ifPresent(plugin -> support.firePropertyChange("plugins", null, plugin));
+                loadInternal(file).ifPresent(plugin -> AppMain.EVENT_BUS.post(new PluginLoadEvent(plugin)));
             } else {
                 System.err.println("Invalid file in plugins dir: " + file.getName());
             }
@@ -52,7 +48,7 @@ public class PluginManager {
         pluginList.remove(plugin);
         pluginInfo.getClassLoader().close();
         pluginInfo.getFile().delete();
-        support.firePropertyChange("plugins", plugin, null);
+        AppMain.EVENT_BUS.post(new PluginUnloadEvent(plugin));
     }
 
     private Optional<Plugin> loadInternal(File file) throws IOException, InstantiationException, IllegalAccessException {
@@ -78,7 +74,7 @@ public class PluginManager {
                 Plugin plugin = (Plugin) constructor.newInstance();
                 System.out.println("Loaded plugin: " + plugin.getName());
                 pluginList.put(plugin, new PluginInfo(file, child));
-                plugin.addChangeListener(evt -> support.firePropertyChange("plugins", null, plugin));
+                plugin.addChangeListener(evt -> AppMain.EVENT_BUS.post(new PluginLoadEvent(plugin)));
                 return Optional.of(plugin);
             } else {
                 System.err.println("Plugin without main class: " + file.getName());
@@ -97,7 +93,7 @@ public class PluginManager {
         Files.copy(file.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
         Optional<Plugin> plugin = loadInternal(target);
 
-        plugin.ifPresent(value -> support.firePropertyChange("plugins", null, value));
+        plugin.ifPresent(value -> AppMain.EVENT_BUS.post(new PluginLoadEvent(value)));
 
         return plugin;
     }

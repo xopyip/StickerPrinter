@@ -21,4 +21,6 @@ module pl.baluch.stickerprinter {
     opens pl.baluch.stickerprinter.elements.containers to com.google.gson, javafx.fxml;
     exports pl.baluch.stickerprinter.elements.children;
     opens pl.baluch.stickerprinter.elements.children to com.google.gson, javafx.fxml;
+    exports pl.baluch.stickerprinter.windows.main;
+    opens pl.baluch.stickerprinter.windows.main to com.google.gson, javafx.fxml;
 }
