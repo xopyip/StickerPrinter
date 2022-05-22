@@ -1,5 +1,6 @@
 package pl.baluch.stickerprinter.windows;
 
+import com.google.common.eventbus.Subscribe;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Dimension2D;
@@ -19,6 +20,7 @@ import pl.baluch.stickerprinter.data.*;
 import pl.baluch.stickerprinter.elements.ContainerStickerElement;
 import pl.baluch.stickerprinter.elements.StickerElement;
 import pl.baluch.stickerprinter.elements.StickerElementTypes;
+import pl.baluch.stickerprinter.events.DeleteStickerElementEvent;
 import pl.baluch.stickerprinter.plugins.Item;
 
 import java.net.URL;
@@ -56,7 +58,7 @@ public class StickerEditorController implements Initializable {
         orientationChoiceBox.getItems().addAll(Orientation.values());
         orientationChoiceBox.getSelectionModel().selectFirst();
         this.design = Storage.getConfig()
-                .getStickerDesign(pageStyle.getCellRatio(),item.getTypeName())
+                .getStickerDesign(pageStyle.getCellRatio(), item.getTypeName())
                 .orElse(new StickerDesign(pageStyle.getCellRatio(), 1, orientationChoiceBox.getSelectionModel().getSelectedItem(), item.getTypeName()));
         toleranceSlider.setValue(design.getTolerance());
 
@@ -71,7 +73,7 @@ public class StickerEditorController implements Initializable {
         updatePreviews();
         setupStickerElements(resources);
         saveButton.setOnMouseClicked(event -> {
-            if(!Storage.getConfig().getStickerDesigns().contains(design)){
+            if (!Storage.getConfig().getStickerDesigns().contains(design)) {
                 Storage.getConfig().getStickerDesigns().add(design);
             }
             Storage.saveConfig();
@@ -142,17 +144,18 @@ public class StickerEditorController implements Initializable {
 
     /**
      * For each dropzone of `parentNode` create a new dropzone with the size and position moved by vector [x,y] and add it to `previewPane`
+     *
      * @param previewPane - parent pane of the dropzones
-     * @param parentNode - node to create dropzones for
-     * @param x - x offset
-     * @param y - y offset
+     * @param parentNode  - node to create dropzones for
+     * @param x           - x offset
+     * @param y           - y offset
      */
     private void setupDropZones(Pane previewPane, ContainerStickerElement<Region> parentNode, double x, double y) {
         for (DropZone dropZone : parentNode.getDropZones()) {
-            if(!stickerElementsList.getSelectionModel().getSelectedItem().type().isParentValid(dropZone.getContainer())){
+            if (!stickerElementsList.getSelectionModel().getSelectedItem().type().isParentValid(dropZone.getContainer())) {
                 continue;
             }
-            if(!dropZone.getContainer().getType().isChildValid(stickerElementsList.getSelectionModel().getSelectedItem().type())){
+            if (!dropZone.getContainer().getType().isChildValid(stickerElementsList.getSelectionModel().getSelectedItem().type())) {
                 continue;
             }
             DropZone newDropZone = new DropZone(dropZone.getContainer(), dropZone.getX() + x, dropZone.getY() + y, dropZone.getWidth(), dropZone.getHeight());
@@ -162,7 +165,7 @@ public class StickerEditorController implements Initializable {
         }
 
         for (StickerElement<? extends Node> child : parentNode.getChildren()) {
-            if(child instanceof ContainerStickerElement) {
+            if (child instanceof ContainerStickerElement) {
                 setupDropZones(previewPane, (ContainerStickerElement) child, x + parentNode.getX(), y + parentNode.getY());
             }
         }
@@ -202,6 +205,13 @@ public class StickerEditorController implements Initializable {
     }
 
     public void setStage(StickerEditorWindow stickerEditorWindow) {
-        this.stickerEditorWindow = stickerEditorWindow;
+        this.stickerEditorWindow = stickerEditorWindow; //todo: reimplement using events
+    }
+
+    @Subscribe
+    public void onStickerElementDelete(DeleteStickerElementEvent event) {
+        ContainerStickerElement<?> parentNode = this.design.getParentNode();
+        parentNode.removeChild(event.stickerElement(), true);
+        updatePreviews();
     }
 }

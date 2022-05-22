@@ -52,4 +52,16 @@ public abstract class ContainerStickerElement<T extends Region> extends StickerE
                 "children=" + Arrays.toString(children.toArray()) +
                 '}';
     }
+
+    public boolean removeChild(StickerElement<?> stickerElement, boolean deep) {
+        if(this.getChildren().contains(stickerElement)) {
+            this.getChildren().remove(stickerElement);
+            return true;
+        }else if(deep) {
+            return this.getChildren().stream()
+                    .filter(child -> child instanceof ContainerStickerElement)
+                    .anyMatch(child -> ((ContainerStickerElement<?>) child).removeChild(stickerElement, true));
+        }
+        return false;
+    }
 }

@@ -7,9 +7,13 @@ import javafx.beans.value.ChangeListener;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import pl.baluch.stickerprinter.AppMain;
 import pl.baluch.stickerprinter.data.DrawContext;
+import pl.baluch.stickerprinter.events.DeleteStickerElementEvent;
 
 import java.util.List;
 import java.util.Stack;
@@ -27,6 +31,7 @@ public abstract class StickerElement<T extends Node> {
     //Stack to trace hover state
     private static final Stack<StickerElement<?>> mouseOverStack = new Stack<>();
     private StickerElementTypes type;
+    private ContextMenu contextMenu;
 
     public StickerElement(Supplier<T> node, int x, int y, int w, int h) {
         this.nodeSupplier = node;
@@ -43,7 +48,7 @@ public abstract class StickerElement<T extends Node> {
     public abstract void draw(Pane pane, DrawContext drawContext);
 
     /**
-     * Sets required listeners and properties to make element resiable and draggable
+     * Sets required listeners and properties to make element resizable and draggable
      *
      * @param pane        - parent pane
      * @param node        - node to be resized and dragged
@@ -181,6 +186,19 @@ public abstract class StickerElement<T extends Node> {
             }
         });
 
+        //todo: reimplement on window and get element by position
+        contextMenu = new ContextMenu();
+        MenuItem delete = new MenuItem("Delete");
+        delete.setOnAction(event -> {
+            AppMain.EVENT_BUS.post(new DeleteStickerElementEvent(this));
+            event.consume();
+        });
+        contextMenu.getItems().add(delete);
+        node.setOnContextMenuRequested(event -> {
+            contextMenu.show(node, event.getScreenX(), event.getScreenY());
+            event.consume();
+        });
+        node.setOnMouseClicked(event -> contextMenu.hide());
     }
 
     /**
