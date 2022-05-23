@@ -66,7 +66,7 @@ public abstract class StickerElement<T extends Node> {
         if (isResizable) {
             ((Region) node).setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.DOTTED, null, BorderStroke.THIN)));
         }
-        if(selected){
+        if (selected) {
             node.getStyleClass().add("element-selected");
         }
         //todo: divide into listeners and simply change listener
@@ -126,9 +126,6 @@ public abstract class StickerElement<T extends Node> {
         node.setOnMousePressed(event -> {
             if (node.getCursor() != Cursor.DEFAULT && savedCursor.get() == null && node.getCursor() != Cursor.DEFAULT && isMouseOver()) {
                 savedCursor.set(node.getCursor());
-            }
-            if(event.isPrimaryButtonDown()){
-                AppMain.EVENT_BUS.post(new SelectStickerElementEvent(this));
             }
             event.consume();
         });
@@ -191,6 +188,10 @@ public abstract class StickerElement<T extends Node> {
             }
         });
         node.setOnMouseReleased(event -> {
+            Point2D startPoint = startLocation.get();
+            if (startPoint == null) {
+                AppMain.EVENT_BUS.post(new SelectStickerElementEvent(this));
+            }
             startLocation.setValue(null);
             if (savedCursor.get() != null && isResizable) {
 
@@ -200,6 +201,7 @@ public abstract class StickerElement<T extends Node> {
                 this.setHeight(((Region) node).getPrefHeight());
                 savedCursor.setValue(null);
             }
+            event.consume();
         });
 
         contextMenu = new ContextMenu();
@@ -349,11 +351,7 @@ public abstract class StickerElement<T extends Node> {
         return properties;
     }
 
-    public void updateProperties(){
-
-    }
-
-    public void addProperty(StickerElementProperty property){
+    public void addProperty(StickerElementProperty property) {
         properties.add(property);
     }
 
