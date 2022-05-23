@@ -1,6 +1,7 @@
 package pl.baluch.stickerprinter.windows;
 
 import com.google.common.eventbus.Subscribe;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Dimension2D;
@@ -21,6 +22,7 @@ import pl.baluch.stickerprinter.elements.ContainerStickerElement;
 import pl.baluch.stickerprinter.elements.StickerElement;
 import pl.baluch.stickerprinter.elements.StickerElementTypes;
 import pl.baluch.stickerprinter.events.DeleteStickerElementEvent;
+import pl.baluch.stickerprinter.events.SelectStickerElementEvent;
 import pl.baluch.stickerprinter.plugins.Item;
 
 import java.net.URL;
@@ -31,6 +33,14 @@ public class StickerEditorController implements Initializable {
     private StickerDesign design;
     @FXML
     public Label ratioLabel;
+    @FXML
+    public Label selectedElementLabel;
+    @FXML
+    public TableView<StickerElementProperty> selectedElementProperties;
+    @FXML
+    private TableColumn<StickerElementProperty, String> selectedElementPropertiesKey;
+    @FXML
+    private TableColumn<StickerElementProperty, String> selectedElementPropertiesValue;
     @FXML
     public Slider toleranceSlider;
     @FXML
@@ -45,6 +55,7 @@ public class StickerEditorController implements Initializable {
     private final PageStyle pageStyle;
     private StickerEditorWindow stickerEditorWindow;
     private AnchorPane stickerPane;
+    private StickerElement<?> selectedElementSticker;
 
     public StickerEditorController(Item item, PageStyle pageStyle) {
         this.item = item;
@@ -80,6 +91,8 @@ public class StickerEditorController implements Initializable {
             AppMain.EVENT_BUS.unregister(StickerEditorController.this);
             stickerEditorWindow.close();
         });
+        selectedElementPropertiesKey.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().key()));
+        selectedElementPropertiesValue.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().value()));
 
         AppMain.EVENT_BUS.register(this);
     }
@@ -140,6 +153,11 @@ public class StickerEditorController implements Initializable {
         design.getParentNode().setHeight(size.getHeight());
 
         design.getParentNode().draw(stickerPane, new DrawContext(item, true));
+        previewPane.setOnMousePressed(event -> {
+            if(event.isPrimaryButtonDown()){
+                AppMain.EVENT_BUS.post(new SelectStickerElementEvent(null));
+            }
+        });
     }
 
     /**
@@ -212,6 +230,33 @@ public class StickerEditorController implements Initializable {
     public void onStickerElementDelete(DeleteStickerElementEvent event) {
         ContainerStickerElement<?> parentNode = this.design.getParentNode();
         parentNode.removeChild(event.stickerElement(), true);
+        updatePreviews();
+    }
+
+    @Subscribe
+    public void onSelectStickerElement(SelectStickerElementEvent event){
+        if(selectedElementSticker != null){
+            selectedElementSticker.setSelected(false);
+        }
+        this.selectedElementSticker = event.stickerElement();
+        if(event.stickerElement() != null){
+            selectedElementLabel.setText(String.format(Storage.getResourceBundle().getString("sticker.editor.selected"), event.stickerElement()));
+            event.stickerElement().setSelected(true);
+            selectedElementProperties.setDisable(false);
+            selectedElementProperties.getItems().clear();
+
+            selectedElementProperties.getItems().addAll(event.stickerElement().getProperties());
+
+            selectedElementPropertiesValue.setCellFactory(StickerElementPropertyTableCell.forTableColumn());
+            selectedElementPropertiesValue.addEventHandler(TableColumn.CellEditEvent.ANY, editEvent -> {
+                TableColumn.CellEditEvent<StickerElementProperty, String> cellEditEvent = (TableColumn.CellEditEvent<StickerElementProperty, String>) editEvent;
+                cellEditEvent.getRowValue().update(cellEditEvent.getNewValue());
+            });
+        }else{
+            selectedElementLabel.setText(Storage.getResourceBundle().getString("sticker.editor.noselection"));
+            selectedElementProperties.setDisable(true);
+            selectedElementProperties.getItems().clear();
+        }
         updatePreviews();
     }
 }

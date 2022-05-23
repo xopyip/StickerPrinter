@@ -13,8 +13,12 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import pl.baluch.stickerprinter.AppMain;
 import pl.baluch.stickerprinter.data.DrawContext;
+import pl.baluch.stickerprinter.data.StickerElementProperty;
 import pl.baluch.stickerprinter.events.DeleteStickerElementEvent;
+import pl.baluch.stickerprinter.events.SelectStickerElementEvent;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Stack;
 import java.util.function.Supplier;
@@ -32,6 +36,8 @@ public abstract class StickerElement<T extends Node> {
     private static final Stack<StickerElement<?>> mouseOverStack = new Stack<>();
     private StickerElementTypes type;
     private ContextMenu contextMenu;
+    private boolean selected;
+    private final Collection<StickerElementProperty> properties = new ArrayList<>();
 
     public StickerElement(Supplier<T> node, int x, int y, int w, int h) {
         this.nodeSupplier = node;
@@ -60,6 +66,9 @@ public abstract class StickerElement<T extends Node> {
         if (isResizable) {
             ((Region) node).setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.DOTTED, null, BorderStroke.THIN)));
         }
+        if(selected){
+            node.getStyleClass().add("element-selected");
+        }
         //todo: divide into listeners and simply change listener
         node.setOnMouseEntered(event -> {
             if (!mouseOverStack.empty())
@@ -69,6 +78,7 @@ public abstract class StickerElement<T extends Node> {
             if (isDraggable) {
                 node.setCursor(Cursor.MOVE);
             }
+            event.consume();
         });
         node.setOnMouseExited(event -> {
             this.setHighlighted(node, false);
@@ -82,9 +92,10 @@ public abstract class StickerElement<T extends Node> {
             if (!mouseOverStack.empty())
                 mouseOverStack.peek().setHighlighted(node, true);
             node.setCursor(Cursor.DEFAULT);
+            event.consume();
         });
         node.setOnMouseMoved(event -> {
-            if (isResizable && mouseOverStack.peek() == this) {
+            if (isResizable && isMouseOver()) {
                 double cursorX = event.getX();
                 double cursorY = event.getY();
                 boolean left = cursorX <= 1;
@@ -103,18 +114,23 @@ public abstract class StickerElement<T extends Node> {
                 else if (node.getCursor() == null || node.getCursor().toString().endsWith("_RESIZE"))
                     node.setCursor(Cursor.DEFAULT);
             }
-            if (isDraggable && node.getCursor() == Cursor.DEFAULT && mouseOverStack.peek() == this) {
+            if (isDraggable && node.getCursor() == Cursor.DEFAULT && isMouseOver()) {
                 node.setCursor(Cursor.MOVE);
             }
+            event.consume();
         });
 
         SimpleObjectProperty<Point2D> startLocation = new SimpleObjectProperty<>();
         SimpleObjectProperty<Cursor> savedCursor = new SimpleObjectProperty<>();
 
         node.setOnMousePressed(event -> {
-            if (node.getCursor() != Cursor.DEFAULT && savedCursor.get() == null && node.getCursor() != Cursor.DEFAULT && mouseOverStack.peek() == this) {
+            if (node.getCursor() != Cursor.DEFAULT && savedCursor.get() == null && node.getCursor() != Cursor.DEFAULT && isMouseOver()) {
                 savedCursor.set(node.getCursor());
             }
+            if(event.isPrimaryButtonDown()){
+                AppMain.EVENT_BUS.post(new SelectStickerElementEvent(this));
+            }
+            event.consume();
         });
 
 
@@ -186,7 +202,6 @@ public abstract class StickerElement<T extends Node> {
             }
         });
 
-        //todo: reimplement on window and get element by position
         contextMenu = new ContextMenu();
         MenuItem delete = new MenuItem("Delete");
         delete.setOnAction(event -> {
@@ -198,7 +213,13 @@ public abstract class StickerElement<T extends Node> {
             contextMenu.show(node, event.getScreenX(), event.getScreenY());
             event.consume();
         });
-        node.setOnMouseClicked(event -> contextMenu.hide());
+        node.setOnMouseClicked(event -> {
+            contextMenu.hide();
+        });
+    }
+
+    private boolean isMouseOver() {
+        return !mouseOverStack.empty() && mouseOverStack.peek() == this;
     }
 
     /**
@@ -319,6 +340,22 @@ public abstract class StickerElement<T extends Node> {
     public abstract void deserialize(JsonObject properties);
 
     public abstract JsonObject serialize();
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
+    public Collection<StickerElementProperty> getProperties() {
+        return properties;
+    }
+
+    public void updateProperties(){
+
+    }
+
+    public void addProperty(StickerElementProperty property){
+        properties.add(property);
+    }
 
     public record Provider(StickerElementTypes type) {
 

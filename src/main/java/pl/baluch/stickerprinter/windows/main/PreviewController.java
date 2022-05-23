@@ -1,13 +1,13 @@
 package pl.baluch.stickerprinter.windows.main;
 
 import com.google.common.eventbus.Subscribe;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -44,9 +44,9 @@ public class PreviewController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         this.resources = resources;
 
-        stickerPreviewKeyColumn.setCellValueFactory(new PropertyValueFactory<>("key"));
-        stickerPreviewValueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
-        stickerPreviewDataTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> stickerPreviewPropertyText.setText(newValue.getKey() + ": " + newValue.getValue()));
+        stickerPreviewKeyColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().key()));
+        stickerPreviewValueColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().value()));
+        stickerPreviewDataTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> stickerPreviewPropertyText.setText(newValue.key() + ": " + newValue.value()));
         stickerDesignEdit.setOnMouseClicked(event -> {
             StickerEditorWindow editorWindow = new StickerEditorWindow(appController.getItemListController().getItem().orElseThrow(), appController.getPageStyle().orElseThrow());
             editorWindow.showAndWait();

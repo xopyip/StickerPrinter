@@ -4,12 +4,27 @@ import com.google.gson.JsonObject;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.layout.Pane;
 import pl.baluch.stickerprinter.data.DrawContext;
+import pl.baluch.stickerprinter.data.StickerElementProperty;
 import pl.baluch.stickerprinter.elements.StickerElement;
 
 public class Label extends StickerElement<javafx.scene.control.Label> {
     private final SimpleStringProperty text = new SimpleStringProperty("Test");
     public Label() {
         super(javafx.scene.control.Label::new);
+        addProperty(StickerElementProperty.builder("Text")
+                .value(text.get())
+                .onChange(value -> {
+                    if(value == null){
+                        return;
+                    }
+                    if(value.equals("Custom...")){
+                        throw new RuntimeException("Custom text is not supported yet");
+                    }
+                    text.set(value);
+                })
+                //.addChoices() //todo: list all props from item
+                .addChoice("Custom...")
+                .build());
     }
 
     @Override
