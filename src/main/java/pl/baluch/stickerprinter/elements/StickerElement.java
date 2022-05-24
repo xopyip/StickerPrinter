@@ -21,6 +21,7 @@ import pl.baluch.stickerprinter.elements.listeners.StickerElementContextMenuList
 import pl.baluch.stickerprinter.elements.listeners.StickerElementDragListeners;
 import pl.baluch.stickerprinter.elements.listeners.StickerElementResizeListeners;
 import pl.baluch.stickerprinter.events.SelectStickerElementEvent;
+import pl.baluch.stickerprinter.plugins.Item;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -291,6 +292,22 @@ public abstract class StickerElement<T extends Node> {
 
     public Optional<T> getNode(){
         return Optional.ofNullable(nodeReference.get());
+    }
+    public Optional<DrawContext> getContext(){
+        return Optional.ofNullable(contextReference.get());
+    }
+
+    protected String formatPropertyValue(String text, Item item) {
+        if (text.startsWith(":")) {
+            String key = text.substring(1);
+            if (item.isCustomProperty(key)) {
+                return "???";
+            } else {
+                return item.getPropertyValue(key);
+            }
+        } else {
+            return text;
+        }
     }
 
     public record Provider(StickerElementTypes type) {

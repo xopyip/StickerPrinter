@@ -5,6 +5,8 @@ module pl.baluch.stickerprinter {
     requires com.google.gson;
     requires java.desktop;
     requires com.google.common;
+    requires com.google.zxing;
+    requires com.google.zxing.javase;
 
     exports pl.baluch.stickerprinter;
     exports pl.baluch.stickerprinter.plugins;

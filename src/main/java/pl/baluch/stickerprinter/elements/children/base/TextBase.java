@@ -92,16 +92,8 @@ public abstract class TextBase<T extends Node> extends StickerElement<T> {
     }
 
     private void updateText(T node, Item item) {
-        if (text.get().startsWith(":")) {
-            String key = text.get().substring(1);
-            if (item.isCustomProperty(key)) {
-                setText(node, "???");
-            } else {
-                setText(node, item.getPropertyValue(key));
-            }
-        } else {
-            setText(node, text.get());
-        }
+        String value = formatPropertyValue(text.get(), item);
+        setText(node, value);
     }
 
     protected abstract void setText(T node, String text);

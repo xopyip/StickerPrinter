@@ -10,6 +10,7 @@ public class ExampleShoesItem extends Item {
         addProperty("desc", desc);
         addProperty("color", color);
         addProperty("size", String.valueOf(size));
+        addProperty("url", "https://github.com/xopyip/StickerPrinter");
         addCustomProperty("amount", CustomPropertyType.NUMBER);
     }
 }

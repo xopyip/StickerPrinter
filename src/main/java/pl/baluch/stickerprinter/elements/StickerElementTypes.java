@@ -2,10 +2,7 @@ package pl.baluch.stickerprinter.elements;
 
 import javafx.scene.Node;
 import pl.baluch.stickerprinter.Storage;
-import pl.baluch.stickerprinter.elements.children.HSpacer;
-import pl.baluch.stickerprinter.elements.children.Label;
-import pl.baluch.stickerprinter.elements.children.Text;
-import pl.baluch.stickerprinter.elements.children.VSpacer;
+import pl.baluch.stickerprinter.elements.children.*;
 import pl.baluch.stickerprinter.elements.containers.HBox;
 import pl.baluch.stickerprinter.elements.containers.StickerAnchorPane;
 import pl.baluch.stickerprinter.elements.containers.TextFlow;
@@ -54,6 +51,11 @@ public enum StickerElementTypes {
     LABEL(
             () -> Storage.getResourceBundle().getString("sticker.elements.label"),
             Label::new,
+            (parent) -> true
+    ),
+    QRCODE(
+            () -> Storage.getResourceBundle().getString("sticker.elements.qrcode"),
+            QRCode::new,
             (parent) -> true
     ),
     ;
