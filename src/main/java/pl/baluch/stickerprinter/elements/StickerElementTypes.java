@@ -31,7 +31,7 @@ public enum StickerElementTypes {
     V_SPACER(
             () -> Storage.getResourceBundle().getString("sticker.elements.vSpacer"),
             VSpacer::new,
-            (parent) -> parent instanceof HBox
+            (parent) -> parent instanceof VBox
     ),
     H_SPACER(
             () -> Storage.getResourceBundle().getString("sticker.elements.hSpacer"),
