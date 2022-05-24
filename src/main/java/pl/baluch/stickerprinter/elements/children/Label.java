@@ -3,8 +3,10 @@ package pl.baluch.stickerprinter.elements.children;
 import com.google.gson.JsonObject;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
+import pl.baluch.stickerprinter.Storage;
 import pl.baluch.stickerprinter.data.DrawContext;
 import pl.baluch.stickerprinter.data.StickerElementProperty;
 import pl.baluch.stickerprinter.data.StickerProperty;
@@ -27,20 +29,21 @@ public class Label extends StickerElement<javafx.scene.control.Label> {
     public Label() {
         super(javafx.scene.control.Label::new);
         addProperty(StickerElementProperty.builder("Text")
-                .value(text.get())
+                .value(text::get)
                 .onChange(value -> {
                     if (value == null) {
                         return;
                     }
-                    if (value.equals("Custom...")) {
-                        throw new RuntimeException("Custom text is not supported yet");
+                    if (value.equals(Storage.getResourceBundle().getString("custom.property.name"))) {
+                        TextInputDialog inputDialog = new TextInputDialog("");
+                        inputDialog.setHeaderText(Storage.getResourceBundle().getString("custom.property.header"));
+                        Optional<String> dialogOutput = inputDialog.showAndWait();
+                        if(dialogOutput.isPresent()) {
+                            value = dialogOutput.get();
+                        }
                     }
                     text.set(value);
-                    Optional.ofNullable(nodeReference.get()).ifPresent(node -> {
-                        Optional.ofNullable(contextReference.get()).ifPresent(context -> {
-                            updateText(node, context.item());
-                        });
-                    });
+                    updateNode();
                 })
                 .setChoices(item -> {
                     List<String> strings = new ArrayList<>(
@@ -49,12 +52,12 @@ public class Label extends StickerElement<javafx.scene.control.Label> {
                                     .map(s -> ":" + s)
                                     .toList()
                     );
-                    strings.add("Custom...");
+                    strings.add(Storage.getResourceBundle().getString("custom.property.name"));
                     return strings;
                 })
                 .build());
         addProperty(StickerElementProperty.builder("Font size")
-                .value(fontSize.get() + "px")
+                .value(() -> fontSize.get() + "px")
                 .onChange(value -> {
                     if (value == null || !value.endsWith("px")) {
                         return;
@@ -62,12 +65,19 @@ public class Label extends StickerElement<javafx.scene.control.Label> {
                     try {
                         int newValue = Integer.parseInt(value.replace("px", ""));
                         fontSize.set(newValue);
-                        Optional.ofNullable(nodeReference.get()).ifPresent(node -> node.setFont(new Font(newValue)));
+                        updateNode();
                     } catch (NumberFormatException ignored) {
                     }
                 })
                 .addChoices(Arrays.asList("5px", "10px", "15px", "20px", "25px", "30px", "35px", "40px", "45px", "50px", "55px", "60px"))
                 .build());
+    }
+
+    private void updateNode() {
+        Optional.ofNullable(nodeReference.get()).ifPresent(node -> {
+            Optional.ofNullable(contextReference.get()).ifPresent(context -> updateText(node, context.item()));
+            node.setFont(new Font(fontSize.get()));
+        });
     }
 
     @Override

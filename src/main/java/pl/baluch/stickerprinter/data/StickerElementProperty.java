@@ -2,23 +2,27 @@ package pl.baluch.stickerprinter.data;
 
 import pl.baluch.stickerprinter.plugins.Item;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public final class StickerElementProperty {
     private final String key;
-    private final String value;
+    private final Supplier<String> value;
     private final Consumer<String> onChange;
     private final Function<Item, Collection<String>> choicesFunction;
 
-    private StickerElementProperty(String key, String value, Consumer<String> onChange, List<String> choices) {
+    private StickerElementProperty(String key, Supplier<String> value, Consumer<String> onChange, List<String> choices) {
         this.key = key;
         this.value = value;
         this.onChange = onChange;
         choicesFunction = item -> choices;
     }
-    private StickerElementProperty(String key, String value, Consumer<String> onChange, Function<Item, Collection<String>> choicesFunction) {
+    private StickerElementProperty(String key, Supplier<String> value, Consumer<String> onChange, Function<Item, Collection<String>> choicesFunction) {
         this.key = key;
         this.value = value;
         this.onChange = onChange;
@@ -42,7 +46,7 @@ public final class StickerElementProperty {
     }
 
     public String value() {
-        return value;
+        return value.get();
     }
 
     @Override
@@ -71,7 +75,7 @@ public final class StickerElementProperty {
 
     public static class Builder {
         private final String key;
-        private String value;
+        private Supplier<String> value;
         private Consumer<String> onChange;
         private final List<String> choices = new ArrayList<>();
         private Function<Item, Collection<String>> choicesFunction;
@@ -80,7 +84,7 @@ public final class StickerElementProperty {
             this.key = key;
         }
 
-        public Builder value(String value) {
+        public Builder value(Supplier<String> value) {
             this.value = value;
             return this;
         }
