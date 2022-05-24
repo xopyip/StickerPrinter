@@ -71,9 +71,6 @@ public class AppController implements Initializable {
     }
 
 
-    /**
-     * Setups menu, submenus and their handlers
-     */
     private void setupMenu(ResourceBundle resourceBundle) {
         for (Plugin plugin : PluginManager.getInstance().getPlugins()) {
             addPluginMenu(plugin, resourceBundle);
@@ -99,11 +96,6 @@ public class AppController implements Initializable {
         }
     }
 
-    /**
-     * Add plugin to the menu with their submenus
-     *
-     * @param plugin - plugin to be added
-     */
     private void addPluginMenu(Plugin plugin, ResourceBundle resourceBundle) {
         MenuItem unloadPlugin = new MenuItem(resourceBundle.getString("menu.plugins.unload"));
         unloadPlugin.setOnAction(event -> {
@@ -118,11 +110,6 @@ public class AppController implements Initializable {
         pluginsMenu.getItems().add(0, menuItem);
     }
 
-    /**
-     * Changes language to value and restarts application
-     *
-     * @param value - target language
-     */
     private void changeLanguage(Language value, ResourceBundle resourceBundle) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(resourceBundle.getString("language.title"));
@@ -138,7 +125,6 @@ public class AppController implements Initializable {
 
     }
 
-    // GETTERS AND SETTERS
     public ItemListController getItemListController() {
         return itemListController;
     }
@@ -160,6 +146,7 @@ public class AppController implements Initializable {
     @Subscribe
     public void onStickerUpdateClicked(ForceUpdateStickerEvent event) {
         stickerDesign.set(matchStickerDesign().orElse(null));
+        AppMain.EVENT_BUS.post(new StickerDesignChangedEvent(stickerDesign.get()));
     }
     @Subscribe
     public void onCellClicked(PrintCellClickedEvent event) {

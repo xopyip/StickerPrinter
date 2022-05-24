@@ -89,7 +89,4 @@ public class PreviewController implements Initializable {
     }
 
 
-    public AppController getAppController() {
-        return appController;
-    }
 }

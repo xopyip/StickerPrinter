@@ -16,10 +16,6 @@ public class StickerElementResizeListeners {
 
         if (event.element().getElementAction().isResize()) {
             ElementActionType elementActionType = event.element().getElementAction();
-            Point2D point2D = event.element().getDragStartLocation();
-            if (event.element().getDragStartLocation() == null) {
-                event.element().setDragStartLocation(point2D = new Point2D(event.mouseEvent().getScreenX(), event.mouseEvent().getScreenY()));
-            }
             Region region = (Region) event.elementNode();
             Point2D origin = event.getOrigin();
 
@@ -40,10 +36,5 @@ public class StickerElementResizeListeners {
                 region.setPrefHeight(event.mouseEvent().getSceneY() - region.getLayoutY() - origin.getY());
             }
         }
-    }
-
-    @Subscribe
-    private void onReleasedForResize(StickerElement.ElementMouseReleasedEvent event) {
-        event.element().setDragStartLocation(null);
     }
 }
