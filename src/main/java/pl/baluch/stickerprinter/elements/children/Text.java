@@ -1,37 +1,22 @@
 package pl.baluch.stickerprinter.elements.children;
 
-import com.google.gson.JsonObject;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.layout.Pane;
-import pl.baluch.stickerprinter.data.DrawContext;
-import pl.baluch.stickerprinter.elements.StickerElement;
+import javafx.scene.text.Font;
+import pl.baluch.stickerprinter.elements.children.base.TextBase;
 
 
-public class Text extends StickerElement<javafx.scene.text.Text> {
-    private final SimpleStringProperty text = new SimpleStringProperty("Test");
+public class Text extends TextBase<javafx.scene.text.Text> {
 
     public Text() {
         super(javafx.scene.text.Text::new);
     }
 
     @Override
-    public void draw(Pane pane, DrawContext drawContext) {
-        javafx.scene.text.Text node = nodeSupplier.get();
-        node.textProperty().bindBidirectional(text);
-        super.bindBounds(node);
-        super.setupNode(pane, node, drawContext);
-        pane.getChildren().add(node);
+    protected void setFont(javafx.scene.text.Text node, Font font) {
+        node.setFont(font);
     }
 
     @Override
-    public void deserialize(JsonObject properties) {
-        text.set(properties.get("text").getAsString());
-    }
-
-    @Override
-    public JsonObject serialize() {
-        JsonObject properties = new JsonObject();
-        properties.addProperty("text", text.get());
-        return properties;
+    protected void setText(javafx.scene.text.Text node, String s) {
+        node.setText(s);
     }
 }

@@ -22,9 +22,11 @@ import pl.baluch.stickerprinter.elements.listeners.StickerElementDragListeners;
 import pl.baluch.stickerprinter.elements.listeners.StickerElementResizeListeners;
 import pl.baluch.stickerprinter.events.SelectStickerElementEvent;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public abstract class StickerElement<T extends Node> {
@@ -34,10 +36,13 @@ public abstract class StickerElement<T extends Node> {
     protected SimpleDoubleProperty height = new SimpleDoubleProperty(-1);
     private boolean resizableDisabled = false;
     private boolean draggingDisabled = false;
-    protected transient Supplier<T> nodeSupplier;
-    protected transient SimpleObjectProperty<StickerElement<?>> mouseOverItemProperty = new SimpleObjectProperty<>(null);
-    protected transient SimpleObjectProperty<ElementActionType> elementActionProperty = new SimpleObjectProperty<>();
-    protected transient SimpleObjectProperty<Point2D> dragStartLocation = new SimpleObjectProperty<>();
+    protected Supplier<T> nodeSupplier;
+    protected SimpleObjectProperty<StickerElement<?>> mouseOverItemProperty = new SimpleObjectProperty<>(null);
+    protected SimpleObjectProperty<ElementActionType> elementActionProperty = new SimpleObjectProperty<>();
+    protected SimpleObjectProperty<Point2D> dragStartLocation = new SimpleObjectProperty<>();
+
+    protected WeakReference<T> nodeReference = new WeakReference<>(null);
+    protected WeakReference<DrawContext> contextReference = new WeakReference<>(null);
     protected static final EventBus elementEventBus = new EventBus();
 
     static {
@@ -65,7 +70,9 @@ public abstract class StickerElement<T extends Node> {
 
     public abstract void draw(Pane pane, DrawContext drawContext);
 
-    protected void setupNode(Pane parentPane, Node elementNode, DrawContext drawContext) {
+    protected void setupNode(Pane parentPane, T elementNode, DrawContext drawContext) {
+        nodeReference = new WeakReference<>(elementNode);
+        contextReference = new WeakReference<>(drawContext);
         this.setupEventListeners(parentPane, elementNode, drawContext);
         if (selected) {
             elementNode.getStyleClass().add("element-selected");
@@ -280,6 +287,10 @@ public abstract class StickerElement<T extends Node> {
 
     public void setDragStartLocation(Point2D point2D) {
         dragStartLocation.set(point2D);
+    }
+
+    public Optional<T> getNode(){
+        return Optional.ofNullable(nodeReference.get());
     }
 
     public record Provider(StickerElementTypes type) {
