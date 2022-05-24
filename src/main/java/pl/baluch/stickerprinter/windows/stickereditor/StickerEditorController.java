@@ -247,7 +247,7 @@ public class StickerEditorController implements Initializable {
 
             selectedElementProperties.getItems().addAll(event.stickerElement().getProperties());
 
-            selectedElementPropertiesValue.setCellFactory(StickerElementPropertyTableCell.forTableColumn());
+            selectedElementPropertiesValue.setCellFactory(StickerElementPropertyTableCell.createForItem(item));
             selectedElementPropertiesValue.addEventHandler(TableColumn.CellEditEvent.ANY, editEvent -> {
                 TableColumn.CellEditEvent<StickerElementProperty, String> cellEditEvent = (TableColumn.CellEditEvent<StickerElementProperty, String>) editEvent;
                 cellEditEvent.getRowValue().update(cellEditEvent.getNewValue());

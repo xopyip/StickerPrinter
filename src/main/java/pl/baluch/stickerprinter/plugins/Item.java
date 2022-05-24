@@ -62,6 +62,14 @@ public abstract class Item {
         return previewProperties;
     }
 
+    public String getPropertyValue(String key){
+        return properties.get(key);
+    }
+
+    public boolean isCustomProperty(String name) {
+        return customProperties.containsKey(name);
+    }
+
     public String getName() {
         return name;
     }

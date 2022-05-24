@@ -1,27 +1,36 @@
 package pl.baluch.stickerprinter.data;
 
+import pl.baluch.stickerprinter.plugins.Item;
+
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public final class StickerElementProperty {
     private final String key;
     private final String value;
     private final Consumer<String> onChange;
-    private Collection<String> choices;
+    private final Function<Item, Collection<String>> choicesFunction;
 
     private StickerElementProperty(String key, String value, Consumer<String> onChange, List<String> choices) {
         this.key = key;
         this.value = value;
         this.onChange = onChange;
-        this.choices = choices;
+        choicesFunction = item -> choices;
+    }
+    private StickerElementProperty(String key, String value, Consumer<String> onChange, Function<Item, Collection<String>> choicesFunction) {
+        this.key = key;
+        this.value = value;
+        this.onChange = onChange;
+        this.choicesFunction = choicesFunction;
     }
 
     public static Builder builder(String text) {
         return new Builder(text);
     }
 
-    public Collection<String> getValues() {
-        return choices;
+    public Collection<String> getValues(Item item) {
+        return choicesFunction.apply(item);
     }
 
     public void update(String newValue) {
@@ -34,10 +43,6 @@ public final class StickerElementProperty {
 
     public String value() {
         return value;
-    }
-
-    public Consumer<String> onChange() {
-        return onChange;
     }
 
     @Override
@@ -65,10 +70,11 @@ public final class StickerElementProperty {
 
 
     public static class Builder {
-        private String key;
+        private final String key;
         private String value;
         private Consumer<String> onChange;
-        private List<String> choices = new ArrayList<>();
+        private final List<String> choices = new ArrayList<>();
+        private Function<Item, Collection<String>> choicesFunction;
 
         public Builder(String key) {
             this.key = key;
@@ -85,16 +91,33 @@ public final class StickerElementProperty {
         }
 
         public StickerElementProperty build() {
+            if(choicesFunction != null){
+                return new StickerElementProperty(key, value, onChange, choicesFunction);
+            }
             return new StickerElementProperty(key, value, onChange, choices);
         }
 
         public Builder addChoice(String s) {
+            if(choicesFunction != null){
+                throw new IllegalStateException("Choices function already set");
+            }
             choices.add(s);
             return this;
         }
 
         public Builder addChoices(Collection<String> choices) {
+            if(choicesFunction != null){
+                throw new IllegalStateException("Choices function already set");
+            }
             this.choices.addAll(choices);
+            return this;
+        }
+
+        public Builder setChoices(Function<Item, Collection<String>> o) {
+            if(choices.size() > 0){
+                throw new IllegalStateException("Choices already set");
+            }
+            this.choicesFunction = o;
             return this;
         }
     }
