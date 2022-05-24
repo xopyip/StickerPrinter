@@ -54,6 +54,7 @@ public abstract class ContainerStickerElement<T extends Region> extends StickerE
     }
 
     public boolean removeChild(StickerElement<?> stickerElement, boolean deep) {
+        System.out.println("looking for " + stickerElement + " in " + this);
         if(this.getChildren().contains(stickerElement)) {
             this.getChildren().remove(stickerElement);
             return true;

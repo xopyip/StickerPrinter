@@ -124,6 +124,7 @@ public class StickerEditorController implements Initializable {
         stickerElementsList.setOnDragDone(event -> stickerPane.getChildren().removeIf(node -> node instanceof DropZone));
     }
 
+
     /**
      * Resets preview pane and adds all sticker elements to it
      */
@@ -153,11 +154,6 @@ public class StickerEditorController implements Initializable {
         design.getParentNode().setHeight(size.getHeight());
 
         design.getParentNode().draw(stickerPane, new DrawContext(item, true));
-        previewPane.setOnMousePressed(event -> {
-            if(event.isPrimaryButtonDown()){
-                AppMain.EVENT_BUS.post(new SelectStickerElementEvent(null));
-            }
-        });
     }
 
     /**
@@ -229,7 +225,11 @@ public class StickerEditorController implements Initializable {
     @Subscribe
     public void onStickerElementDelete(DeleteStickerElementEvent event) {
         ContainerStickerElement<?> parentNode = this.design.getParentNode();
-        parentNode.removeChild(event.stickerElement(), true);
+        if (parentNode.removeChild(event.stickerElement(), true)) {
+            System.out.println("Removed successfully");
+        }else{
+            System.out.println("Not found");
+        }
         updatePreviews();
     }
 

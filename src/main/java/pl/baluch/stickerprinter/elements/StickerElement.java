@@ -9,6 +9,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import pl.baluch.stickerprinter.AppMain;
@@ -35,9 +36,9 @@ public abstract class StickerElement<T extends Node> {
     //Stack to trace hover state
     private static final Stack<StickerElement<?>> mouseOverStack = new Stack<>();
     private StickerElementTypes type;
-    private ContextMenu contextMenu;
     private boolean selected;
     private final Collection<StickerElementProperty> properties = new ArrayList<>();
+    private static final ContextMenu contextMenu = new ContextMenu();
 
     public StickerElement(Supplier<T> node, int x, int y, int w, int h) {
         this.nodeSupplier = node;
@@ -190,7 +191,19 @@ public abstract class StickerElement<T extends Node> {
         node.setOnMouseReleased(event -> {
             Point2D startPoint = startLocation.get();
             if (startPoint == null) {
-                AppMain.EVENT_BUS.post(new SelectStickerElementEvent(this));
+                contextMenu.hide();
+                if(event.getButton() == MouseButton.PRIMARY){
+                    AppMain.EVENT_BUS.post(new SelectStickerElementEvent(this));
+                }else if (event.getButton() == MouseButton.SECONDARY){
+                    MenuItem delete = new MenuItem("Delete");
+                    delete.setOnAction(deleteEvent -> {
+                        AppMain.EVENT_BUS.post(new DeleteStickerElementEvent(this));
+                        event.consume();
+                    });
+                    contextMenu.getItems().clear();
+                    contextMenu.getItems().add(delete);
+                    contextMenu.show(node, event.getScreenX(), event.getScreenY());
+                }
             }
             startLocation.setValue(null);
             if (savedCursor.get() != null && isResizable) {
@@ -203,25 +216,14 @@ public abstract class StickerElement<T extends Node> {
             }
             event.consume();
         });
-
-        contextMenu = new ContextMenu();
-        MenuItem delete = new MenuItem("Delete");
-        delete.setOnAction(event -> {
-            AppMain.EVENT_BUS.post(new DeleteStickerElementEvent(this));
-            event.consume();
-        });
-        contextMenu.getItems().add(delete);
-        node.setOnContextMenuRequested(event -> {
-            contextMenu.show(node, event.getScreenX(), event.getScreenY());
-            event.consume();
-        });
-        node.setOnMouseClicked(event -> {
-            contextMenu.hide();
-        });
     }
 
     private boolean isMouseOver() {
         return !mouseOverStack.empty() && mouseOverStack.peek() == this;
+    }
+
+    private boolean isMouseOver(int x, int y){
+        return x >= getX() && x <= getX() + getWidth() && y >= getY() && y <= getY() + getHeight();
     }
 
     /**
