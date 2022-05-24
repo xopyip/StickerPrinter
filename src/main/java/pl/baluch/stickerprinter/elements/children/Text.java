@@ -18,7 +18,7 @@ public class Text extends StickerElement<javafx.scene.text.Text> {
     public void draw(Pane pane, DrawContext drawContext) {
         javafx.scene.text.Text node = nodeSupplier.get();
         node.textProperty().bindBidirectional(text);
-        super.setupPositionAndSize(node);
+        super.bindBounds(node);
         super.setupNode(pane, node, drawContext);
         pane.getChildren().add(node);
     }

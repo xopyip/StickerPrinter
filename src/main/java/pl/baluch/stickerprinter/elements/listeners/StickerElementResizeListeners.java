@@ -21,40 +21,29 @@ public class StickerElementResizeListeners {
                 event.element().setDragStartLocation(point2D = new Point2D(event.mouseEvent().getScreenX(), event.mouseEvent().getScreenY()));
             }
             Region region = (Region) event.elementNode();
+            Point2D origin = event.getOrigin();
 
-            double newX = event.element().getX();
-            double newY = event.element().getY();
-            double newWidth = event.element().getWidth();
-            double newHeight = event.element().getHeight();
-            double dx = event.mouseEvent().getScreenX() - point2D.getX();
-            double dy = event.mouseEvent().getScreenY() - point2D.getY();
             if (elementActionType.isResizeTop()) {
-                newY += dy;
-                newHeight -= dy;
+                double oldMaxY = region.getLayoutY() + region.getPrefHeight();
+                region.setLayoutY(event.mouseEvent().getSceneY() - origin.getY());
+                region.setPrefHeight(oldMaxY - region.getLayoutY());
             }
             if (elementActionType.isResizeLeft()) {
-                newX += dx;
-                newWidth -= dx;
+                double oldMaxX = region.getLayoutX() + region.getPrefWidth();
+                region.setLayoutX(event.mouseEvent().getSceneX() - origin.getX());
+                region.setPrefWidth(oldMaxX - region.getLayoutX());
             }
             if (elementActionType.isResizeRight()) {
-                newWidth += dx;
+                region.setPrefWidth(event.mouseEvent().getSceneX() - region.getLayoutX() - origin.getX());
             }
             if (elementActionType.isResizeBottom()) {
-                newHeight += dy;
+                region.setPrefHeight(event.mouseEvent().getSceneY() - region.getLayoutY() - origin.getY());
             }
-            region.setLayoutX(newX);
-            region.setLayoutY(newY);
-            region.setPrefWidth(newWidth);
-            region.setPrefHeight(newHeight);
         }
     }
 
     @Subscribe
     private void onReleasedForResize(StickerElement.ElementMouseReleasedEvent event) {
-        event.element().setX(event.elementNode().getLayoutX());
-        event.element().setY(event.elementNode().getLayoutY());
-        event.element().setWidth(((Region) event.elementNode()).getPrefWidth());
-        event.element().setHeight(((Region) event.elementNode()).getPrefHeight());
         event.element().setDragStartLocation(null);
     }
 }

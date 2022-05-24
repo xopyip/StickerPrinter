@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.MouseButton;
@@ -14,6 +15,7 @@ import javafx.scene.paint.Color;
 import pl.baluch.stickerprinter.AppMain;
 import pl.baluch.stickerprinter.data.DrawContext;
 import pl.baluch.stickerprinter.data.ElementActionType;
+import pl.baluch.stickerprinter.data.PreviewPane;
 import pl.baluch.stickerprinter.data.StickerElementProperty;
 import pl.baluch.stickerprinter.elements.listeners.StickerElementContextMenuListeners;
 import pl.baluch.stickerprinter.elements.listeners.StickerElementDragListeners;
@@ -63,13 +65,6 @@ public abstract class StickerElement<T extends Node> {
 
     public abstract void draw(Pane pane, DrawContext drawContext);
 
-    /**
-     * Sets required listeners and properties to make element resizable and draggable
-     *
-     * @param parentPane  - parent pane
-     * @param elementNode - node to be resized and dragged
-     * @param drawContext - context of drawing
-     */
     protected void setupNode(Pane parentPane, Node elementNode, DrawContext drawContext) {
         this.setupEventListeners(parentPane, elementNode, drawContext);
         if (selected) {
@@ -93,7 +88,7 @@ public abstract class StickerElement<T extends Node> {
             event.consume();
         });
         node.setOnMouseClicked(event -> {
-            if(event.getButton() == MouseButton.PRIMARY) {
+            if (event.getButton() == MouseButton.PRIMARY) {
                 AppMain.EVENT_BUS.post(new SelectStickerElementEvent(mouseOverItemProperty.get()));
             }
             event.consume();
@@ -103,31 +98,42 @@ public abstract class StickerElement<T extends Node> {
                 elementActionProperty.set(ElementActionType.NONE);
                 return;
             }
-
-            if (node.contains(event.getX(), event.getY())) {
-                elementActionProperty.set(ElementActionType.DRAG);
-            }
-            if (node instanceof Region) {
-                double cursorX = event.getX();
-                double cursorY = event.getY();
-                boolean left = cursorX <= 1;
-                boolean right = cursorX >= ((Region) node).getPrefWidth() - 1;
-                boolean top = cursorY <= 1;
-                boolean bottom = cursorY >= ((Region) node).getPrefHeight() - 1;
-
-                if (left && top) elementActionProperty.set(ElementActionType.RESIZE_TOP_LEFT);
-                else if (left && bottom) elementActionProperty.set(ElementActionType.RESIZE_BOTTOM_LEFT);
-                else if (right && top) elementActionProperty.set(ElementActionType.RESIZE_TOP_RIGHT);
-                else if (right && bottom) elementActionProperty.set(ElementActionType.RESIZE_BOTTOM_RIGHT);
-                else if (left) elementActionProperty.set(ElementActionType.RESIZE_LEFT);
-                else if (right) elementActionProperty.set(ElementActionType.RESIZE_RIGHT);
-                else if (top) elementActionProperty.set(ElementActionType.RESIZE_TOP);
-                else if (bottom) elementActionProperty.set(ElementActionType.RESIZE_BOTTOM);
-            }
-            if (elementActionProperty.get().canSetCursor(isResizable(node, drawContext), isDraggable(parentPane, drawContext))) {
-                node.setCursor(elementActionProperty.get().getCursor());
-            }
+            setMouseAction(node, event);
+            setCursorBasedOnAction(parentPane, node, drawContext);
         });
+    }
+
+    private void setCursorBasedOnAction(Pane parentPane, Node node, DrawContext drawContext) {
+        if (elementActionProperty.get().canSetCursor(isResizable(node, drawContext), isDraggable(parentPane, drawContext))) {
+            node.setCursor(elementActionProperty.get().getCursor());
+        }
+    }
+
+    private void setMouseAction(Node node, MouseEvent event) {
+        if (node.contains(event.getX(), event.getY())) {
+            elementActionProperty.set(ElementActionType.DRAG);
+        }
+        if (node instanceof Region) {
+            setResizeActionBasedOnMousePosition(event, (Region) node);
+        }
+    }
+
+    private void setResizeActionBasedOnMousePosition(MouseEvent event, Region node) {
+        double cursorX = event.getX();
+        double cursorY = event.getY();
+        boolean left = cursorX <= 1;
+        boolean right = cursorX >= node.getPrefWidth() - 1;
+        boolean top = cursorY <= 1;
+        boolean bottom = cursorY >= node.getPrefHeight() - 1;
+
+        if (left && top) elementActionProperty.set(ElementActionType.RESIZE_TOP_LEFT);
+        else if (left && bottom) elementActionProperty.set(ElementActionType.RESIZE_BOTTOM_LEFT);
+        else if (right && top) elementActionProperty.set(ElementActionType.RESIZE_TOP_RIGHT);
+        else if (right && bottom) elementActionProperty.set(ElementActionType.RESIZE_BOTTOM_RIGHT);
+        else if (left) elementActionProperty.set(ElementActionType.RESIZE_LEFT);
+        else if (right) elementActionProperty.set(ElementActionType.RESIZE_RIGHT);
+        else if (top) elementActionProperty.set(ElementActionType.RESIZE_TOP);
+        else if (bottom) elementActionProperty.set(ElementActionType.RESIZE_BOTTOM);
     }
 
     public boolean isDraggable(Pane parentPane, DrawContext drawContext) {
@@ -147,12 +153,6 @@ public abstract class StickerElement<T extends Node> {
         return mouseOverItemProperty.get() == this;
     }
 
-    /**
-     * Set highlighted state of the node if node can be resized or moved
-     *
-     * @param node - node to be highlighted
-     * @param b    - true if node should be highlighted
-     */
     private void setHighlighted(Node node, boolean b) {
         if (draggingDisabled && resizableDisabled) {
             return;
@@ -197,20 +197,12 @@ public abstract class StickerElement<T extends Node> {
         return width.get();
     }
 
-    protected void setupPositionAndSize(Node node) {
-        if (x.get() >= 0) {
-            node.setLayoutX(x.get());
-        }
-        if (y.get() >= 0) {
-            node.setLayoutY(y.get());
-        }
+    protected void bindBounds(Node node) {
+        node.layoutXProperty().bindBidirectional(x);
+        node.layoutYProperty().bindBidirectional(y);
         if (node instanceof Region region) {
-            if (width.get() >= 0) {
-                region.setPrefWidth(width.get());
-            }
-            if (height.get() >= 0) {
-                region.setPrefHeight(height.get());
-            }
+            region.prefWidthProperty().bindBidirectional(width);
+            region.prefHeightProperty().bindBidirectional(height);
         }
     }
 
@@ -318,5 +310,13 @@ public abstract class StickerElement<T extends Node> {
                                            Node elementNode,
                                            DrawContext drawContext,
                                            MouseEvent mouseEvent) {
+        public Point2D getOrigin() {
+            Node node = elementNode;
+            while(!(node instanceof PreviewPane)){
+                node = node.getParent();
+            }
+            Bounds layoutBounds = node.localToScene(node.getBoundsInLocal());
+            return new Point2D(layoutBounds.getMinX(), layoutBounds.getMinY());
+        }
     }
 }

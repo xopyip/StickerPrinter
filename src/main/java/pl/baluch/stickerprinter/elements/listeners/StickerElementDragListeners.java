@@ -25,8 +25,6 @@ public class StickerElementDragListeners {
             if (event.parentPane().contains(event.elementNode().getLayoutX() + x, event.elementNode().getLayoutY() + y)) {
                 event.element().setX(x + event.elementNode().getLayoutX());
                 event.element().setY(y + event.elementNode().getLayoutY());
-                event.elementNode().setLayoutX(event.element().getX());
-                event.elementNode().setLayoutY(event.element().getY());
             }
         }
     }

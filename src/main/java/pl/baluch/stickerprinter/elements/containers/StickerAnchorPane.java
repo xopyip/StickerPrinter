@@ -25,7 +25,7 @@ public class StickerAnchorPane extends ContainerStickerElement<AnchorPane> {
     public void draw(Pane pane, DrawContext drawContext) {
         AnchorPane node = nodeSupplier.get();
         node.getChildren().clear();
-        setupPositionAndSize(node);
+        bindBounds(node);
         children.forEach(child -> child.draw(node, drawContext));
         super.setupNode(pane, node, drawContext);
         pane.getChildren().add(node);

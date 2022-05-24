@@ -52,7 +52,7 @@ public class HBox extends ContainerStickerElement<javafx.scene.layout.HBox> {
     public void draw(Pane pane, DrawContext drawContext) {
         javafx.scene.layout.HBox node = nodeSupplier.get();
         node.getChildren().clear();
-        setupPositionAndSize(node);
+        bindBounds(node);
         children.forEach(child -> child.draw(node, drawContext));
         super.setupNode(pane, node, drawContext);
         pane.getChildren().add(node);

@@ -59,7 +59,7 @@ public class Label extends StickerElement<javafx.scene.control.Label> {
         node.setFont(new Font(fontSize.get()));
         node.textProperty().bindBidirectional(text);
         node.setWrapText(false);
-        super.setupPositionAndSize(node);
+        super.bindBounds(node);
         super.setupNode(pane, node, drawContext);
         pane.getChildren().add(node);
     }

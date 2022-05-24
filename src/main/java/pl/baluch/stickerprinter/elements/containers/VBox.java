@@ -52,7 +52,7 @@ public class VBox extends ContainerStickerElement<javafx.scene.layout.VBox> {
     public void draw(Pane pane, DrawContext drawContext) {
         javafx.scene.layout.VBox node = nodeSupplier.get();
         node.getChildren().clear();
-        setupPositionAndSize(node);
+        bindBounds(node);
         children.forEach(child -> child.draw(node, drawContext));
         super.setupNode(pane, node, drawContext);
         pane.getChildren().add(node);
