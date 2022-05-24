@@ -240,7 +240,7 @@ public class StickerEditorController implements Initializable {
         }
         this.selectedElementSticker = event.stickerElement();
         if(event.stickerElement() != null){
-            selectedElementLabel.setText(String.format(Storage.getResourceBundle().getString("sticker.editor.selected"), event.stickerElement()));
+            selectedElementLabel.setText(String.format(Storage.getResourceBundle().getString("sticker.editor.selected"), event.stickerElement().getType().getName()));
             event.stickerElement().setSelected(true);
             selectedElementProperties.setDisable(false);
             selectedElementProperties.getItems().clear();
