@@ -1,4 +1,4 @@
-package pl.baluch.stickerprinter.windows;
+package pl.baluch.stickerprinter.windows.stickereditor;
 
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;

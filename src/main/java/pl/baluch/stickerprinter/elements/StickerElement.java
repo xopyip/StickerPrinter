@@ -1,27 +1,28 @@
 package pl.baluch.stickerprinter.elements;
 
+import com.google.common.eventbus.EventBus;
 import com.google.gson.JsonObject;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Point2D;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import pl.baluch.stickerprinter.AppMain;
 import pl.baluch.stickerprinter.data.DrawContext;
+import pl.baluch.stickerprinter.data.ElementActionType;
 import pl.baluch.stickerprinter.data.StickerElementProperty;
-import pl.baluch.stickerprinter.events.DeleteStickerElementEvent;
+import pl.baluch.stickerprinter.elements.listeners.StickerElementContextMenuListeners;
+import pl.baluch.stickerprinter.elements.listeners.StickerElementDragListeners;
+import pl.baluch.stickerprinter.elements.listeners.StickerElementResizeListeners;
 import pl.baluch.stickerprinter.events.SelectStickerElementEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Stack;
 import java.util.function.Supplier;
 
 public abstract class StickerElement<T extends Node> {
@@ -32,13 +33,21 @@ public abstract class StickerElement<T extends Node> {
     private boolean resizableDisabled = false;
     private boolean draggingDisabled = false;
     protected transient Supplier<T> nodeSupplier;
+    protected transient SimpleObjectProperty<StickerElement<?>> mouseOverItemProperty = new SimpleObjectProperty<>(null);
+    protected transient SimpleObjectProperty<ElementActionType> elementActionProperty = new SimpleObjectProperty<>();
+    protected transient SimpleObjectProperty<Point2D> dragStartLocation = new SimpleObjectProperty<>();
+    protected static final EventBus elementEventBus = new EventBus();
+
+    static {
+        elementEventBus.register(new StickerElementDragListeners());
+        elementEventBus.register(new StickerElementResizeListeners());
+        elementEventBus.register(new StickerElementContextMenuListeners());
+    }
 
     //Stack to trace hover state
-    private static final Stack<StickerElement<?>> mouseOverStack = new Stack<>();
     private StickerElementTypes type;
     private boolean selected;
     private final Collection<StickerElementProperty> properties = new ArrayList<>();
-    private static final ContextMenu contextMenu = new ContextMenu();
 
     public StickerElement(Supplier<T> node, int x, int y, int w, int h) {
         this.nodeSupplier = node;
@@ -57,46 +66,48 @@ public abstract class StickerElement<T extends Node> {
     /**
      * Sets required listeners and properties to make element resizable and draggable
      *
-     * @param pane        - parent pane
-     * @param node        - node to be resized and dragged
+     * @param parentPane  - parent pane
+     * @param elementNode - node to be resized and dragged
      * @param drawContext - context of drawing
      */
-    protected void setupNode(Pane pane, Node node, DrawContext drawContext) {
-        boolean isDraggable = (pane instanceof AnchorPane) && !draggingDisabled && drawContext.isEditor();
-        boolean isResizable = (node instanceof Region) && !resizableDisabled && drawContext.isEditor();
-        if (isResizable) {
-            ((Region) node).setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.DOTTED, null, BorderStroke.THIN)));
-        }
+    protected void setupNode(Pane parentPane, Node elementNode, DrawContext drawContext) {
+        this.setupEventListeners(parentPane, elementNode, drawContext);
         if (selected) {
-            node.getStyleClass().add("element-selected");
+            elementNode.getStyleClass().add("element-selected");
         }
-        //todo: divide into listeners and simply change listener
-        node.setOnMouseEntered(event -> {
-            if (!mouseOverStack.empty())
-                mouseOverStack.peek().setHighlighted(node, false);
-            mouseOverStack.add(this);
-            this.setHighlighted(node, true);
-            if (isDraggable) {
-                node.setCursor(Cursor.MOVE);
-            }
+        if (isResizable(elementNode, drawContext)) {
+            ((Region) elementNode).setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.DOTTED, null, BorderStroke.THIN)));
+        }
+        this.setupHighlighting(elementNode);
+    }
+
+    private void setupEventListeners(Pane parentPane, Node node, DrawContext drawContext) {
+        node.setOnMouseEntered(event -> mouseOverItemProperty.set(this));
+        node.setOnMouseExited(event -> mouseOverItemProperty.set(null));
+        node.setOnMouseDragged(event -> {
+            elementEventBus.post(new ElementMouseDraggedEvent(this, parentPane, node, drawContext, event));
             event.consume();
         });
-        node.setOnMouseExited(event -> {
-            this.setHighlighted(node, false);
-            //removing redundant elements from stack to prevent highlighting of other elements after fast mouse movement
-            while (!mouseOverStack.empty() && mouseOverStack.peek() != this) {
-                mouseOverStack.peek().setHighlighted(node, false);
-                mouseOverStack.pop();
+        node.setOnMouseReleased(event -> {
+            elementEventBus.post(new ElementMouseReleasedEvent(this, parentPane, node, drawContext, event));
+            event.consume();
+        });
+        node.setOnMouseClicked(event -> {
+            if(event.getButton() == MouseButton.PRIMARY) {
+                AppMain.EVENT_BUS.post(new SelectStickerElementEvent(mouseOverItemProperty.get()));
             }
-            if (!mouseOverStack.empty())
-                mouseOverStack.pop();
-            if (!mouseOverStack.empty())
-                mouseOverStack.peek().setHighlighted(node, true);
-            node.setCursor(Cursor.DEFAULT);
             event.consume();
         });
         node.setOnMouseMoved(event -> {
-            if (isResizable && isMouseOver()) {
+            if (!isMouseOver()) {
+                elementActionProperty.set(ElementActionType.NONE);
+                return;
+            }
+
+            if (node.contains(event.getX(), event.getY())) {
+                elementActionProperty.set(ElementActionType.DRAG);
+            }
+            if (node instanceof Region) {
                 double cursorX = event.getX();
                 double cursorY = event.getY();
                 boolean left = cursorX <= 1;
@@ -104,126 +115,36 @@ public abstract class StickerElement<T extends Node> {
                 boolean top = cursorY <= 1;
                 boolean bottom = cursorY >= ((Region) node).getPrefHeight() - 1;
 
-                if (left && top) node.setCursor(Cursor.NW_RESIZE);
-                else if (right && top) node.setCursor(Cursor.NE_RESIZE);
-                else if (right && bottom) node.setCursor(Cursor.SE_RESIZE);
-                else if (left && bottom) node.setCursor(Cursor.SW_RESIZE);
-                else if (left) node.setCursor(Cursor.W_RESIZE);
-                else if (bottom) node.setCursor(Cursor.S_RESIZE);
-                else if (top) node.setCursor(Cursor.N_RESIZE);
-                else if (right) node.setCursor(Cursor.E_RESIZE);
-                else if (node.getCursor() == null || node.getCursor().toString().endsWith("_RESIZE"))
-                    node.setCursor(Cursor.DEFAULT);
+                if (left && top) elementActionProperty.set(ElementActionType.RESIZE_TOP_LEFT);
+                else if (left && bottom) elementActionProperty.set(ElementActionType.RESIZE_BOTTOM_LEFT);
+                else if (right && top) elementActionProperty.set(ElementActionType.RESIZE_TOP_RIGHT);
+                else if (right && bottom) elementActionProperty.set(ElementActionType.RESIZE_BOTTOM_RIGHT);
+                else if (left) elementActionProperty.set(ElementActionType.RESIZE_LEFT);
+                else if (right) elementActionProperty.set(ElementActionType.RESIZE_RIGHT);
+                else if (top) elementActionProperty.set(ElementActionType.RESIZE_TOP);
+                else if (bottom) elementActionProperty.set(ElementActionType.RESIZE_BOTTOM);
             }
-            if (isDraggable && node.getCursor() == Cursor.DEFAULT && isMouseOver()) {
-                node.setCursor(Cursor.MOVE);
+            if (elementActionProperty.get().canSetCursor(isResizable(node, drawContext), isDraggable(parentPane, drawContext))) {
+                node.setCursor(elementActionProperty.get().getCursor());
             }
-            event.consume();
-        });
-
-        SimpleObjectProperty<Point2D> startLocation = new SimpleObjectProperty<>();
-        SimpleObjectProperty<Cursor> savedCursor = new SimpleObjectProperty<>();
-
-        node.setOnMousePressed(event -> {
-            if (node.getCursor() != Cursor.DEFAULT && savedCursor.get() == null && node.getCursor() != Cursor.DEFAULT && isMouseOver()) {
-                savedCursor.set(node.getCursor());
-            }
-            event.consume();
-        });
-
-
-        //setup drag source
-        node.setOnMouseDragged(event -> {
-            if (isDraggable && savedCursor.get() == Cursor.MOVE) {
-                double x = event.getX();
-                double y = event.getY();
-                Point2D point2D = startLocation.get();
-                if (point2D == null) {
-                    startLocation.setValue(point2D = new Point2D(event.getX(), event.getY()));
-                }
-                x -= point2D.getX();
-                y -= point2D.getY();
-                if (pane.contains(node.getLayoutX() + x, node.getLayoutY() + y)) {
-                    this.setX(x + node.getLayoutX());
-                    this.setY(y + node.getLayoutY());
-                    node.setLayoutX(this.getX());
-                    node.setLayoutY(this.getY());
-                }
-            }
-            if (isResizable && savedCursor.get() != null) {
-                Cursor cursor = savedCursor.get();
-                Point2D point2D = startLocation.get();
-                if (point2D == null) {
-                    startLocation.setValue(point2D = new Point2D(event.getScreenX(), event.getScreenY()));
-                }
-                Region region = (Region) node;
-                boolean resizeTop = cursor == Cursor.N_RESIZE || cursor == Cursor.NW_RESIZE || cursor == Cursor.NE_RESIZE;
-                boolean resizeBottom = cursor == Cursor.S_RESIZE || cursor == Cursor.SW_RESIZE || cursor == Cursor.SE_RESIZE;
-                boolean resizeLeft = cursor == Cursor.W_RESIZE || cursor == Cursor.NW_RESIZE || cursor == Cursor.SW_RESIZE;
-                boolean resizeRight = cursor == Cursor.E_RESIZE || cursor == Cursor.NE_RESIZE || cursor == Cursor.SE_RESIZE;
-
-                double newX = this.getX();
-                double newY = this.getY();
-                double newWidth = this.getWidth();
-                double newHeight = this.getHeight();
-                double dx = event.getScreenX() - point2D.getX();
-                double dy = event.getScreenY() - point2D.getY();
-                if (resizeTop) {
-                    newY += dy;
-                    newHeight -= dy;
-                }
-                if (resizeLeft) {
-                    newX += dx;
-                    newWidth -= dx;
-                }
-                if (resizeRight) {
-                    newWidth += dx;
-                }
-                if (resizeBottom) {
-                    newHeight += dy;
-                }
-                region.setLayoutX(newX);
-                region.setLayoutY(newY);
-                region.setPrefWidth(newWidth);
-                region.setPrefHeight(newHeight);
-            }
-        });
-        node.setOnMouseReleased(event -> {
-            Point2D startPoint = startLocation.get();
-            if (startPoint == null) {
-                contextMenu.hide();
-                if(event.getButton() == MouseButton.PRIMARY){
-                    AppMain.EVENT_BUS.post(new SelectStickerElementEvent(this));
-                }else if (event.getButton() == MouseButton.SECONDARY){
-                    MenuItem delete = new MenuItem("Delete");
-                    delete.setOnAction(deleteEvent -> {
-                        AppMain.EVENT_BUS.post(new DeleteStickerElementEvent(this));
-                        event.consume();
-                    });
-                    contextMenu.getItems().clear();
-                    contextMenu.getItems().add(delete);
-                    contextMenu.show(node, event.getScreenX(), event.getScreenY());
-                }
-            }
-            startLocation.setValue(null);
-            if (savedCursor.get() != null && isResizable) {
-
-                this.setX(node.getLayoutX());
-                this.setY(node.getLayoutY());
-                this.setWidth(((Region) node).getPrefWidth());
-                this.setHeight(((Region) node).getPrefHeight());
-                savedCursor.setValue(null);
-            }
-            event.consume();
         });
     }
+
+    public boolean isDraggable(Pane parentPane, DrawContext drawContext) {
+        return (parentPane instanceof AnchorPane) && !draggingDisabled && drawContext.isEditor();
+    }
+
+    public boolean isResizable(Node elementNode, DrawContext drawContext) {
+        return (elementNode instanceof Region) && !resizableDisabled && drawContext.isEditor();
+    }
+
+    private void setupHighlighting(Node elementNode) {
+        mouseOverItemProperty.addListener((observable, oldValue, newValue) -> setHighlighted(elementNode, newValue == this));
+    }
+
 
     private boolean isMouseOver() {
-        return !mouseOverStack.empty() && mouseOverStack.peek() == this;
-    }
-
-    private boolean isMouseOver(int x, int y){
-        return x >= getX() && x <= getX() + getWidth() && y >= getY() && y <= getY() + getHeight();
+        return mouseOverItemProperty.get() == this;
     }
 
     /**
@@ -328,6 +249,10 @@ public abstract class StickerElement<T extends Node> {
         height.addListener(o);
     }
 
+    public Point2D getDragStartLocation() {
+        return dragStartLocation.get();
+    }
+
     @Override
     public String toString() {
         return getClass().getSimpleName();
@@ -357,6 +282,14 @@ public abstract class StickerElement<T extends Node> {
         properties.add(property);
     }
 
+    public ElementActionType getElementAction() {
+        return elementActionProperty.get();
+    }
+
+    public void setDragStartLocation(Point2D point2D) {
+        dragStartLocation.set(point2D);
+    }
+
     public record Provider(StickerElementTypes type) {
 
 
@@ -371,5 +304,19 @@ public abstract class StickerElement<T extends Node> {
             return type.getName();
         }
 
+    }
+
+    public record ElementMouseReleasedEvent(StickerElement<?> element,
+                                            Pane parentPane,
+                                            Node elementNode,
+                                            DrawContext drawContext,
+                                            MouseEvent mouseEvent) {
+    }
+
+    public record ElementMouseDraggedEvent(StickerElement<?> element,
+                                           Pane parentPane,
+                                           Node elementNode,
+                                           DrawContext drawContext,
+                                           MouseEvent mouseEvent) {
     }
 }

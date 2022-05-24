@@ -1,4 +1,4 @@
-package pl.baluch.stickerprinter.windows;
+package pl.baluch.stickerprinter.windows.stickereditor;
 
 import com.google.common.eventbus.Subscribe;
 import javafx.beans.property.ReadOnlyObjectWrapper;

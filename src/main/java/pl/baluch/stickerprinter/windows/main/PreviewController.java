@@ -16,7 +16,7 @@ import pl.baluch.stickerprinter.data.StickerDesign;
 import pl.baluch.stickerprinter.data.StickerProperty;
 import pl.baluch.stickerprinter.events.StickerDesignChangedEvent;
 import pl.baluch.stickerprinter.plugins.Item;
-import pl.baluch.stickerprinter.windows.StickerEditorWindow;
+import pl.baluch.stickerprinter.windows.stickereditor.StickerEditorWindow;
 
 import java.net.URL;
 import java.util.Optional;
