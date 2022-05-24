@@ -11,12 +11,14 @@ import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import pl.baluch.stickerprinter.AppMain;
 import pl.baluch.stickerprinter.Storage;
+import pl.baluch.stickerprinter.data.FulfilledItem;
 import pl.baluch.stickerprinter.data.Language;
 import pl.baluch.stickerprinter.data.PageStyle;
 import pl.baluch.stickerprinter.data.StickerDesign;
 import pl.baluch.stickerprinter.events.ForceUpdateStickerEvent;
 import pl.baluch.stickerprinter.events.PrintCellClickedEvent;
 import pl.baluch.stickerprinter.events.StickerDesignChangedEvent;
+import pl.baluch.stickerprinter.exceptions.FulfillItemException;
 import pl.baluch.stickerprinter.plugins.Item;
 import pl.baluch.stickerprinter.plugins.Plugin;
 import pl.baluch.stickerprinter.plugins.PluginManager;
@@ -153,7 +155,11 @@ public class AppController implements Initializable {
         Optional<StickerDesign> design = matchStickerDesign();
         Optional<Item> item = itemListController.getItem();
         if (design.isPresent() && item.isPresent()) {
-            event.printCell().setSticker(design.get(), item.get());
+            try {
+                event.printCell().setSticker(design.get(), new FulfilledItem(item.get()));
+            }catch (FulfillItemException ex){
+                System.out.println(ex.getMessage());
+            }
         }
     }
 }

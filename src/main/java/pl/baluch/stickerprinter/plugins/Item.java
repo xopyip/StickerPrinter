@@ -1,8 +1,6 @@
 package pl.baluch.stickerprinter.plugins;
 
-import javafx.scene.control.Alert;
 import pl.baluch.stickerprinter.data.StickerProperty;
-import pl.baluch.stickerprinter.data.Sticker;
 
 import java.util.*;
 
@@ -42,17 +40,6 @@ public abstract class Item {
     @Override
     public int hashCode() {
         return Objects.hash(name, properties, customProperties);
-    }
-
-    public Sticker createSticker() {
-        Sticker sticker = new Sticker();
-        properties.forEach(sticker::addProperty);
-        customProperties.forEach((k, v) -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setHeaderText("Custom properties not implemented yet"); //todo
-            alert.showAndWait();
-        });
-        return sticker;
     }
 
     public List<StickerProperty> getPreviewProperties() {
