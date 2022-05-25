@@ -22,4 +22,10 @@ public class Utils {
         }
         return ratio;
     }
+
+    public static <T> void swap(List<T> list, int index, int index2) {
+        T tmp = list.get(index);
+        list.set(index, list.get(index2));
+        list.set(index2, tmp);
+    }
 }

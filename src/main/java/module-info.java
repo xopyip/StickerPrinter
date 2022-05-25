@@ -28,4 +28,6 @@ module pl.baluch.stickerprinter {
     opens pl.baluch.stickerprinter.windows.main to com.google.gson, javafx.fxml;
     exports pl.baluch.stickerprinter.windows.stickereditor;
     opens pl.baluch.stickerprinter.windows.stickereditor to javafx.fxml;
+    exports pl.baluch.stickerprinter.events.plugin;
+    exports pl.baluch.stickerprinter.events.element;
 }

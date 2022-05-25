@@ -1,4 +1,4 @@
-package pl.baluch.stickerprinter.events;
+package pl.baluch.stickerprinter.events.plugin;
 
 import pl.baluch.stickerprinter.plugins.Plugin;
 

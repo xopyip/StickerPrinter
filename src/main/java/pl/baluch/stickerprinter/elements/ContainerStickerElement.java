@@ -4,15 +4,12 @@ import javafx.scene.Node;
 import javafx.scene.layout.Region;
 import pl.baluch.stickerprinter.data.DropZone;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public abstract class ContainerStickerElement<T extends Region> extends StickerElement<T> {
-    protected Set<StickerElement<? extends Node>> children = new HashSet<>();
+    protected List<StickerElement<? extends Node>> children = new ArrayList<>();
     protected transient Set<DropZone> dropZones = new HashSet<>();
 
     public ContainerStickerElement(Supplier<T> node, int x, int y, int w, int h) {
@@ -27,11 +24,7 @@ public abstract class ContainerStickerElement<T extends Region> extends StickerE
         this.children.add(o);
     }
 
-    public int countChildren() {
-        return this.children.size();
-    }
-
-    public Set<StickerElement<? extends Node>> getChildren() {
+    public List<StickerElement<? extends Node>> getChildren() {
         return children;
     }
 
@@ -64,5 +57,26 @@ public abstract class ContainerStickerElement<T extends Region> extends StickerE
                     .anyMatch(child -> ((ContainerStickerElement<?>) child).removeChild(stickerElement, true));
         }
         return false;
+    }
+
+    public List<StickerElement<?>> getPath(StickerElement<?> element) {
+        List<StickerElement<?>> stickerElements = new ArrayList<>();
+
+        if(this.getChildren().contains(element)) {
+            stickerElements.add(this);
+            return stickerElements;
+        }else {
+            Optional<List<StickerElement<?>>> first = this.getChildren().stream()
+                    .filter(child -> child instanceof ContainerStickerElement)
+                    .map(child -> ((ContainerStickerElement<?>) child).getPath(element))
+                    .filter(Objects::nonNull)
+                    .findFirst();
+            if(first.isPresent()) {
+                stickerElements.add(this);
+                stickerElements.addAll(first.get());
+                return stickerElements;
+            }
+        }
+        return null;
     }
 }

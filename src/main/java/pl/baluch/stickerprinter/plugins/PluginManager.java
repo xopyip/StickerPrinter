@@ -2,8 +2,8 @@ package pl.baluch.stickerprinter.plugins;
 
 import pl.baluch.stickerprinter.AppMain;
 import pl.baluch.stickerprinter.Storage;
-import pl.baluch.stickerprinter.events.PluginLoadEvent;
-import pl.baluch.stickerprinter.events.PluginUnloadEvent;
+import pl.baluch.stickerprinter.events.plugin.PluginLoadEvent;
+import pl.baluch.stickerprinter.events.plugin.PluginUnloadEvent;
 
 import java.io.File;
 import java.io.IOException;

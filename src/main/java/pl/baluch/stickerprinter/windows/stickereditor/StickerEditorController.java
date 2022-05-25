@@ -17,16 +17,20 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import pl.baluch.stickerprinter.AppMain;
 import pl.baluch.stickerprinter.Storage;
+import pl.baluch.stickerprinter.Utils;
 import pl.baluch.stickerprinter.data.*;
 import pl.baluch.stickerprinter.elements.ContainerStickerElement;
 import pl.baluch.stickerprinter.elements.StickerElement;
 import pl.baluch.stickerprinter.elements.StickerElementTypes;
-import pl.baluch.stickerprinter.events.DeleteStickerElementEvent;
-import pl.baluch.stickerprinter.events.SelectStickerElementEvent;
+import pl.baluch.stickerprinter.events.element.BringDownStickerElementEvent;
+import pl.baluch.stickerprinter.events.element.BringUpStickerElementEvent;
+import pl.baluch.stickerprinter.events.element.DeleteStickerElementEvent;
+import pl.baluch.stickerprinter.events.element.SelectStickerElementEvent;
 import pl.baluch.stickerprinter.plugins.Item;
 
 import java.net.URL;
 import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class StickerEditorController implements Initializable {
@@ -227,19 +231,61 @@ public class StickerEditorController implements Initializable {
         ContainerStickerElement<?> parentNode = this.design.getParentNode();
         if (parentNode.removeChild(event.stickerElement(), true)) {
             System.out.println("Removed successfully");
-        }else{
+        } else {
             System.out.println("Not found");
         }
         updatePreviews();
     }
 
     @Subscribe
-    public void onSelectStickerElement(SelectStickerElementEvent event){
-        if(selectedElementSticker != null){
+    public void onStickerBringDownEvent(BringDownStickerElementEvent event) {
+        ContainerStickerElement<?> parentNode = this.design.getParentNode();
+        StickerElement<?> element = event.element();
+        List<StickerElement<?>> path = parentNode.getPath(element);
+
+        for (int i = path.size() - 1; i >= 0; i--) {
+            StickerElement<?> container = path.get(i);
+            if (container instanceof ContainerStickerElement) {
+                List<StickerElement<?>> containerChildren = ((ContainerStickerElement<?>) container).getChildren();
+                int index = containerChildren.indexOf(element);
+                if (index > 0) {
+                    Utils.swap(containerChildren, index, index - 1);
+                    break;
+                }
+            }
+            element = container; //if node is on top then we must bring up parent
+        }
+        updatePreviews();
+    }
+
+    @Subscribe
+    public void onStickerBringUpEvent(BringUpStickerElementEvent event) {
+        ContainerStickerElement<?> parentNode = this.design.getParentNode();
+        StickerElement<?> element = event.element();
+        List<StickerElement<?>> path = parentNode.getPath(element);
+
+        for (int i = path.size() - 1; i >= 0; i--) {
+            StickerElement<?> container = path.get(i);
+            if (container instanceof ContainerStickerElement) {
+                List<StickerElement<?>> containerChildren = ((ContainerStickerElement<?>) container).getChildren();
+                int index = containerChildren.indexOf(element);
+                if (index < containerChildren.size() - 1) {
+                    Utils.swap(containerChildren, index, index + 1);
+                    break;
+                }
+            }
+            element = container; //if node is at the end then we must bring down parent
+        }
+        updatePreviews();
+    }
+
+    @Subscribe
+    public void onSelectStickerElement(SelectStickerElementEvent event) {
+        if (selectedElementSticker != null) {
             selectedElementSticker.setSelected(false);
         }
         this.selectedElementSticker = event.stickerElement();
-        if(event.stickerElement() != null){
+        if (event.stickerElement() != null) {
             selectedElementLabel.setText(String.format(Storage.getResourceBundle().getString("sticker.editor.selected"), event.stickerElement().getType().getName()));
             event.stickerElement().setSelected(true);
             selectedElementProperties.setDisable(false);
@@ -252,7 +298,7 @@ public class StickerEditorController implements Initializable {
                 TableColumn.CellEditEvent<StickerElementProperty, String> cellEditEvent = (TableColumn.CellEditEvent<StickerElementProperty, String>) editEvent;
                 cellEditEvent.getRowValue().update(cellEditEvent.getNewValue());
             });
-        }else{
+        } else {
             selectedElementLabel.setText(Storage.getResourceBundle().getString("sticker.editor.noselection"));
             selectedElementProperties.setDisable(true);
             selectedElementProperties.getItems().clear();

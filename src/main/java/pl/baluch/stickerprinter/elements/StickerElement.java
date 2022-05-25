@@ -20,7 +20,7 @@ import pl.baluch.stickerprinter.data.StickerElementProperty;
 import pl.baluch.stickerprinter.elements.listeners.StickerElementContextMenuListeners;
 import pl.baluch.stickerprinter.elements.listeners.StickerElementDragListeners;
 import pl.baluch.stickerprinter.elements.listeners.StickerElementResizeListeners;
-import pl.baluch.stickerprinter.events.SelectStickerElementEvent;
+import pl.baluch.stickerprinter.events.element.SelectStickerElementEvent;
 import pl.baluch.stickerprinter.plugins.Item;
 
 import java.lang.ref.WeakReference;
