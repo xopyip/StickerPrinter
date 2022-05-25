@@ -24,11 +24,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class QRCode extends StickerElement<ImageView> {
+public class QRCode extends StickerElement<Pane> {
     private final SimpleStringProperty content = new SimpleStringProperty("test");
 
     public QRCode() {
-        super(ImageView::new, 10, 10, 200, 200);
+        super(Pane::new, 10, 10, 200, 200);
         addProperty(StickerElementProperty.builder("Content")
                 .value(content::get)
                 .onChange(value -> {
@@ -44,7 +44,7 @@ public class QRCode extends StickerElement<ImageView> {
                         }
                     }
                     content.set(value);
-                    updateNode();
+                    updateImage();
                 })
                 .setChoices(item -> {
                     List<String> strings = new ArrayList<>(
@@ -57,13 +57,18 @@ public class QRCode extends StickerElement<ImageView> {
                     return strings;
                 })
                 .build());
+        this.preserveRatio(1, 1);
     }
 
-    private void updateNode() {
-        getNode().ifPresent(node -> getContext().ifPresent(ctx -> updateNode(node, ctx.item())));
+    private void updateImage() {
+        getImageView().ifPresent(node -> getContext().ifPresent(ctx -> updateImage(node, ctx.item())));
     }
 
-    private void updateNode(ImageView node, Item item) {
+    private Optional<ImageView> getImageView() {
+        return getNode().map(node -> ((ImageView)node.getChildren().get(0)));
+    }
+
+    private void updateImage(ImageView node, Item item) {
         try {
             String text = formatPropertyValue(content.get(), item);
             byte[] data = generateQRCodeImage(text, (int) Math.min(getWidth(), getHeight()));
@@ -88,11 +93,14 @@ public class QRCode extends StickerElement<ImageView> {
 
     @Override
     public void draw(Pane pane, DrawContext drawContext) {
-        ImageView node = nodeSupplier.get();
-        bindBounds(node);
-        super.setupNode(pane, node, drawContext);
-        updateNode(node, drawContext.item());
-        pane.getChildren().add(node);
+        Pane container = nodeSupplier.get();
+        ImageView node = new ImageView();
+        node.setMouseTransparent(true);
+        bindBounds(container);
+        super.setupNode(pane, container, drawContext);
+        updateImage(node, drawContext.item());
+        container.getChildren().add(node);
+        pane.getChildren().add(container);
     }
 
     @Override

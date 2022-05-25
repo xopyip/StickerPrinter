@@ -56,6 +56,7 @@ public abstract class StickerElement<T extends Node> {
     private StickerElementTypes type;
     private boolean selected;
     private final Collection<StickerElementProperty> properties = new ArrayList<>();
+    private float preservedRatio = -1;
 
     public StickerElement(Supplier<T> node, int x, int y, int w, int h) {
         this.nodeSupplier = node;
@@ -297,6 +298,10 @@ public abstract class StickerElement<T extends Node> {
         return Optional.ofNullable(contextReference.get());
     }
 
+    public float getPreservedRatio() {
+        return preservedRatio;
+    }
+
     protected String formatPropertyValue(String text, Item item) {
         if (text.startsWith(":")) {
             String key = text.substring(1);
@@ -308,6 +313,10 @@ public abstract class StickerElement<T extends Node> {
         } else {
             return text;
         }
+    }
+
+    protected void preserveRatio(int w, int h) {
+        this.preservedRatio = w * 1.f/h;
     }
 
     public record Provider(StickerElementTypes type) {
