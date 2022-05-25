@@ -6,6 +6,7 @@ import javafx.scene.layout.Pane;
 import pl.baluch.stickerprinter.data.DrawContext;
 import pl.baluch.stickerprinter.data.DropZone;
 import pl.baluch.stickerprinter.elements.ContainerStickerElement;
+import pl.baluch.stickerprinter.elements.StickerElementTypes;
 
 public class StickerAnchorPane extends ContainerStickerElement<AnchorPane> {
     public StickerAnchorPane() {
@@ -14,6 +15,7 @@ public class StickerAnchorPane extends ContainerStickerElement<AnchorPane> {
         disableDragging();
         addBoundaryListener((observable, oldValue, newValue) -> updateBoundary());
         updateBoundary();
+        setType(StickerElementTypes.ANCHOR_PANE);
     }
 
     protected void updateBoundary() {
