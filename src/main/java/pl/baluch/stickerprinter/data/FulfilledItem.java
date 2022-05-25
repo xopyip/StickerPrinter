@@ -13,7 +13,7 @@ public class FulfilledItem extends Item {
         for (StickerProperty previewProperty : item.getPreviewProperties()) {
             if (item.isCustomProperty(previewProperty.key())) {
                 TextInputDialog inputDialog = new TextInputDialog("");
-                inputDialog.setHeaderText(String.format(Storage.getResourceBundle().getString("fullfill.item.property.header"), previewProperty.key()));
+                inputDialog.setHeaderText(String.format(Storage.getResourceBundle().getString("fulfill.item.property.header"), previewProperty.key()));
                 Optional<String> dialogOutput = inputDialog.showAndWait();
 
                 if (dialogOutput.isPresent()) {
