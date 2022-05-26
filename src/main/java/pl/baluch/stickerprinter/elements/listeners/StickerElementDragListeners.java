@@ -1,6 +1,7 @@
 package pl.baluch.stickerprinter.elements.listeners;
 
 import com.google.common.eventbus.Subscribe;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import pl.baluch.stickerprinter.data.ElementActionType;
 import pl.baluch.stickerprinter.elements.StickerElement;
@@ -22,10 +23,17 @@ public class StickerElementDragListeners {
             x -= point2D.getX();
             y -= point2D.getY();
 
-            if (event.parentPane().contains(event.elementNode().getLayoutX() + x, event.elementNode().getLayoutY() + y)) {
-                event.element().setX(x + event.elementNode().getLayoutX());
-                event.element().setY(y + event.elementNode().getLayoutY());
-            }
+            Bounds parentBounds = event.parentPane().getBoundsInLocal();
+
+            double newX = event.element().getX() + x;
+            newX = Math.max(newX, parentBounds.getMinX()); // left
+            newX = Math.min(newX, parentBounds.getMinX() + event.parentPane().getPrefWidth() - event.element().getWidth()); // right
+            double newY = event.element().getY() + y;
+            newY = Math.max(newY, parentBounds.getMinY()); // top
+            newY = Math.min(newY, parentBounds.getMinY() + event.parentPane().getPrefHeight() - event.element().getHeight()); // bottom
+
+            event.element().setX(newX);
+            event.element().setY(newY);
         }
     }
 
