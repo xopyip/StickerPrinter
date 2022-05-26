@@ -24,13 +24,15 @@ public class StickerElementDragListeners {
             y -= point2D.getY();
 
             Bounds parentBounds = event.parentPane().getBoundsInLocal();
+            double parentMaxX = parentBounds.getMinX() + event.parentPane().getPrefWidth();
+            double parentMaxY = parentBounds.getMinY() + event.parentPane().getPrefHeight();
 
             double newX = event.element().getX() + x;
             newX = Math.max(newX, parentBounds.getMinX()); // left
-            newX = Math.min(newX, parentBounds.getMinX() + event.parentPane().getPrefWidth() - event.element().getWidth()); // right
+            newX = Math.min(newX, parentMaxX - event.element().getWidth()); // right
             double newY = event.element().getY() + y;
             newY = Math.max(newY, parentBounds.getMinY()); // top
-            newY = Math.min(newY, parentBounds.getMinY() + event.parentPane().getPrefHeight() - event.element().getHeight()); // bottom
+            newY = Math.min(newY, parentMaxY - event.element().getHeight()); // bottom
 
             event.element().setX(newX);
             event.element().setY(newY);
