@@ -16,74 +16,76 @@ public class StickerElementResizeListeners {
         }
         ElementActionType elementActionType = element.getElementAction();
 
-        if (elementActionType.isResizeTop()) performResizeTop(event);
-        if (elementActionType.isResizeBottom()) performResizeBottom(event);
-        if (elementActionType.isResizeLeft()) performResizeLeft(event);
-        if (elementActionType.isResizeRight()) performResizeRight(event);
+        if (elementActionType.isResizeTop()) resizeTop(event);
+        if (elementActionType.isResizeBottom()) resizeBottom(event);
+        if (elementActionType.isResizeLeft()) resizeLeft(event);
+        if (elementActionType.isResizeRight()) resizeRight(event);
     }
 
-    private void performResizeRight(StickerElement.ElementMouseDraggedEvent event) {
-        Bounds parentBounds = event.parentPane().getBoundsInLocal();
-        double parentMaxX = parentBounds.getMinX() + event.parentPane().getPrefWidth();
-        if (event.mouseEvent().getSceneX() - event.getOrigin().getX() >= parentMaxX) {
-            return;
-        }
-
+    private void resizeRight(StickerElement.ElementMouseDraggedEvent event) {
         Region region = (Region) event.elementNode();
-        float preservedRatio = event.element().getPreservedRatio();
-        region.setPrefWidth(event.mouseEvent().getSceneX() - region.getLayoutX() - event.getOrigin().getX());
+        resize(event, ResizeMode.HORIZONTAL, 0,
+                event.mouseEvent().getSceneX() - region.getLayoutX() - event.getOrigin().getX() - region.getPrefWidth());
 
-        if (preservedRatio > 0) {
-            region.setPrefHeight(region.getPrefWidth() / preservedRatio);
-        }
 
     }
 
-    private void performResizeLeft(StickerElement.ElementMouseDraggedEvent event) {
-        if (event.mouseEvent().getSceneX() - event.getOrigin().getX() <= 0) {
-            return;
-        }
-
+    private void resizeLeft(StickerElement.ElementMouseDraggedEvent event) {
         Region region = (Region) event.elementNode();
-        float preservedRatio = event.element().getPreservedRatio();
-        double oldMaxX = region.getLayoutX() + region.getPrefWidth();
-        region.setLayoutX(event.mouseEvent().getSceneX() - event.getOrigin().getX());
-        region.setPrefWidth(oldMaxX - region.getLayoutX());
-        if (preservedRatio > 0) {
-            region.setPrefHeight(region.getPrefWidth() / preservedRatio);
-        }
+        resize(event, ResizeMode.HORIZONTAL,
+                event.mouseEvent().getSceneX() - event.getOrigin().getX() - region.getLayoutX(),
+                event.getOrigin().getX() + region.getLayoutX() - event.mouseEvent().getSceneX());
 
     }
 
-    private void performResizeBottom(StickerElement.ElementMouseDraggedEvent event) {
+    private void resizeBottom(StickerElement.ElementMouseDraggedEvent event) {
+        Region region = (Region) event.elementNode();
+        resize(event, ResizeMode.VERTICAL, 0,
+                event.mouseEvent().getSceneY() - region.getLayoutY() - event.getOrigin().getY() - region.getPrefHeight());
+
+    }
+
+    private void resizeTop(StickerElement.ElementMouseDraggedEvent event) {
+        Region region = (Region) event.elementNode();
+        resize(event, ResizeMode.VERTICAL,
+                event.mouseEvent().getSceneY() - event.getOrigin().getY() - region.getLayoutY(),
+                event.getOrigin().getY() + region.getLayoutY() - event.mouseEvent().getSceneY());
+
+    }
+
+    private void resize(StickerElement.ElementMouseDraggedEvent event,
+                               ResizeMode orientation,
+                               double pos, double size) {
+        double dx = 0, dy = 0, dw = 0, dh = 0;
+        //todo: missing preserve ratio
+        switch (orientation) {
+            case HORIZONTAL -> {
+                dx = pos;
+                dw = size;
+            }
+            case VERTICAL -> {
+                dy = pos;
+                dh = size;
+            }
+        }
+
         Bounds parentBounds = event.parentPane().getBoundsInLocal();
         double parentMaxY = parentBounds.getMinY() + event.parentPane().getPrefHeight();
-        if (event.mouseEvent().getSceneY() - event.getOrigin().getY() >= parentMaxY) {
+        double parentMaxX = parentBounds.getMinX() + event.parentPane().getPrefWidth();
+        Region region = (Region) event.elementNode();
+        if (region.getLayoutX() + dx < 0 || region.getLayoutY() + dy < 0) {
             return;
         }
-
-        Region region = (Region) event.elementNode();
-        float preservedRatio = event.element().getPreservedRatio();
-        region.setPrefHeight(event.mouseEvent().getSceneY() - region.getLayoutY() - event.getOrigin().getY());
-        if (preservedRatio > 0) {
-            region.setPrefWidth(region.getPrefHeight() * preservedRatio);
+        if (region.getLayoutX() + dx + region.getPrefWidth() + dw > parentMaxX || region.getLayoutY() + dy + region.getPrefHeight() + dh > parentMaxY) {
+            return;
         }
-
+        region.setLayoutX(region.getLayoutX() + dx);
+        region.setLayoutY(region.getLayoutY() + dy);
+        region.setPrefWidth(region.getPrefWidth() + dw);
+        region.setPrefHeight(region.getPrefHeight() + dh);
     }
 
-    private void performResizeTop(StickerElement.ElementMouseDraggedEvent event) {
-        if (event.mouseEvent().getSceneY() - event.getOrigin().getY() <= 0) {
-            return;
-        }
-
-        float preservedRatio = event.element().getPreservedRatio();
-        Region region = (Region) event.elementNode();
-        double oldMaxY = region.getLayoutY() + region.getPrefHeight();
-        region.setLayoutY(event.mouseEvent().getSceneY() - event.getOrigin().getY());
-        region.setPrefHeight(oldMaxY - region.getLayoutY());
-        if (preservedRatio > 0) {
-            region.setPrefWidth(region.getPrefHeight() * preservedRatio);
-        }
-
+    enum ResizeMode{
+        VERTICAL, HORIZONTAL
     }
 }
