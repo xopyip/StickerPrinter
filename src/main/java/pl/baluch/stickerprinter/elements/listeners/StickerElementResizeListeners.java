@@ -57,15 +57,21 @@ public class StickerElementResizeListeners {
                                ResizeMode orientation,
                                double pos, double size) {
         double dx = 0, dy = 0, dw = 0, dh = 0;
-        //todo: missing preserve ratio
+        double ratio = event.element().getPreservedRatio();
         switch (orientation) {
             case HORIZONTAL -> {
                 dx = pos;
                 dw = size;
+                if(ratio > 0){
+                    dh = dw / ratio;
+                }
             }
             case VERTICAL -> {
                 dy = pos;
                 dh = size;
+                if(ratio > 0){
+                    dw = dh * ratio;
+                }
             }
         }
 
