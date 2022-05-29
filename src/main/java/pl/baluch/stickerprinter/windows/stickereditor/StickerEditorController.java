@@ -157,7 +157,7 @@ public class StickerEditorController implements Initializable {
         design.getParentNode().setWidth(size.getWidth());
         design.getParentNode().setHeight(size.getHeight());
 
-        design.getParentNode().draw(stickerPane, new DrawContext(item, true));
+        design.getParentNode().draw(stickerPane, new DrawContext(item, true), null);
     }
 
     /**

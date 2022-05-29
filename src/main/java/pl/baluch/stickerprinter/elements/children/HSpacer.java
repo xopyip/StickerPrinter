@@ -6,6 +6,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import pl.baluch.stickerprinter.data.DrawContext;
+import pl.baluch.stickerprinter.elements.ContainerStickerElement;
 import pl.baluch.stickerprinter.elements.StickerElement;
 
 public class HSpacer extends StickerElement<Region> {
@@ -16,10 +17,10 @@ public class HSpacer extends StickerElement<Region> {
     }
 
     @Override
-    public void draw(Pane pane, DrawContext drawContext) {
+    public void draw(Pane pane, DrawContext drawContext, ContainerStickerElement<?> parent) {
         Region node = nodeSupplier.get();
         HBox.setHgrow(node, Priority.ALWAYS);
-        super.setupNode(pane, node, drawContext);
+        super.setupNode(pane, node, drawContext, parent);
         pane.getChildren().add(node);
     }
 

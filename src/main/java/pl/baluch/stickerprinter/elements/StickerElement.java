@@ -57,6 +57,7 @@ public abstract class StickerElement<T extends Node> {
     private boolean selected;
     private final Collection<StickerElementProperty> properties = new ArrayList<>();
     private float preservedRatio = -1;
+    private WeakReference<ContainerStickerElement<?>> parentReference = new WeakReference<>(null);
 
     public StickerElement(Supplier<T> node, int x, int y, int w, int h) {
         this.nodeSupplier = node;
@@ -70,11 +71,12 @@ public abstract class StickerElement<T extends Node> {
         this.nodeSupplier = node;
     }
 
-    public abstract void draw(Pane pane, DrawContext drawContext);
+    public abstract void draw(Pane pane, DrawContext drawContext, ContainerStickerElement<?> parent);
 
-    protected void setupNode(Pane parentPane, T elementNode, DrawContext drawContext) {
+    protected void setupNode(Pane parentPane, T elementNode, DrawContext drawContext, ContainerStickerElement<?> parent) {
         nodeReference = new WeakReference<>(elementNode);
         contextReference = new WeakReference<>(drawContext);
+        parentReference = new WeakReference<>(parent);
         this.setupEventListeners(parentPane, elementNode, drawContext);
         if (selected) {
             elementNode.getStyleClass().add("element-selected");
@@ -146,7 +148,7 @@ public abstract class StickerElement<T extends Node> {
     }
 
     public boolean isDraggable(Pane parentPane, DrawContext drawContext) {
-        return (parentPane instanceof AnchorPane) && !draggingDisabled && drawContext.isEditor();
+        return (parentPane instanceof AnchorPane || parentPane instanceof HBox || parentPane instanceof VBox) && !draggingDisabled && drawContext.isEditor();
     }
 
     public boolean isResizable(Node elementNode, DrawContext drawContext) {
@@ -291,10 +293,11 @@ public abstract class StickerElement<T extends Node> {
         dragStartLocation.set(point2D);
     }
 
-    public Optional<T> getNode(){
+    public Optional<T> getNode() {
         return Optional.ofNullable(nodeReference.get());
     }
-    public Optional<DrawContext> getContext(){
+
+    public Optional<DrawContext> getContext() {
         return Optional.ofNullable(contextReference.get());
     }
 
@@ -316,7 +319,11 @@ public abstract class StickerElement<T extends Node> {
     }
 
     protected void preserveRatio(int w, int h) {
-        this.preservedRatio = w * 1.f/h;
+        this.preservedRatio = w * 1.f / h;
+    }
+
+    public Optional<ContainerStickerElement<?>> getParent() {
+        return Optional.ofNullable(parentReference.get());
     }
 
     public record Provider(StickerElementTypes type) {
@@ -349,7 +356,7 @@ public abstract class StickerElement<T extends Node> {
                                            MouseEvent mouseEvent) {
         public Point2D getOrigin() {
             Node node = elementNode;
-            while(!(node instanceof PreviewPane)){
+            while (!(node instanceof PreviewPane)) {
                 node = node.getParent();
             }
             Bounds layoutBounds = node.localToScene(node.getBoundsInLocal());

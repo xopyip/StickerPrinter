@@ -15,6 +15,7 @@ import pl.baluch.stickerprinter.Storage;
 import pl.baluch.stickerprinter.data.DrawContext;
 import pl.baluch.stickerprinter.data.StickerElementProperty;
 import pl.baluch.stickerprinter.data.StickerProperty;
+import pl.baluch.stickerprinter.elements.ContainerStickerElement;
 import pl.baluch.stickerprinter.elements.StickerElement;
 import pl.baluch.stickerprinter.plugins.Item;
 
@@ -92,12 +93,12 @@ public class QRCode extends StickerElement<Pane> {
     }
 
     @Override
-    public void draw(Pane pane, DrawContext drawContext) {
+    public void draw(Pane pane, DrawContext drawContext, ContainerStickerElement<?> parent) {
         Pane container = nodeSupplier.get();
         ImageView node = new ImageView();
         node.setMouseTransparent(true);
         bindBounds(container);
-        super.setupNode(pane, container, drawContext);
+        super.setupNode(pane, container, drawContext, parent);
         updateImage(node, drawContext.item());
         container.getChildren().add(node);
         pane.getChildren().add(container);

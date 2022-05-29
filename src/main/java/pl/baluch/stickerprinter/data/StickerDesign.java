@@ -56,7 +56,7 @@ public class StickerDesign {
         previewPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
         previewPane.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
 
-        this.getParentNode().draw(previewPane, new DrawContext(item, false));
+        this.getParentNode().draw(previewPane, new DrawContext(item, false), null);
 
         double scaleFactor = parentPane.getPrefWidth() / node.getWidth();
         Scale scale = new Scale(scaleFactor, scaleFactor, 0, 0);

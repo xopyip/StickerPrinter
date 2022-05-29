@@ -24,12 +24,12 @@ public class StickerAnchorPane extends ContainerStickerElement<AnchorPane> {
     }
 
     @Override
-    public void draw(Pane pane, DrawContext drawContext) {
+    public void draw(Pane pane, DrawContext drawContext, ContainerStickerElement<?> parent) {
         AnchorPane node = nodeSupplier.get();
         node.getChildren().clear();
         bindBounds(node);
-        children.forEach(child -> child.draw(node, drawContext));
-        super.setupNode(pane, node, drawContext);
+        children.forEach(child -> child.draw(node, drawContext, this));
+        super.setupNode(pane, node, drawContext, parent);
         pane.getChildren().add(node);
     }
 

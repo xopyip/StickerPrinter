@@ -11,6 +11,7 @@ import pl.baluch.stickerprinter.Storage;
 import pl.baluch.stickerprinter.data.DrawContext;
 import pl.baluch.stickerprinter.data.StickerElementProperty;
 import pl.baluch.stickerprinter.data.StickerProperty;
+import pl.baluch.stickerprinter.elements.ContainerStickerElement;
 import pl.baluch.stickerprinter.elements.StickerElement;
 import pl.baluch.stickerprinter.plugins.Item;
 
@@ -80,14 +81,14 @@ public abstract class TextBase<T extends Node> extends StickerElement<T> {
     protected abstract void setFont(T node, Font font);
 
     @Override
-    public void draw(Pane pane, DrawContext drawContext) {
+    public void draw(Pane pane, DrawContext drawContext, ContainerStickerElement<?> parent) {
         T node = nodeSupplier.get();
         setFont(node, new Font(fontSize.get()));
 
         updateText(node, drawContext.item());
 
         super.bindBounds(node);
-        super.setupNode(pane, node, drawContext);
+        super.setupNode(pane, node, drawContext, parent);
         pane.getChildren().add(node);
     }
 
