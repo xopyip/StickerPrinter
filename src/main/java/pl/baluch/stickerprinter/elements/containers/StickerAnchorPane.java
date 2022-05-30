@@ -15,7 +15,6 @@ public class StickerAnchorPane extends ContainerStickerElement<AnchorPane> {
         disableDragging();
         addBoundaryListener((observable, oldValue, newValue) -> updateBoundary());
         updateBoundary();
-        setType(StickerElementTypes.ANCHOR_PANE);
     }
 
     protected void updateBoundary() {
@@ -31,6 +30,11 @@ public class StickerAnchorPane extends ContainerStickerElement<AnchorPane> {
         children.forEach(child -> child.draw(node, drawContext, this));
         super.setupNode(pane, node, drawContext, parent);
         pane.getChildren().add(node);
+    }
+
+    @Override
+    public StickerElementTypes getType() {
+        return StickerElementTypes.ANCHOR_PANE;
     }
 
     @Override

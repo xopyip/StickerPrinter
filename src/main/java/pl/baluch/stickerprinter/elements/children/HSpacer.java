@@ -8,6 +8,7 @@ import javafx.scene.layout.Region;
 import pl.baluch.stickerprinter.data.DrawContext;
 import pl.baluch.stickerprinter.elements.ContainerStickerElement;
 import pl.baluch.stickerprinter.elements.StickerElement;
+import pl.baluch.stickerprinter.elements.StickerElementTypes;
 
 public class HSpacer extends StickerElement<Region> {
 
@@ -22,6 +23,11 @@ public class HSpacer extends StickerElement<Region> {
         HBox.setHgrow(node, Priority.ALWAYS);
         super.setupNode(pane, node, drawContext, parent);
         pane.getChildren().add(node);
+    }
+
+    @Override
+    public StickerElementTypes getType() {
+        return StickerElementTypes.H_SPACER;
     }
 
     @Override

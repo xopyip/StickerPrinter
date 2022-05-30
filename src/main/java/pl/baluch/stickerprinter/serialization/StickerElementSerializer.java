@@ -15,7 +15,6 @@ public class StickerElementSerializer implements JsonSerializer<StickerElement<?
         String type = json.getAsJsonObject().get("type").getAsString();
         StickerElementTypes stickerElementTypes = StickerElementTypes.valueOf(type);
         StickerElement<? extends Node> stickerElement = stickerElementTypes.getSupplier().get();
-        stickerElement.setType(stickerElementTypes);
         stickerElement.setX(asJsonObject.get("x").getAsDouble());
         stickerElement.setY(asJsonObject.get("y").getAsDouble());
         stickerElement.setWidth(asJsonObject.get("width").getAsDouble());
@@ -37,7 +36,7 @@ public class StickerElementSerializer implements JsonSerializer<StickerElement<?
         jsonObject.addProperty("width", src.getWidth());
         jsonObject.addProperty("height", src.getHeight());
         jsonObject.add("properties", src.serialize());
-        jsonObject.addProperty("type", src.getType().toString());
+        jsonObject.addProperty("type", src.getType().name());
         if (src instanceof ContainerStickerElement) {
             JsonArray children = new JsonArray();
             ((ContainerStickerElement<?>) src).getChildren().forEach(child -> {

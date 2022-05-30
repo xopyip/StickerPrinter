@@ -29,7 +29,6 @@ import pl.baluch.stickerprinter.events.element.SelectStickerElementEvent;
 import pl.baluch.stickerprinter.plugins.Item;
 
 import java.net.URL;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -54,7 +53,7 @@ public class StickerEditorController implements Initializable {
     @FXML
     public Button saveButton;
     @FXML
-    private ListView<StickerElement.Provider> stickerElementsList;
+    private ListView<StickerElementTypes> stickerElementsList;
     private final Item item;
     private final PageStyle pageStyle;
     private StickerEditorWindow stickerEditorWindow;
@@ -105,8 +104,7 @@ public class StickerEditorController implements Initializable {
      * Update sticker elements list
      */
     private void setupStickerElements(ResourceBundle resources) {
-        Arrays.stream(StickerElementTypes.values()).map(StickerElement.Provider::new).forEach(stickerElementsList.getItems()::add);
-        stickerElementsList.getItems().addAll();
+        stickerElementsList.getItems().addAll(StickerElementTypes.values());
         setupDragSource();
     }
 
@@ -118,7 +116,7 @@ public class StickerEditorController implements Initializable {
             Dragboard db = stickerElementsList.startDragAndDrop(TransferMode.ANY);
 
             ClipboardContent content = new ClipboardContent();
-            content.putString(stickerElementsList.getSelectionModel().getSelectedItem().toString());
+            content.putString(stickerElementsList.getSelectionModel().getSelectedItem().name());
             db.setContent(content);
             stickerPane.getChildren().removeIf(node -> node instanceof DropZone);
             setupDropZones(stickerPane, (ContainerStickerElement) design.getParentNode(), 0, 0);
@@ -170,10 +168,10 @@ public class StickerEditorController implements Initializable {
      */
     private void setupDropZones(Pane previewPane, ContainerStickerElement<Region> parentNode, double x, double y) {
         for (DropZone dropZone : parentNode.getDropZones()) {
-            if (!stickerElementsList.getSelectionModel().getSelectedItem().type().isParentValid(dropZone.getContainer())) {
+            if (!stickerElementsList.getSelectionModel().getSelectedItem().isParentValid(dropZone.getContainer())) {
                 continue;
             }
-            if (!dropZone.getContainer().getType().isChildValid(stickerElementsList.getSelectionModel().getSelectedItem().type())) {
+            if (!dropZone.getContainer().getType().isChildValid(stickerElementsList.getSelectionModel().getSelectedItem())) {
                 continue;
             }
             DropZone newDropZone = new DropZone(dropZone.getContainer(), dropZone.getX() + x, dropZone.getY() + y, dropZone.getWidth(), dropZone.getHeight());
@@ -211,9 +209,8 @@ public class StickerEditorController implements Initializable {
         rectangle.setOnDragDropped(event -> {
             Dragboard db = event.getDragboard();
             if (db.hasString()) {
-                StickerElement.Provider provider = stickerElementsList.getItems().stream()
-                        .filter(el -> el.toString().equals(db.getString())).findAny().orElseThrow();
-                container.addChild(provider.get());
+                StickerElementTypes type = StickerElementTypes.valueOf(db.getString());
+                container.addChild(type.getSupplier().get());
                 design.getParentNode().dump().forEach(System.out::println);
                 updatePreviews();
                 event.setDropCompleted(true);

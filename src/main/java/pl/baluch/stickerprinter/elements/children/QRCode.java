@@ -17,6 +17,7 @@ import pl.baluch.stickerprinter.data.StickerElementProperty;
 import pl.baluch.stickerprinter.data.StickerProperty;
 import pl.baluch.stickerprinter.elements.ContainerStickerElement;
 import pl.baluch.stickerprinter.elements.StickerElement;
+import pl.baluch.stickerprinter.elements.StickerElementTypes;
 import pl.baluch.stickerprinter.plugins.Item;
 
 import java.io.ByteArrayInputStream;
@@ -102,6 +103,11 @@ public class QRCode extends StickerElement<Pane> {
         updateImage(node, drawContext.item());
         container.getChildren().add(node);
         pane.getChildren().add(container);
+    }
+
+    @Override
+    public StickerElementTypes getType() {
+        return StickerElementTypes.QRCODE;
     }
 
     @Override

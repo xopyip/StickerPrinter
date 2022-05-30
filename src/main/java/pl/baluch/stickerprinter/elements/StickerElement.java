@@ -53,7 +53,6 @@ public abstract class StickerElement<T extends Node> {
     }
 
     //Stack to trace hover state
-    private StickerElementTypes type;
     private boolean selected;
     private final Collection<StickerElementProperty> properties = new ArrayList<>();
     private float preservedRatio = -1;
@@ -72,6 +71,8 @@ public abstract class StickerElement<T extends Node> {
     }
 
     public abstract void draw(Pane pane, DrawContext drawContext, ContainerStickerElement<?> parent);
+
+    public abstract StickerElementTypes getType();
 
     protected void setupNode(Pane parentPane, T elementNode, DrawContext drawContext, ContainerStickerElement<?> parent) {
         nodeReference = new WeakReference<>(elementNode);
@@ -261,14 +262,6 @@ public abstract class StickerElement<T extends Node> {
         return getClass().getSimpleName();
     }
 
-    public void setType(StickerElementTypes type) {
-        this.type = type;
-    }
-
-    public StickerElementTypes getType() {
-        return type;
-    }
-
     public abstract void deserialize(JsonObject properties);
 
     public abstract JsonObject serialize();
@@ -324,22 +317,6 @@ public abstract class StickerElement<T extends Node> {
 
     public Optional<ContainerStickerElement<?>> getParent() {
         return Optional.ofNullable(parentReference.get());
-    }
-
-    public record Provider(StickerElementTypes type) {
-
-
-        public StickerElement<? extends Node> get() {
-            StickerElement<? extends Node> stickerElement = type.getSupplier().get();
-            stickerElement.setType(type);
-            return stickerElement;
-        }
-
-        @Override
-        public String toString() {
-            return type.getName();
-        }
-
     }
 
     public record ElementMouseReleasedEvent(StickerElement<?> element,

@@ -7,6 +7,7 @@ import pl.baluch.stickerprinter.data.DrawContext;
 import pl.baluch.stickerprinter.data.DropZone;
 import pl.baluch.stickerprinter.elements.ContainerStickerElement;
 import pl.baluch.stickerprinter.elements.StickerElement;
+import pl.baluch.stickerprinter.elements.StickerElementTypes;
 
 public class VBox extends ContainerStickerElement<javafx.scene.layout.VBox> {
 
@@ -56,5 +57,10 @@ public class VBox extends ContainerStickerElement<javafx.scene.layout.VBox> {
         children.forEach(child -> child.draw(node, drawContext, this));
         super.setupNode(pane, node, drawContext, parent);
         pane.getChildren().add(node);
+    }
+
+    @Override
+    public StickerElementTypes getType() {
+        return StickerElementTypes.V_BOX;
     }
 }
