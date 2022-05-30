@@ -5,19 +5,17 @@ import javafx.scene.layout.Region;
 import pl.baluch.stickerprinter.data.DropZone;
 
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public abstract class ContainerStickerElement<T extends Region> extends StickerElement<T> {
     protected List<StickerElement<? extends Node>> children = new ArrayList<>();
     protected transient Set<DropZone> dropZones = new HashSet<>();
 
-    public ContainerStickerElement(Supplier<T> node, int x, int y, int w, int h) {
-        super(node, x, y, w, h);
+    public ContainerStickerElement(int x, int y, int w, int h) {
+        super(x, y, w, h);
     }
-
-    public ContainerStickerElement(Supplier<T> node) {
-        super(node);
+    public ContainerStickerElement() {
+        super();
     }
 
     public void addChild(StickerElement<? extends Node> o) {

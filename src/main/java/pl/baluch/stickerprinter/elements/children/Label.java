@@ -8,9 +8,6 @@ import pl.baluch.stickerprinter.elements.StickerElementTypes;
 import pl.baluch.stickerprinter.elements.children.base.TextBase;
 
 public class Label extends TextBase<javafx.scene.control.Label> {
-    public Label() {
-        super(javafx.scene.control.Label::new);
-    }
 
     @Override
     protected void setFont(javafx.scene.control.Label node, Font font) {
@@ -23,6 +20,11 @@ public class Label extends TextBase<javafx.scene.control.Label> {
         getNode().ifPresent(node -> {
             node.setWrapText(false);
         });
+    }
+
+    @Override
+    protected javafx.scene.control.Label createTextNode() {
+        return new javafx.scene.control.Label();
     }
 
     @Override

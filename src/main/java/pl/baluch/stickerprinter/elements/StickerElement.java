@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public abstract class StickerElement<T extends Node> {
     protected SimpleDoubleProperty x = new SimpleDoubleProperty(0);
@@ -37,7 +36,6 @@ public abstract class StickerElement<T extends Node> {
     protected SimpleDoubleProperty height = new SimpleDoubleProperty(-1);
     private boolean resizableDisabled = false;
     private boolean draggingDisabled = false;
-    protected Supplier<T> nodeSupplier;
     protected SimpleObjectProperty<StickerElement<?>> mouseOverItemProperty = new SimpleObjectProperty<>(null);
     protected SimpleObjectProperty<ElementActionType> elementActionProperty = new SimpleObjectProperty<>();
     protected SimpleObjectProperty<Point2D> dragStartLocation = new SimpleObjectProperty<>();
@@ -58,16 +56,13 @@ public abstract class StickerElement<T extends Node> {
     private float preservedRatio = -1;
     private WeakReference<ContainerStickerElement<?>> parentReference = new WeakReference<>(null);
 
-    public StickerElement(Supplier<T> node, int x, int y, int w, int h) {
-        this.nodeSupplier = node;
+    public StickerElement(int x, int y, int w, int h) {
         this.x.set(x);
         this.y.set(y);
         this.width.set(w);
         this.height.set(h);
     }
-
-    public StickerElement(Supplier<T> node) {
-        this.nodeSupplier = node;
+    public StickerElement(){
     }
 
     public abstract void draw(Pane pane, DrawContext drawContext, ContainerStickerElement<?> parent);

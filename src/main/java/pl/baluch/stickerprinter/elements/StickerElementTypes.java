@@ -99,4 +99,9 @@ public enum StickerElementTypes {
     public boolean isChildValid(StickerElementTypes type) {
         return childValidator.test(type);
     }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

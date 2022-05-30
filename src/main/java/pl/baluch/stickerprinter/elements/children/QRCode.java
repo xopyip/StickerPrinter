@@ -30,7 +30,7 @@ public class QRCode extends StickerElement<Pane> {
     private final SimpleStringProperty content = new SimpleStringProperty("test");
 
     public QRCode() {
-        super(Pane::new, 10, 10, 200, 200);
+        super(10, 10, 200, 200);
         addProperty(StickerElementProperty.builder("Content")
                 .value(content::get)
                 .onChange(value -> {
@@ -95,7 +95,7 @@ public class QRCode extends StickerElement<Pane> {
 
     @Override
     public void draw(Pane pane, DrawContext drawContext, ContainerStickerElement<?> parent) {
-        Pane container = nodeSupplier.get();
+        Pane container = new Pane();
         ImageView node = new ImageView();
         node.setMouseTransparent(true);
         bindBounds(container);

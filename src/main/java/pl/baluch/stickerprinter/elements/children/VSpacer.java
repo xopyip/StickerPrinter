@@ -13,13 +13,12 @@ import pl.baluch.stickerprinter.elements.StickerElementTypes;
 public class VSpacer extends StickerElement<Region> {
 
     public VSpacer() {
-        super(Region::new);
         this.disableResizing();
     }
 
     @Override
     public void draw(Pane pane, DrawContext drawContext, ContainerStickerElement<?> parent) {
-        Region node = nodeSupplier.get();
+        Region node = new Region();
         VBox.setVgrow(node, Priority.ALWAYS);
         super.setupNode(pane, node, drawContext, parent);
         pane.getChildren().add(node);

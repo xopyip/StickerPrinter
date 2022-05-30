@@ -19,14 +19,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public abstract class TextBase<T extends Node> extends StickerElement<T> {
-    private final SimpleStringProperty text = new SimpleStringProperty("Test");
-    private final SimpleIntegerProperty fontSize = new SimpleIntegerProperty(15);
+    protected final SimpleStringProperty text = new SimpleStringProperty("Test");
+    protected final SimpleIntegerProperty fontSize = new SimpleIntegerProperty(15);
 
-    public TextBase(Supplier<T> supplier) {
-        super(supplier);
+    public TextBase() {
+        super();
         addProperty(StickerElementProperty.builder("Text")
                 .value(text::get)
                 .onChange(value -> {
@@ -82,7 +81,7 @@ public abstract class TextBase<T extends Node> extends StickerElement<T> {
 
     @Override
     public void draw(Pane pane, DrawContext drawContext, ContainerStickerElement<?> parent) {
-        T node = nodeSupplier.get();
+        T node = createTextNode();
         setFont(node, new Font(fontSize.get()));
 
         updateText(node, drawContext.item());
@@ -91,6 +90,8 @@ public abstract class TextBase<T extends Node> extends StickerElement<T> {
         super.setupNode(pane, node, drawContext, parent);
         pane.getChildren().add(node);
     }
+
+    protected abstract T createTextNode();
 
     private void updateText(T node, Item item) {
         String value = formatPropertyValue(text.get(), item);

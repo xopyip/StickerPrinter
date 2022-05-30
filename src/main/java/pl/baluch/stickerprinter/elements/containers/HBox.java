@@ -12,7 +12,7 @@ import pl.baluch.stickerprinter.elements.StickerElementTypes;
 public class HBox extends ContainerStickerElement<javafx.scene.layout.HBox> {
 
     public HBox() {
-        super(javafx.scene.layout.HBox::new);
+        super();
         addBoundaryListener((observable, oldValue, newValue) -> updateBoundary());
         setWidth(50);
         setHeight(30);
@@ -51,7 +51,7 @@ public class HBox extends ContainerStickerElement<javafx.scene.layout.HBox> {
 
     @Override
     public void draw(Pane pane, DrawContext drawContext, ContainerStickerElement<?> parent) {
-        javafx.scene.layout.HBox node = nodeSupplier.get();
+        javafx.scene.layout.HBox node = new javafx.scene.layout.HBox();
         node.getChildren().clear();
         bindBounds(node);
         children.forEach(child -> child.draw(node, drawContext, this));

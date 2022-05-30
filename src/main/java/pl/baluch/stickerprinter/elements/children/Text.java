@@ -7,13 +7,14 @@ import pl.baluch.stickerprinter.elements.children.base.TextBase;
 
 public class Text extends TextBase<javafx.scene.text.Text> {
 
-    public Text() {
-        super(javafx.scene.text.Text::new);
-    }
-
     @Override
     protected void setFont(javafx.scene.text.Text node, Font font) {
         node.setFont(font);
+    }
+
+    @Override
+    protected javafx.scene.text.Text createTextNode() {
+        return new javafx.scene.text.Text();
     }
 
     @Override
