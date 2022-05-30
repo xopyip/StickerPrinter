@@ -24,7 +24,7 @@ public class StickerDesign {
 
     public StickerDesign(float ratio, float tolerance, Orientation orientation, String itemGroup) {
         this.ratio = ratio;
-        this.tolerance = tolerance;
+        this.tolerance = Math.max(tolerance, 1.005f);
         this.orientation = orientation;
         if (tolerance < 1) {
             throw new IllegalArgumentException("Tolerance must be at least 1");
@@ -33,7 +33,7 @@ public class StickerDesign {
     }
 
     public void setTolerance(float tolerance) {
-        this.tolerance = tolerance;
+        this.tolerance = Math.max(tolerance, 1.005f);
     }
 
     public void setOrientation(Orientation orientation) {
@@ -41,7 +41,6 @@ public class StickerDesign {
     }
 
     public boolean matches(float ratio, String itemGroup) {
-        this.tolerance = Math.max(this.tolerance, 1.005f);
         float maxRatio = this.ratio * this.tolerance;
         float minRatio = this.ratio / this.tolerance;
         return (ratio >= minRatio && ratio <= maxRatio) && this.itemGroup.equals(itemGroup);
@@ -94,7 +93,7 @@ public class StickerDesign {
     }
 
     public double getTolerance() {
-        return tolerance;
+        return Math.max(this.tolerance, 1.005f);
     }
 
     public Orientation getOrientation() {
